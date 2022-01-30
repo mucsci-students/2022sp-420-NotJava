@@ -4,8 +4,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UMLEditor", "UMLEditor\UMLE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UMLEditor.NetCore", "UMLEditor\UMLEditor.NetCore\UMLEditor.NetCore.csproj", "{9F2303E5-0E65-4247-820A-C3B25CDE648A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UMLEditor.Web", "UMLEditor\UMLEditor.Web\UMLEditor.Web.csproj", "{0EBB3585-7B44-48BE-A95B-6496913205BC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,9 +18,5 @@ Global
 		{9F2303E5-0E65-4247-820A-C3B25CDE648A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F2303E5-0E65-4247-820A-C3B25CDE648A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F2303E5-0E65-4247-820A-C3B25CDE648A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0EBB3585-7B44-48BE-A95B-6496913205BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0EBB3585-7B44-48BE-A95B-6496913205BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0EBB3585-7B44-48BE-A95B-6496913205BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0EBB3585-7B44-48BE-A95B-6496913205BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
