@@ -3,3 +3,5 @@
 Witness a group of CS students flail around pretending at being software developers.
 
 First sprint on UML editor coming soon!
+
+Gavin Fry
