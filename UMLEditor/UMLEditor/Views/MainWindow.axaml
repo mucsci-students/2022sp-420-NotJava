@@ -1,0 +1,120 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:UMLEditor.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:UMLEditor.Views"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="UMLEditor.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="UMLEditor">
+        
+        <StackPanel>
+                
+                <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" 
+                      ColumnDefinitions="Auto,Auto,*" 
+                      Margin="25" 
+                      Width="750">
+                
+                        <Grid.Styles>
+                                <Style Selector="Button">
+                                        <Setter Property="Margin" Value="3"/>
+                                </Style>
+                        </Grid.Styles>
+      
+                        <TextBox Name = "InputBox"
+                                 Grid.Row="1" 
+                                 Grid.Column="2" 
+                                 Grid.RowSpan="1" 
+                                 Margin="20,5,0,0"
+                                 Watermark="Input Goes Here"
+                                 Text=""
+                                 />
+                
+                        <TextBox Name = "OutputBox"
+                                 Grid.Row="3" 
+                                 Grid.Column="2" 
+                                 Grid.RowSpan="5" 
+                                 Margin="20,0,0,0"
+                                 Watermark="Output Goes Here"
+                                 IsEnabled="False"
+                                 Text=""
+                                 />
+                
+                        <Button Grid.Row="1" 
+                                Grid.Column="1" 
+                                Content="Lorem ipsum"/>
+                
+                        <Button Grid.Row="2" 
+                                Grid.Column="1" 
+                                Content="Lorem ipsum"/>
+                
+                        <Button Grid.Row="3" 
+                                Grid.Column="1" 
+                                Content="Lorem ipsum"/>
+                
+                        <Button Grid.Row="4" 
+                                Grid.Column="1" 
+                                Content="Lorem ipsum"/>
+                
+                        <Button Grid.Row="5" 
+                                Grid.Column="1" 
+                                Content="Lorem ipsum"/>
+                
+                        <Button Grid.Row="6" 
+                                Grid.Column="1" 
+                                Content="Lorem ipsum"/>
+                
+                        <Button Grid.Row="1" 
+                                Grid.Column="0" 
+                                Content="Lorem ipsum"/>
+    
+                        <Button Grid.Row="2" 
+                                Grid.Column="0" 
+                                Content="Lorem ipsum"/>
+
+                        <Button Grid.Row="3" 
+                                Grid.Column="0" 
+                                Content="Lorem ipsum"/>
+    
+                        <Button Grid.Row="4" 
+                                Grid.Column="0" 
+                                Content="Lorem ipsum"/>
+    
+                        <Button Grid.Row="5" 
+                                Grid.Column="0" 
+                                Content="Lorem ipsum"/>
+                
+                        <Button Grid.Row="6" 
+                                Grid.Column="0" 
+                                Content="Lorem ipsum"/>
+                </Grid>
+                
+                <Grid RowDefinitions="Auto, Auto" 
+                      HorizontalAlignment="Center"
+                      ColumnDefinitions="Auto,Auto,*" 
+                      Margin="25" 
+                      Width="750">
+                
+                        <Grid.Styles>
+                                <Style Selector="Button">
+                                        <Setter Property="Margin" Value="3"/>
+                                </Style>
+                         </Grid.Styles> 
+                        
+                        <Button Grid.Row="0" 
+                                Grid.Column="0" 
+                                Width="375"
+                                Content="Save"/>
+                        
+                        <Button Grid.Row="0" 
+                                Grid.Column="1" 
+                                Width="375"
+                                Click="Exit_OnClick"
+                                Content="Exit"/>
+                                
+                </Grid>
+                
+        </StackPanel>
+        
+</Window>
