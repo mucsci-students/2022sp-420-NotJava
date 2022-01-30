@@ -4,4 +4,8 @@ Witness a group of CS students flail around pretending at being software develop
 
 First sprint on UML editor coming soon!
 
+
 Daniel Foreacre
+
+Gavin Fry
+
