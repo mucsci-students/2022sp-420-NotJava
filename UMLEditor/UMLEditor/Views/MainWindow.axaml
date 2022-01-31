@@ -30,20 +30,25 @@
                                  Watermark="Input Goes Here"
                                  Text=""
                                  />
-                
-                        <TextBox Name = "OutputBox"
-                                 Grid.Row="3" 
-                                 Grid.Column="2" 
-                                 Grid.RowSpan="5" 
-                                 Margin="20,0,0,0"
-                                 Watermark="Output Goes Here"
-                                 IsEnabled="False"
-                                 Text=""
-                                 />
+                        
+                        <ScrollViewer Grid.Row="2" 
+                                        Grid.Column="2" 
+                                        Grid.RowSpan="5"
+                                        HorizontalScrollBarVisibility="Auto" 
+                                        Height="175">
+                                
+                                <TextBox Name = "OutputBox"
+                                         Margin="20,0,0,0"
+                                         Watermark="Output Goes Here"
+                                         IsEnabled="False"
+                                         Text=""
+                                />
+                                
+                        </ScrollViewer>
                 
                         <Button Grid.Row="1" 
                                 Grid.Column="1" 
-                                Content="Lorem ipsum"/>
+                                Content="Lorum ipsum"/>
                 
                         <Button Grid.Row="2" 
                                 Grid.Column="1" 
@@ -90,7 +95,7 @@
                                 Content="Lorem ipsum"/>
                 </Grid>
                 
-                <Grid RowDefinitions="Auto, Auto" 
+                <Grid RowDefinitions="Auto, Auto, Auto, Auto" 
                       HorizontalAlignment="Center"
                       ColumnDefinitions="Auto,Auto,*" 
                       Margin="25" 
@@ -105,13 +110,24 @@
                         <Button Grid.Row="0" 
                                 Grid.Column="0" 
                                 Width="375"
-                                Content="Save"/>
+                                Click="HelpB_OnClick"
+                                Content="Help"/>
                         
                         <Button Grid.Row="0" 
                                 Grid.Column="1" 
                                 Width="375"
-                                Click="Exit_OnClick"
+                                Click="ExitB_OnClick"
                                 Content="Exit"/>
+                        
+                        <Button Grid.Row="1" 
+                                Grid.Column="0" 
+                                Width="375"
+                                Content="Save"/>
+                        
+                        <Button Grid.Row="1" 
+                                Grid.Column="1" 
+                                Width="375"
+                                Content="Load"/>
                                 
                 </Grid>
                 
