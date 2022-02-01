@@ -5,13 +5,18 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 
+using UMLEditor.Classes;
+
 namespace UMLEditor.Views
 {
     public partial class MainWindow : Window
     {
+
+        private Diagram activeDiagram;
         public MainWindow()
         {
             InitializeComponent();
+            activeDiagram = new Diagram();
         }
 
         private void InitializeComponent()
@@ -26,7 +31,6 @@ namespace UMLEditor.Views
 
         private void HelpB_OnClick(object sender, RoutedEventArgs e)
         {
-            
             TextBox OutputBox = this.FindControl<TextBox>("OutputBox");
             OutputBox.Text = 
                 "New Class: Add a new class to the diagram" + 
@@ -42,7 +46,13 @@ namespace UMLEditor.Views
                 "\nList Classes: List all existing classes" +
                 "\nList Attributes: List all attributes of a class" +
                 "\nList Relationships: List all relationships of a class";
-            
+        }
+
+        private void List_Classes_OnClick(object sender, RoutedEventArgs e)
+        {
+            TextBox outputBox = this.FindControl<TextBox>("OutputBox");
+
+            outputBox.Text = "laksjdflaskjdf";
             
         }
     }

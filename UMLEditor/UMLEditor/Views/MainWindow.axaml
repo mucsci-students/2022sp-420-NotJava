@@ -90,9 +90,10 @@
                                 Grid.Column="0" 
                                 Content="Lorem ipsum"/>
                 
-                        <Button Grid.Row="6" 
+                        <Button Grid.Row="6"
                                 Grid.Column="0" 
-                                Content="Lorem ipsum"/>
+                                Content="List Classes"
+                                Click="List_Classes_OnClick"/>
                 </Grid>
                 
                 <Grid RowDefinitions="Auto, Auto, Auto, Auto" 
