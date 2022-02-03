@@ -26,11 +26,12 @@ namespace UMLEditor.Views
             OutputBox = this.FindControl<TextBox>("OutputBox");
 
             InputBox = this.FindControl<TextBox>("InputBox");
-    
+            
             // MATTHEW & CJ adding a new class should be as simple as this, just remember to add input verification.
             
             //activeDiagram.Classes.Add(new Class("HELLO"));
             //activeDiagram.Classes.Add(new Class("WORLD"));
+            
 
         }
 
