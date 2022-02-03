@@ -134,6 +134,7 @@ namespace UMLEditor.Views
             {
 
                 OutputBox.Text = exception.Message;
+                InputBox.Focus();
                 return;
 
             }
