@@ -46,7 +46,7 @@ public class Diagram
                 return CurrentClass;
             }
         }
-        return null;
+        return null; 
     }
 
 }
