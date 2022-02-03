@@ -16,7 +16,8 @@ namespace UMLEditor.Views
         private Diagram ActiveDiagram;
         private TextBox OutputBox;
         private TextBox InputBox;
-        
+
+        private JSONDiagramFile ActiveFile;
 
         public MainWindow()
         {
@@ -24,8 +25,9 @@ namespace UMLEditor.Views
             InitializeComponent();
             
             ActiveDiagram = new Diagram();
+            ActiveFile = new JSONDiagramFile();
+            
             OutputBox = this.FindControl<TextBox>("OutputBox");
-
             InputBox = this.FindControl<TextBox>("InputBox");
             
             // MATTHEW & CJ adding a new class should be as simple as this, just remember to add input verification.
@@ -143,6 +145,89 @@ namespace UMLEditor.Views
             OutputBox.Text = string.Format("Relationship created ({0} => {1})", SourceClassName, DestClassName);
 
         }
-        
+
+        private void SaveButtonOnClick(object sender, RoutedEventArgs e)
+        {
+
+            string filename = InputBox.Text;
+
+            if (filename.Trim().Length == 0)
+            {
+
+                OutputBox.Text = "To save to a JSON file, please enter the path of the file" +
+                                 " you wish to save into the input box and click \"Save\"";
+
+                return;
+
+            }
+
+            try
+            {
+
+                ActiveFile.SaveDiagram(ref ActiveDiagram, filename);
+                OutputBox.Text = string.Format("Current diagram saved to {0}", filename);
+                ClearInputBox();
+
+            }
+            
+            catch (Exception exception)
+            {
+
+                // For when the user enters invalid characters in the file path
+                string message = exception.Message;
+                if (message.StartsWith("The filename, directory name, or volume label syntax is incorrect"))
+                {
+
+                    OutputBox.Text = string.Format("Invalid file name/path: {0}", filename);
+                    return;
+
+                }
+
+                OutputBox.Text = exception.Message;
+                
+            }
+            
+        }
+
+        private void LoadButton_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            string filename = InputBox.Text;
+            if (filename.Trim().Length == 0)
+            {
+
+                OutputBox.Text = "To load a diagram from a JSON file, please enter the path of the file" +
+                                 " you wish to load into the input box and click \"Load\"";
+                return;
+
+            }
+            
+            try
+            {
+
+                ActiveDiagram = ActiveFile.LoadDiagram(filename);
+                ClearInputBox();
+                OutputBox.Text = String.Format("Diagram loaded from {0}", filename);
+
+            }
+            
+            catch (Exception exception)
+            {
+
+                // For when the user enters invalid characters in the file path
+                string message = exception.Message;
+                if (message.StartsWith("The filename, directory name, or volume label syntax is incorrect"))
+                {
+
+                    OutputBox.Text = string.Format("Invalid file name/path: {0}", filename);
+                    return;
+
+                }
+                
+                OutputBox.Text = message;
+
+            }
+            
+        }
     }
 }

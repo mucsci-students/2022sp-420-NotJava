@@ -1,9 +1,16 @@
-﻿namespace UMLEditor.Classes;
+﻿using Newtonsoft.Json;
+
+namespace UMLEditor.Classes;
 
 using System.Collections.Generic;
 public class Class
 {
+    // Used for JSON serialization  and deserialization
+    [JsonProperty("classname")]
     public string ClassName { get; private set; }
+    
+    // Used for JSON serialization  and deserialization
+    [JsonProperty("attributes")]
     public List<Attribute> Attributes { get; private set; }
 
     /// <summary>
