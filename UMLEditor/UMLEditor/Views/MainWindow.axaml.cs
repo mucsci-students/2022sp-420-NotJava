@@ -7,6 +7,9 @@ using Avalonia.Markup.Xaml;
 
 using UMLEditor.Classes;
 
+// ***** CLASS FOR TEST CODE *****
+using UMLEditor.Tests;
+
 namespace UMLEditor.Views
 {
     public partial class MainWindow : Window
@@ -52,7 +55,9 @@ namespace UMLEditor.Views
         {
             TextBox outputBox = this.FindControl<TextBox>("OutputBox");
 
-            outputBox.Text = "laksjdflaskjdf";
+            DiagramTest tester = new DiagramTest();
+            Diagram diagram = tester.GetDiagram();
+            outputBox.Text = diagram.ListClasses();
             
         }
     }
