@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Concurrency;
+using UMLEditor.Exceptions;
 
 namespace UMLEditor.Classes;
 
@@ -47,6 +48,37 @@ public class Diagram
             }
         }
         return null; 
+    }
+
+    /// <summary>
+    /// Creates a relationship between the two classes, if they exist
+    /// </summary>
+    /// <param name="SourceClassName">The source class for the relationship</param>
+    /// <param name="DestClassName">The destination class for the relationship</param>
+    /// <exception cref="ClassNonexistentException">If either class does not exist</exception>
+    public void AddRelationship(string SourceClassName, string DestClassName)
+    {
+        
+        const string NONEXISTENT_NAME_FORMAT = "Nonexistent class name entered ({0}).";
+        // Ensure the provided classes exist
+        if (!ClassExists(SourceClassName))
+        {
+
+            throw new ClassNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, SourceClassName));
+            
+        }
+        
+        else if (!(ClassExists(DestClassName)))
+        {
+
+            throw new ClassNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, DestClassName));
+
+        }
+
+        // Create and add the new relationship
+        Relationship newRel = new Relationship(SourceClassName, DestClassName);
+        Relationships.Add(newRel);
+        
     }
 
 }

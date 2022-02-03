@@ -6,13 +6,14 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using JetBrains.Annotations;
 using UMLEditor.Classes;
+using UMLEditor.Exceptions;
 
 namespace UMLEditor.Views
 {
     public partial class MainWindow : Window
     {
 
-        private Diagram activeDiagram;
+        private Diagram ActiveDiagram;
         private TextBox OutputBox;
         private TextBox InputBox;
         
@@ -22,15 +23,15 @@ namespace UMLEditor.Views
             
             InitializeComponent();
             
-            activeDiagram = new Diagram();
+            ActiveDiagram = new Diagram();
             OutputBox = this.FindControl<TextBox>("OutputBox");
 
             InputBox = this.FindControl<TextBox>("InputBox");
             
             // MATTHEW & CJ adding a new class should be as simple as this, just remember to add input verification.
             
-            //activeDiagram.Classes.Add(new Class("HELLO"));
-            //activeDiagram.Classes.Add(new Class("WORLD"));
+            // ActiveDiagram.Classes.Add(new Class("HELLO"));
+            // ActiveDiagram.Classes.Add(new Class("WORLD"));
             
 
         }
@@ -93,51 +94,52 @@ namespace UMLEditor.Views
             //Split the input into words to use later on.
             string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
 
-            const string NONEXISTENT_NAME_FORMAT = "Nonexistent class name entered ({0}).";
-
             if (words.Length == 0)
             {
-                // No input arguments
-                OutputBox.Text =
-                    "To create a new relationship, please enter source and destination in the format 'A B' into the input box.";
-                InputBox.Focus();
-                return;
-
-            }
-            else if (words.Length != 2)
-            {
-                // Invalid input arguments
-                OutputBox.Text = 
-                    "Input must be in the form 'A B' with only one source and one destination.  Please enter your relationship into the input box.";
-                InputBox.Focus();
-                return;
                 
-            }
-            else if (!activeDiagram.ClassExists(words[0]))
-            {
-
-                // First provided class name does not exist
-                OutputBox.Text = string.Format(NONEXISTENT_NAME_FORMAT, words[0]);
-                InputBox.Focus();
-                return;
-
-            }
-            else if (!(activeDiagram.ClassExists(words[1])))
-            {
-
-                // Second provided class name does not exist
-                OutputBox.Text = string.Format(NONEXISTENT_NAME_FORMAT, words[1]);
+                // No input arguments
+                OutputBox.Text = 
+                    "To create a new relationship, please enter source and destination in the format " +
+                    "'A B' into the input box and then click 'Add Relationship'.";
+                
                 InputBox.Focus();
                 return;
 
             }
             
-            // Create a new relationship between the source and destination provided.  Print success message and clear input.
-            Relationship newRel = new Relationship(words[0], words[1]);
-            activeDiagram.Relationships.Add(newRel);
+            else if (words.Length != 2)
+            {
+                
+                // Invalid input arguments
+                OutputBox.Text = 
+                    "Input must be in the form 'A B' with only one source and one destination.  " +
+                    "Please enter your relationship into the input box and click 'Add Relationship'.";
+                
+                InputBox.Focus();
+                return;
+                
+            }
 
-            OutputBox.Text = string.Format("Success!  Relationship added!\n{0}", newRel.ToString());
+            string SourceClassName = words[0];
+            string DestClassName = words[1];
+            
+            try
+            {
+                
+                ActiveDiagram.AddRelationship(SourceClassName, DestClassName);
+                
+            }
+            
+            catch (ClassNonexistentException exception)
+            {
+
+                OutputBox.Text = exception.Message;
+                return;
+
+            }
+            
             ClearInputBox();
+            OutputBox.Text = string.Format("Relationship created ({0} => {1})", SourceClassName, DestClassName);
 
         }
         
