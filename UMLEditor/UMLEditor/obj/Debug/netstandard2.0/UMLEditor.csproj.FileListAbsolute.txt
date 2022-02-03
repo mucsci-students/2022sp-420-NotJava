@@ -1,0 +1,10 @@
+C:\Users\knght\Documents\2022sp-420-NotJava\UMLEditor\UMLEditor\bin\Debug\netstandard2.0\UMLEditor.deps.json
+C:\Users\knght\Documents\2022sp-420-NotJava\UMLEditor\UMLEditor\bin\Debug\netstandard2.0\UMLEditor.dll
+C:\Users\knght\Documents\2022sp-420-NotJava\UMLEditor\UMLEditor\bin\Debug\netstandard2.0\UMLEditor.pdb
+C:\Users\knght\Documents\2022sp-420-NotJava\UMLEditor\UMLEditor\obj\Debug\netstandard2.0\UMLEditor.csproj.AssemblyReference.cache
+C:\Users\knght\Documents\2022sp-420-NotJava\UMLEditor\UMLEditor\obj\Debug\netstandard2.0\UMLEditor.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\knght\Documents\2022sp-420-NotJava\UMLEditor\UMLEditor\obj\Debug\netstandard2.0\UMLEditor.AssemblyInfoInputs.cache
+C:\Users\knght\Documents\2022sp-420-NotJava\UMLEditor\UMLEditor\obj\Debug\netstandard2.0\UMLEditor.AssemblyInfo.cs
+C:\Users\knght\Documents\2022sp-420-NotJava\UMLEditor\UMLEditor\obj\Debug\netstandard2.0\UMLEditor.csproj.CoreCompileInputs.cache
+C:\Users\knght\Documents\2022sp-420-NotJava\UMLEditor\UMLEditor\obj\Debug\netstandard2.0\UMLEditor.dll
+C:\Users\knght\Documents\2022sp-420-NotJava\UMLEditor\UMLEditor\obj\Debug\netstandard2.0\UMLEditor.pdb
