@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Net.Security;
-using DynamicData.Kernel;
 
 namespace UMLEditor.Classes;
 
@@ -21,23 +19,5 @@ public class Diagram
     {
         // TODO
         return null;
-    }
-
-    public string ListClasses()
-    {
-        string output = "";
-        if (Relationships.Count == 0)
-        {
-            output = "No classes in diagram!";
-        }
-        else
-        {
-            foreach (Relationship r in Relationships)
-            {
-                output += r.ToString() + "\n";
-            }
-        }
-
-        return output;
     }
 }
