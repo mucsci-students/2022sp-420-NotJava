@@ -97,7 +97,7 @@ ClientBin/
 *~
 *.dbmdl
 *.[Pp]ublish.xml
-
+.swp
 *.publishsettings
 
 # RIA/Silverlight projects
