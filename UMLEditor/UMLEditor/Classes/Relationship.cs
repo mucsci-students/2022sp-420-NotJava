@@ -1,10 +1,17 @@
-﻿namespace UMLEditor.Classes;
+﻿using Newtonsoft.Json;
+
+namespace UMLEditor.Classes;
 
 using System.Collections.Generic;
 
 public class Relationship
 {
+    // Used for JSON serialization  and deserialization
+    [JsonProperty("sourceclass")]
     private string SourceClass;
+    
+    // Used for JSON serialization  and deserialization
+    [JsonProperty("destinationclass")]
     private string DestinationClass;
 
     public Relationship()

@@ -34,13 +34,14 @@
                         <ScrollViewer Grid.Row="2" 
                                         Grid.Column="2" 
                                         Grid.RowSpan="5"
-                                        HorizontalScrollBarVisibility="Auto" 
+                                        HorizontalScrollBarVisibility="Disabled"
                                         Height="175">
                                 
                                 <TextBox Name = "OutputBox"
                                          Margin="20,0,0,0"
                                          Watermark="Output Goes Here"
                                          IsEnabled="False"
+                                         TextWrapping="Wrap"
                                          Text=""
                                 />
                                 
@@ -52,7 +53,7 @@
                 
                         <Button Grid.Row="2" 
                                 Grid.Column="1" 
-                                Content="Lorem ipsum"/>
+                                Content="Lorum ipsum"/>
                 
                         <Button Grid.Row="3" 
                                 Grid.Column="1" 
@@ -76,7 +77,8 @@
     
                         <Button Grid.Row="2" 
                                 Grid.Column="0" 
-                                Content="Lorem ipsum"/>
+                                Click="AddRelationship_OnClick"
+                                Content="Add Relationship"/>
 
                         <Button Grid.Row="3" 
                                 Grid.Column="0" 
@@ -123,11 +125,13 @@
                         <Button Grid.Row="1" 
                                 Grid.Column="0" 
                                 Width="375"
+                                Click="SaveButtonOnClick"
                                 Content="Save"/>
                         
                         <Button Grid.Row="1" 
                                 Grid.Column="1" 
                                 Width="375"
+                                Click="LoadButton_OnClick"
                                 Content="Load"/>
                                 
                 </Grid>
