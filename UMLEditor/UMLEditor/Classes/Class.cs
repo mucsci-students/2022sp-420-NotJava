@@ -66,11 +66,9 @@ public class Class
     /// <summary>
     /// Deletes an attribute within a specified class
     /// </summary>
-    /// <param name="ClassName">The source class for the relationship</param>
-    /// <param name="AttributeName">AttributeObject to be deleted</param>
-    /// <exception cref="ClassNonexistentException">If class does not exist</exception>
+    /// <param name="TargetAttributeName">AttributeObject to be deleted</param>
     /// <exception cref="AttributeNonexistentException">If attribute does not exist</exception>
-    public void DeleteAttribute(string ClassName, string TargetAttributeName)
+    public void DeleteAttribute(string TargetAttributeName)
     {
         
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent attribute name entered ({0}).";
@@ -83,9 +81,6 @@ public class Class
             throw new AttributeNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, TargetAttributeName));
             
         }
-        
-        // Delete the specified attribute from the class.
-        //Attributes.Remove(GetAttributeByName(TargetAttributeName));
 
     }
 }

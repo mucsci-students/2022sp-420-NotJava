@@ -282,7 +282,7 @@ namespace UMLEditor.Views
             try
             {
                 
-                CurrentClass.DeleteAttribute(TargetClassName,TargetAttributeName);
+                CurrentClass.DeleteAttribute(TargetAttributeName);
 
             }
             
