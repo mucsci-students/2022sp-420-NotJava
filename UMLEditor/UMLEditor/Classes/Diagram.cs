@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Concurrency;
+using Newtonsoft.Json;
 using UMLEditor.Exceptions;
 
 namespace UMLEditor.Classes;
@@ -8,8 +9,11 @@ using System.Collections.Generic;
 
 public class Diagram
 {
-    
+    // Used for JSON serialization  and deserialization
+    [JsonProperty("classes")]
     public List<Class> Classes { get; private set; }
+    
+    [JsonProperty("relationships")]
     public List<Relationship> Relationships { get; private set; }
 
     /// <summary>
