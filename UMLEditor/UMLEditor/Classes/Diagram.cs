@@ -23,6 +23,8 @@ public class Diagram
         return null;
     }
 
+    // Returns a list of classes from the current diagram as a string or a message that there are no classes.
+    // @return      String      String object listing all current classes in the diagram.
     public string ListClasses()
     {
         string output = "";
