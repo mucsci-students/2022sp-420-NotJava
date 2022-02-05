@@ -78,12 +78,13 @@ namespace UMLEditor.Views
             
         }
 
+        // On button click: Display all classes of current diagram to output box
         private void List_Classes_OnClick(object sender, RoutedEventArgs e)
         {
             
-            // TextBox outputBox = this.FindControl<TextBox>("OutputBox");
+            TextBox outputBox = this.FindControl<TextBox>("OutputBox");
 
-            // outputBox.Text = "laksjdflaskjdf";
+            outputBox.Text = ActiveDiagram.ListClasses();
 
         }
 

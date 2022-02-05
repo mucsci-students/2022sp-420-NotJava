@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System.Net.Security;
+using DynamicData.Kernel;
+using Newtonsoft.Json;
 using UMLEditor.Exceptions;
 
 namespace UMLEditor.Classes;
@@ -83,4 +85,25 @@ public class Diagram
         
     }
 
+    
+    
+    // List
+    // @return String list of all classes in current diagram
+    public string ListClasses()
+    {
+        string msg = "";
+        if (Classes.Count == 0)
+        {
+            msg = "There are no classes currently.";
+        }
+        else
+        {
+            foreach (Class c in Classes)
+            {
+                msg += c.ToString() + "\n";
+            }
+        }
+
+        return msg;
+    }
 }
