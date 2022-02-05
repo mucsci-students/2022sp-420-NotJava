@@ -87,8 +87,10 @@ public class Diagram
 
     
     
-    // List
-    // @return String list of all classes in current diagram
+    /// <summary>
+    /// List all classes of the current diagram, or a message that there are no classes.
+    /// </summary>
+    /// <returns>A string containing all classes of the given diagram, separated by new lines.</returns>
     public string ListClasses()
     {
         string msg = "";
@@ -100,7 +102,7 @@ public class Diagram
         {
             foreach (Class c in Classes)
             {
-                msg += c.ToString() + "\n";
+                msg += string.Format("{0}\n", c.ClassName);
             }
         }
 
