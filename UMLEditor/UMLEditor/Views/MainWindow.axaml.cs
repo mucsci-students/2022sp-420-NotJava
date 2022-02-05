@@ -1,10 +1,7 @@
 using System;
-using System.Net.Mime;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using JetBrains.Annotations;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
 
@@ -14,6 +11,7 @@ namespace UMLEditor.Views
     {
 
         private Diagram ActiveDiagram;
+
         private TextBox OutputBox;
         private TextBox InputBox;
 
@@ -32,9 +30,11 @@ namespace UMLEditor.Views
             
             // MATTHEW & CJ adding a new class should be as simple as this, just remember to add input verification.
             
-            // ActiveDiagram.Classes.Add(new Class("HELLO"));
-            // ActiveDiagram.Classes.Add(new Class("WORLD"));
-            
+             //ActiveDiagram.Classes.Add(new Class("HELLO"));
+             //ActiveDiagram.Classes.Add(new Class("WORLD"));
+             
+             //Class CurrentClass = ActiveDiagram.GetClassByName("HELLO");
+             //CurrentClass.Attributes.Add(new AttributeObject("Test"));
 
         }
 
@@ -228,6 +228,77 @@ namespace UMLEditor.Views
 
             }
             
+        }
+
+        private void Delete_Attribute_OnClick(object sender, RoutedEventArgs e)
+        {
+            
+            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, delete attribute if is.
+            string input = InputBox.Text;
+            
+            //Split the input into words to use later on.
+            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
+
+            if (words.Length == 0)
+            {
+                
+                // No input arguments
+                OutputBox.Text = 
+                    "To delete an existing attribute enter source class and attribute in the format " +
+                    "'Class Attribute' into the input box and then click 'Delete Attribute'.";
+                
+                InputBox.Focus();
+                return;
+
+            }
+            
+            else if (words.Length != 2)
+            {
+                
+                // Invalid input arguments
+                OutputBox.Text = 
+                    "Input must be in the form 'Class Attribute' with only one class and one attribute.  " +
+                    "Please enter this into the input box and click 'Delete Attribute'.";
+                
+                InputBox.Focus();
+                return;
+                
+            }
+            
+            string TargetClassName = words[0];
+            string TargetAttributeName = words[1];
+
+            // Create CurrentClass for use in reaching its attributes
+            Class CurrentClass = ActiveDiagram.GetClassByName(TargetClassName);
+
+            // If the TargetClass does not exist throw an error
+            if (CurrentClass == null)
+            {
+                OutputBox.Text = "Nonexistent class entered";
+                InputBox.Focus();
+                return;
+            }
+
+            try
+            {
+                
+                CurrentClass.DeleteAttribute(TargetAttributeName);
+
+            }
+            
+            // Check if the attribute doesn't exist.
+            catch (AttributeNonexistentException exception)
+            {
+
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+
+            }
+            
+            ClearInputBox();
+            OutputBox.Text = string.Format("Attribute Deleted ({0} => {1})", TargetClassName, TargetAttributeName);
+
         }
     }
 }

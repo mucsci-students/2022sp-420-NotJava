@@ -82,7 +82,8 @@
 
                         <Button Grid.Row="3" 
                                 Grid.Column="0" 
-                                Content="Lorem ipsum"/>
+                                Click="Delete_Attribute_OnClick"
+                                Content="Delete Attribute"/>
     
                         <Button Grid.Row="4" 
                                 Grid.Column="0" 

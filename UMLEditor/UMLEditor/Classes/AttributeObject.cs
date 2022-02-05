@@ -4,18 +4,18 @@ namespace UMLEditor.Classes;
 
 using System.Collections.Generic;
 
-public class Attribute
+public class AttributeObject
 {
     // Used for JSON serialization  and deserialization
     [JsonProperty("attributename")]
-    private string AttributeName;
+    public string AttributeName { get; private set; }
 
-    public Attribute()
+    public AttributeObject()
     {
         AttributeName = "";
     }
 
-    public Attribute(string name)
+    public AttributeObject(string name)
     {
         AttributeName = name;
     }
@@ -28,6 +28,6 @@ public class Attribute
     
     public override string ToString()
     {
-        return string.Format("Attribute: {0}", AttributeName);
+        return string.Format("AttributeObject: {0}", AttributeName);
     }
 }
