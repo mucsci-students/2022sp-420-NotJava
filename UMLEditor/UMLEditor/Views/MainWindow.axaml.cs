@@ -83,6 +83,18 @@ namespace UMLEditor.Views
         {
             OutputBox.Text = ActiveDiagram.ListClasses();
         }
+        
+        // On button click: Display all attributes of selected class to output box
+        private void List_Attributes_OnClick(object sender, RoutedEventArgs e)
+        {
+            //OutputBox.Text = selectedClass.ListAttributes();
+        }
+        
+        // On button click: Display all relationships of current diagram to output box
+        private void List_Relationships_OnClick(object sender, RoutedEventArgs e)
+        {
+            OutputBox.Text = ActiveDiagram.ListRelationships();
+        }
 
         private void AddRelationship_OnClick(object sender, RoutedEventArgs e)
         {

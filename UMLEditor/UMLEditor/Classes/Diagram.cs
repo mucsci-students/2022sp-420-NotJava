@@ -1,4 +1,5 @@
-﻿using System.Net.Security;
+﻿using System;
+using System.Net.Security;
 using DynamicData.Kernel;
 using Newtonsoft.Json;
 using UMLEditor.Exceptions;
@@ -103,6 +104,29 @@ public class Diagram
             foreach (Class c in Classes)
             {
                 msg += string.Format("{0}\n", c.ClassName);
+            }
+        }
+
+        return msg;
+    }
+    
+    /// <summary>
+    /// List all relationships in the current diagram, or a message that there are no relationships.
+    /// </summary>
+    /// <returns>A string containing all relationships of the given diagram, separated by new lines.</returns>
+    public string ListRelationships()
+    {
+        Console.Write("In method");
+        string msg = "";
+        if (Relationships.Count == 0)
+        {
+            msg = "There are no relationships currently.";
+        }
+        else
+        {
+            foreach (Relationship r in Relationships)
+            {
+                msg += string.Format("{0}\n", r.ToString());
             }
         }
 
