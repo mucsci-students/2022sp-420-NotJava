@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Reflection.PortableExecutable;
+using Newtonsoft.Json;
 using UMLEditor.Exceptions;
 
 namespace UMLEditor.Classes;
@@ -82,5 +83,29 @@ public class Class
             
         }
 
+    }
+    
+    /// <summary>
+    /// Lists the attributes within the class or a message that there are no attributes
+    /// </summary>
+    /// <returns>A string containing all attributes of the class, separated by new lines.</returns>
+    public string ListAttributes()
+    {
+        string msg = "";
+
+        if (Attributes.Count == 0)
+        {
+            msg = "There are no attributes currently.";
+        }
+        else
+        {
+            msg += string.Format("{0} attributes: \n", ClassName);
+            foreach (AttributeObject a in Attributes)
+            {
+                msg += string.Format("    {0}\n", a.ToString());
+            }
+        }
+
+        return msg;
     }
 }
