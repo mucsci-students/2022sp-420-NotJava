@@ -68,11 +68,12 @@
                                 Content="Lorem ipsum"/>
                 
                         <Button Grid.Row="6" 
-                                Grid.Column="1" 
-                                Content="Lorem ipsum"/>
+                                Grid.Column="1"
+                                Click="List_Relationships_OnClick"
+                                Content="List Relationships"/>
                 
                         <Button Grid.Row="1" 
-                                Grid.Column="0" 
+                                Grid.Column="0"
                                 Content="Lorem ipsum"/>
     
                         <Button Grid.Row="2" 
@@ -91,12 +92,14 @@
     
                         <Button Grid.Row="5" 
                                 Grid.Column="0" 
-                                Content="Lorem ipsum"/>
+                                Content="List Classes"
+                                Click="List_Classes_OnClick"/>
                 
                         <Button Grid.Row="6"
                                 Grid.Column="0" 
-                                Content="List Classes"
-                                Click="List_Classes_OnClick"/>
+                                Content="List Attributes"
+                                Click="List_Attributes_OnClick"/>
+                                
                 </Grid>
                 
                 <Grid RowDefinitions="Auto, Auto, Auto, Auto" 
