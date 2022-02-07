@@ -1,7 +1,10 @@
 using System;
+using System.Threading.Tasks;
+using System.IO;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
 
@@ -17,6 +20,12 @@ namespace UMLEditor.Views
 
         private JSONDiagramFile ActiveFile;
 
+        private OpenFileDialog OpenDialog;
+        private SaveFileDialog SaveDialog;
+        
+        private Button SaveDiagramButton;
+        private Button LoadDiagramButton;
+        
         public MainWindow()
         {
             
@@ -27,6 +36,10 @@ namespace UMLEditor.Views
             
             OutputBox = this.FindControl<TextBox>("OutputBox");
             InputBox = this.FindControl<TextBox>("InputBox");
+
+            SaveDiagramButton = this.FindControl<Button>("SaveDiagramButton");
+            LoadDiagramButton = this.FindControl<Button>("LoadDiagramButton");
+            InitFileDialogs(out OpenDialog, out SaveDialog, new []{ "json" });
             
             // MATTHEW & CJ adding a new class should be as simple as this, just remember to add input verification.
             
@@ -44,13 +57,91 @@ namespace UMLEditor.Views
             AvaloniaXamlLoader.Load(this);
         }
 
+        /// <summary>
+        /// Initializes the provided file selection dialogs with the provided extension filters
+        /// </summary>
+        /// <param name="openFD">The OpenFileDialog to configure</param>
+        /// <param name="saveFD">The SaveFileDialog to configure</param>
+        /// <param name="filteredExtensions">An array of file extensions that will be selectable in the dialogs.
+        /// No need for the "." in the extension.</param>
+        private void InitFileDialogs(out OpenFileDialog openFD, out SaveFileDialog saveFD, string[] filteredExtensions)
+        {
+
+            string WorkingDir = Directory.GetCurrentDirectory();
+            
+            openFD = new OpenFileDialog();
+            openFD.Title = "Load Diagram From File";
+            openFD.AllowMultiple = false;
+            
+            saveFD = new SaveFileDialog();
+            saveFD.Title = "Save Diagram To File";
+
+            // Make the save/ open dialog open to the working directory by default
+            openFD.Directory = WorkingDir;
+            saveFD.Directory = WorkingDir;
+
+            foreach (string extension in filteredExtensions)
+            {
+                
+                // Establish a filter for the current file extension
+                FileDialogFilter filter = new FileDialogFilter();
+                filter.Name = string.Format(".{0} Diagram Files", extension);
+                filter.Extensions.Add(extension);
+
+                openFD.Filters.Add(filter);
+                saveFD.Filters.Add(filter);
+                
+            }
+            
+        }
+        
+        /// <summary>
+        /// Clears the input box in a thread safe manner
+        /// </summary>
         private void ClearInputBox()
         {
 
-            InputBox.Text = "";
-
+            Dispatcher.UIThread.Post(() =>
+            {
+                
+                InputBox.Text = "";                
+                
+            });
+            
         }
 
+        /// <summary>
+        /// Allows writing text to the output box in a thread safe manner
+        /// </summary>
+        /// <param name="text">The text to write to the output box</param>
+        /// <param name="append">If true, then text will be appended.
+        /// Otherwise, the output box's text is set to text</param>
+        private void WriteToOutput(string text, bool append = false)
+        {
+
+            if (append)
+            {
+
+                Dispatcher.UIThread.Post(() =>
+                {
+
+                    OutputBox.Text += text;
+
+                });
+                
+                return;
+
+            }
+            
+            Dispatcher.UIThread.Post((() =>
+            {
+
+                OutputBox.Text = text;
+
+            }));
+            
+        }
+        
         private void ExitB_OnClick(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);
@@ -184,84 +275,118 @@ namespace UMLEditor.Views
         private void SaveButtonOnClick(object sender, RoutedEventArgs e)
         {
 
-            string filename = InputBox.Text;
-
-            if (filename.Trim().Length == 0)
-            {
-
-                OutputBox.Text = "To save to a JSON file, please enter the path of the file" +
-                                 " you wish to save into the input box and click \"Save\"";
-
-                return;
-
-            }
-
-            try
-            {
-
-                ActiveFile.SaveDiagram(ref ActiveDiagram, filename);
-                OutputBox.Text = string.Format("Current diagram saved to {0}", filename);
-                ClearInputBox();
-
-            }
+            // Disable the save diagram button to disallow opening selector multiple times
+            SaveDiagramButton.IsEnabled = false;
             
-            catch (Exception exception)
+            /* Open the file save dialog on its own thread
+             * Obtain a future from this action */
+            Task<string?> saveTask = SaveDialog.ShowAsync(this);
+            saveTask.ContinueWith((Task<string?> finishedTask) =>
             {
 
-                // For when the user enters invalid characters in the file path
-                string message = exception.Message;
-                if (message.StartsWith("The filename, directory name, or volume label syntax is incorrect"))
+                // Grab the selected output file
+                string? selectedFile = finishedTask.Result;
+
+                // Make sure a file was selected
+                if (selectedFile != null)
                 {
 
-                    OutputBox.Text = string.Format("Invalid file name/path: {0}", filename);
-                    return;
+                    try
+                    {
 
+                        ActiveFile.SaveDiagram(ref ActiveDiagram, selectedFile);
+                        WriteToOutput(string.Format("Current diagram saved to {0}", selectedFile));
+                        ClearInputBox();
+
+                    }
+
+                    catch (Exception exception)
+                    {
+
+                        WriteToOutput(exception.Message);
+
+                    }
+                    
                 }
 
-                OutputBox.Text = exception.Message;
+                else
+                {
+                    
+                    WriteToOutput("Diagram not saved");
+                    
+                }
+
+                // Regardless of the outcome, ask the UI thread to re-enable the save button
+                Dispatcher.UIThread.Post(() =>
+                {
+
+                    SaveDiagramButton.IsEnabled = true;
+
+                });
                 
-            }
+            });
             
         }
 
         private void LoadButton_OnClick(object sender, RoutedEventArgs e)
         {
 
-            string filename = InputBox.Text;
-            if (filename.Trim().Length == 0)
+            // Disable the loading diagram button to disallow opening selector multiple times
+            LoadDiagramButton.IsEnabled = false;
+
+            /* Open the file selection dialog on its own thread
+             * Obtain a future from this action */
+            Task<string[]?> loadTask = OpenDialog.ShowAsync(this);
+            loadTask.ContinueWith((Task<string[]?> taskResult) =>
             {
 
-                OutputBox.Text = "To load a diagram from a JSON file, please enter the path of the file" +
-                                 " you wish to load into the input box and click \"Load\"";
-                return;
+                // Called when the future is resolved
+                
+                /* Get the files the user selected
+                 * This will be null if the user canceled the operation or closed the window */
+                string[]? selectedFiles = taskResult.Result;
+                bool hasSelectedFile = selectedFiles != null && selectedFiles.Length >= 1;
 
-            }
-            
-            try
-            {
-
-                ActiveDiagram = ActiveFile.LoadDiagram(filename);
-                ClearInputBox();
-                OutputBox.Text = String.Format("Diagram loaded from {0}", filename);
-
-            }
-            
-            catch (Exception exception)
-            {
-
-                // For when the user enters invalid characters in the file path
-                string message = exception.Message;
-                if (message.StartsWith("The filename, directory name, or volume label syntax is incorrect"))
+                if (hasSelectedFile)
                 {
 
-                    OutputBox.Text = string.Format("Invalid file name/path: {0}", filename);
-                    return;
+                    // Pull only the first selected file (AllowMultiple should be turned off on the dialog)
+                    string chosenFile = selectedFiles[0];
+                    
+                    try
+                    {
+
+                        ActiveDiagram = ActiveFile.LoadDiagram(chosenFile);
+                        ClearInputBox();
+                        WriteToOutput(string.Format("Diagram loaded from {0}", chosenFile));
+
+                    }
+            
+                    catch (Exception exception)
+                    {
+
+                        WriteToOutput(exception.Message);
+
+                    }
 
                 }
-                
-                OutputBox.Text = message;
 
-            }
+                else
+                {
+                    
+                    WriteToOutput("No diagram file selected");
+                    
+                }
+                
+                // Regardless of the outcome, ask the UI thread to re-enable the load button
+                Dispatcher.UIThread.Post(() =>
+                {
+
+                    LoadDiagramButton.IsEnabled = true;
+
+                });
+                
+            });
             
         }
 
