@@ -28,6 +28,6 @@ public class AttributeObject
     
     public override string ToString()
     {
-        return string.Format("AttributeObject: {0}", AttributeName);
+        return string.Format("Attribute: {0}", AttributeName);
     }
 }

@@ -30,11 +30,12 @@ namespace UMLEditor.Views
             
             // MATTHEW & CJ adding a new class should be as simple as this, just remember to add input verification.
             
-             //ActiveDiagram.Classes.Add(new Class("HELLO"));
-             //ActiveDiagram.Classes.Add(new Class("WORLD"));
+             ActiveDiagram.Classes.Add(new Class("HELLO"));
+             ActiveDiagram.Classes.Add(new Class("WORLD"));
              
-             //Class CurrentClass = ActiveDiagram.GetClassByName("HELLO");
-             //CurrentClass.Attributes.Add(new AttributeObject("Test"));
+             Class CurrentClass = ActiveDiagram.GetClassByName("HELLO");
+             CurrentClass.Attributes.Add(new AttributeObject("Test"));
+             CurrentClass.Attributes.Add(new AttributeObject("Test2"));
 
         }
 
@@ -87,7 +88,32 @@ namespace UMLEditor.Views
         // On button click: Display all attributes of selected class to output box
         private void List_Attributes_OnClick(object sender, RoutedEventArgs e)
         {
-            //OutputBox.Text = selectedClass.ListAttributes();
+            //Get input from input box
+            string input = InputBox.Text;
+            
+            //Split the input into class names
+            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
+
+            if (words.Length != 1)
+            {
+                // Error for invalid input
+                OutputBox.Text =
+                    "To list the attributes of an existing class enter the " +
+                    "class name into the input box and then click 'List Attributes'.";
+                InputBox.Focus();
+                return;
+            }
+            
+            Class CurrentClass = ActiveDiagram.GetClassByName(words[0]);
+
+            // If the TargetClass does not exist throw an error
+            if (CurrentClass == null)
+            {
+                OutputBox.Text = "Nonexistent class entered";
+                InputBox.Focus();
+                return;
+            }
+            OutputBox.Text = CurrentClass.ListAttributes();
         }
         
         // On button click: Display all relationships of current diagram to output box
