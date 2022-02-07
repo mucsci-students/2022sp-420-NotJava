@@ -49,15 +49,18 @@
                 
                         <Button Grid.Row="1" 
                                 Grid.Column="1" 
-                                Content="Lorum ipsum"/>
+                                Click="Class_AddClass_OnClick"
+                                Content="Add Class"/>
                 
                         <Button Grid.Row="2" 
                                 Grid.Column="1" 
-                                Content="Lorum ipsum"/>
+                                Click="Class_DeleteClass_OnClick"
+                                Content="Delete Class"/>
                 
                         <Button Grid.Row="3" 
                                 Grid.Column="1" 
-                                Content="Lorem ipsum"/>
+                                Click="Class_RenameClass_OnClick"
+                                Content="Rename Class"/>
                 
                         <Button Grid.Row="4" 
                                 Grid.Column="1" 

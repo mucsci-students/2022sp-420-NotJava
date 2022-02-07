@@ -335,5 +335,71 @@ namespace UMLEditor.Views
             OutputBox.Text = string.Format("Attribute Deleted ({0} => {1})", TargetClassName, TargetAttributeName);
 
         }
+
+        private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
+        {
+            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
+            string input = InputBox.Text;
+            
+            //Split the input into words to use later on.
+            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
+
+            if (words.Length == 0)
+            {
+                
+                // No input arguments
+                OutputBox.Text = 
+                    "To create a new Class, please enter a class name " +
+                    "into the input box and then click 'Add Class'.";
+                
+                InputBox.Focus();
+                return;
+
+            }
+            
+            else if (words.Length != 1 || (!Char.IsLetter(words[0][0]) && words[0][0] != '_'))
+            {
+                
+                // Invalid input arguments
+                OutputBox.Text = 
+                    "Class must be a single word that starts with an alphabetic character or an underscore.  " +
+                    "Please enter your Class into the input box and click 'Add Class'.";
+                
+                InputBox.Focus();
+                return;
+                
+            }
+
+            try
+            {
+                
+                ActiveDiagram.AddClass(words[0]);
+                
+            }
+            
+            catch (ClassAlreadyExistsException exception)
+            {
+
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+
+            }
+            
+            ClearInputBox();
+            OutputBox.Text = string.Format("Class Created {0}", words[0]);
+
+        }
+
+        private void Class_DeleteClass_OnClick(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void Class_RenameClass_OnClick(object sender, RoutedEventArgs e)
+        {
+            
+        }
+        
     }
 }

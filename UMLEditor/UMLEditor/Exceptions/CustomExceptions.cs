@@ -18,3 +18,9 @@ public class AttributeNonexistentException : Exception
     {  }
 
 }
+
+public class ClassAlreadyExistsException : Exception
+{
+    public ClassAlreadyExistsException(string message) : base(message)
+    { }
+}

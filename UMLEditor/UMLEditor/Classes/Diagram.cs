@@ -86,7 +86,17 @@ public class Diagram
         
     }
 
-    
+    public void AddClass(string ClassName)
+    {
+        if (ClassExists(ClassName))
+        {
+            throw new ClassAlreadyExistsException(string.Format("Class {0} already exists", ClassName));
+        }
+        
+        // Create a new class
+        Classes.Add(new Class(ClassName));
+
+    }
     
     /// <summary>
     /// List all classes of the current diagram, or a message that there are no classes.
