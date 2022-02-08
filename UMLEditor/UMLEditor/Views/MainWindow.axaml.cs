@@ -710,7 +710,7 @@ namespace UMLEditor.Views
         }
         
         
-                 private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
+        private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
         {
 
             //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
@@ -755,9 +755,6 @@ namespace UMLEditor.Views
             OutputBox.Text = string.Format("Relationship Deleted ({0} => {1})", SourceClassName, DestClassName);
 
         }
-        
-       
-    }
         
         
     }
