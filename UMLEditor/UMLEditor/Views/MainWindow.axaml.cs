@@ -710,52 +710,6 @@ namespace UMLEditor.Views
         }
         
         
-         private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
-        {
-
-            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = InputBox.Text;
-            
-            //Split the input into words to use later on.
-            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
-
-            if (words.Length == 0)
-            {
-                
-                // No input arguments
-                OutputBox.Text = 
-                    "To delete a relationship, please enter source and destination in the format " +
-                    "'A B' into the input box and then click 'Delete Relationship'.";
-                
-                InputBox.Focus();
-                return;
-
-            }
-            
-            string SourceClassName = words[0];
-            string DestClassName = words[1];
-            
-            try
-            {
-                
-                ActiveDiagram.DeleteRelationship(SourceClassName, DestClassName);
-                
-            }
-            
-            catch (RelationshipNonexistentException exception)
-            {
-
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
-                return;
-
-            }
-            
-            ClearInputBox();
-            OutputBox.Text = string.Format("Relationship Deleted ({0} => {1})", SourceClassName, DestClassName);
-
-        }
-        
         
     }
 }
