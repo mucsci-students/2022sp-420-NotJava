@@ -41,15 +41,6 @@ namespace UMLEditor.Views
             LoadDiagramButton = this.FindControl<Button>("LoadDiagramButton");
             InitFileDialogs(out OpenDialog, out SaveDialog, new []{ "json" });
             
-            // MATTHEW & CJ adding a new class should be as simple as this, just remember to add input verification.
-            
-             ActiveDiagram.Classes.Add(new Class("HELLO"));
-             ActiveDiagram.Classes.Add(new Class("WORLD"));
-             
-             Class CurrentClass = ActiveDiagram.GetClassByName("HELLO");
-             CurrentClass.Attributes.Add(new AttributeObject("Test"));
-             CurrentClass.Attributes.Add(new AttributeObject("Test2"));
-
         }
 
         private void InitializeComponent()
