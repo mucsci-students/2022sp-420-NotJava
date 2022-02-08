@@ -709,7 +709,11 @@ namespace UMLEditor.Views
             OutputBox.Text = string.Format("Class Renamed {0} to {1}", words[0], words[1]);
         }
         
-      
+         /// <summary>
+         /// 
+         /// </summary>
+         /// <param name="sender"></param>
+         /// <param name="e"></param>
         private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
         {
 
