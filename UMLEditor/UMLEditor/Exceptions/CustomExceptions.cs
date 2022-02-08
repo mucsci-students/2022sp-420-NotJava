@@ -30,3 +30,9 @@ public class AttributeAlreadyExistsException : Exception
     public AttributeAlreadyExistsException(string message) : base(message)
     { }
 }
+
+public class RelationshipNonexistentException : Exception
+{
+    public RelationshipNonexistentException(string message) : base(message)
+    {  }
+}
