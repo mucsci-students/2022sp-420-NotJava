@@ -414,6 +414,14 @@ namespace UMLEditor.Views
                 return;
             }
 
+            if (!ActiveDiagram.ClassExists(words[0]))
+            {
+                string message = string.Format("Class {0} does not exist", words[0]);
+                OutputBox.Text = message;
+                InputBox.Focus();
+                return;
+            }
+
             try
             {
 
@@ -429,13 +437,7 @@ namespace UMLEditor.Views
                 return;
 
             }
-            catch (ClassNonexistentException exception)
-            {
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
-                return;
-            }
-            
+
             ClearInputBox();
             OutputBox.Text = string.Format("Class {0} given Attribute {1}", words[0], words[1]);
         }
