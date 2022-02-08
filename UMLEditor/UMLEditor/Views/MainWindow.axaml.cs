@@ -393,7 +393,72 @@ namespace UMLEditor.Views
 
         private void Class_DeleteClass_OnClick(object sender, RoutedEventArgs e)
         {
+            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, delete attribute if is.
+            string input = InputBox.Text;
             
+            //Split the input into words to use later on.
+            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
+
+            if (words.Length == 0)
+            {
+                
+                // No input arguments
+                OutputBox.Text = 
+                    "To delete an existing class enter the name of class" +
+                    "'ClassName' into the input box and then click 'Delete Class'. "+
+                    "Deleting will delete relationship and attributes with it.";
+                
+                InputBox.Focus();
+                return;
+
+            }
+            
+            else if (words.Length != 1 || (!Char.IsLetter(words[0][0]) && words[0][0] != '_'))
+            {
+                
+                // Invalid input arguments
+                OutputBox.Text = 
+                    "Class must be a single word that starts with an alphabetic character or an underscore. " +
+                    "Please enter this into the input box and click 'Delete Class'.";
+                
+                InputBox.Focus();
+                return;
+                
+            }
+            
+            string TargetClassName = words[0];
+            
+
+            // Create CurrentClass for use in reaching its attributes
+            Class CurrentClass = ActiveDiagram.GetClassByName(TargetClassName);
+
+            // If the TargetClass does not exist throw an error
+            if (CurrentClass == null)
+            {
+                OutputBox.Text = "Nonexistent class entered";
+                InputBox.Focus();
+                return;
+            }
+
+            try
+            {
+                
+                ActiveDiagram.DeleteClass(words[0]);
+                
+            }
+            
+            catch (ClassAlreadyExistsException exception)
+            {
+
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+
+            }
+            
+            ClearInputBox();
+            OutputBox.Text = string.Format("Class Deleted {0}", words[0]);
+
         }
 
         private void Class_RenameClass_OnClick(object sender, RoutedEventArgs e)
