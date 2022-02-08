@@ -42,6 +42,11 @@ public class Class
     /// <param name="name">Valid name of new attribute</param>
     public void AddAttribute(string name)
     {
+        if (AttributeExists(name))
+        {
+            throw new AttributeAlreadyExistsException(string.Format("Attribute {0} already exists", name));
+        }
+        
         Attributes.Add(new AttributeObject(name));
     }
 

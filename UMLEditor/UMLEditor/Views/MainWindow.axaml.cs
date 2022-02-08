@@ -417,7 +417,7 @@ namespace UMLEditor.Views
             try
             {
 
-                ActiveDiagram.AddAttribute(words[0], words[1]);
+                ActiveDiagram.GetClassByName(words[0]).AddAttribute(words[1]);
 
             }
 
