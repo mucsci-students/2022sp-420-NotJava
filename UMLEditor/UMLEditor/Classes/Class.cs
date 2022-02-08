@@ -34,7 +34,17 @@ public class Class
         ClassName = name;
 
     }
-    
+
+    /// <summary>
+    /// Adds attribute to class.
+    /// Pre-condition: name of attribute is valid
+    /// </summary>
+    /// <param name="name">Valid name of new attribute</param>
+    public void AddAttribute(string name)
+    {
+        Attributes.Add(new AttributeObject(name));
+    }
+
     /// <summary>
     /// Check if specified attribute exists.
     /// </summary>

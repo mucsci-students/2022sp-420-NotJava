@@ -381,6 +381,66 @@ namespace UMLEditor.Views
             
         }
 
+        private void Add_Attribute_OnClick(object sender, RoutedEventArgs e)
+        {
+            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid
+            string input = InputBox.Text;
+            
+            //Split the input into words to use later on.
+            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
+            
+            if (words.Length != 2)
+            {
+                
+                // Invalid input arguments
+                OutputBox.Text = 
+                    "To add an attribute enter source class and attribute in the format " +
+                    "'Class Attribute' into the input box and then click 'Add Attribute'.";
+                
+                InputBox.Focus();
+                return;
+                
+            }
+            
+            // Checks if class name is valid
+            if(!isValidName(words[0]))
+            {
+                return;
+            }
+            
+            // Checks if Attribute name is valid
+            if(!isValidName(words[1]))
+            {
+                return;
+            }
+
+            try
+            {
+
+                ActiveDiagram.AddAttribute(words[0], words[1]);
+
+            }
+
+            catch (AttributeAlreadyExistsException exception)
+            {
+
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+
+            }
+            catch (ClassNonexistentException exception)
+            {
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+            }
+            
+            ClearInputBox();
+            OutputBox.Text = string.Format("Class {0} given Attribute {1}", words[0], words[1]);
+        }
+        
+        
         private void Delete_Attribute_OnClick(object sender, RoutedEventArgs e)
         {
             
@@ -457,7 +517,7 @@ namespace UMLEditor.Views
         /// </summary>
         /// <param name="word">The potential name of the class</param>
         /// <returns></returns>
-        private bool isClassNameValid(string word)
+        private bool isValidName(string word)
         {
             
             
@@ -466,8 +526,8 @@ namespace UMLEditor.Views
                 
                 // Invalid input arguments
                 OutputBox.Text = 
-                    "Class must be a single word that starts with an alphabetic character or an underscore.  " +
-                    "Please enter your Class into the input box and click 'Add Class'.";
+                    "Name must be a single word that starts with an alphabetic character or an underscore.  " +
+                    "Please enter your Name into the input box and click The appropriate button.";
                 
                 InputBox.Focus();
                 return false;
@@ -498,7 +558,7 @@ namespace UMLEditor.Views
                 return;
 
             }
-            if(!isClassNameValid(words[0]))
+            if(!isValidName(words[0]))
             {
                 return;
             }
@@ -551,7 +611,7 @@ namespace UMLEditor.Views
 
             }
             
-            if(!isClassNameValid(words[1]))
+            if(!isValidName(words[1]))
             {
                 return;
             }
@@ -571,9 +631,11 @@ namespace UMLEditor.Views
                 return;
 
             }
-            catch (ClassNonexistentException)
+            catch (ClassNonexistentException exception)
             {
-                
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
             }
             
             ClearInputBox();

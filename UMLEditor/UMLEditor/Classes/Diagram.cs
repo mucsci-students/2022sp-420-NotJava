@@ -125,6 +125,32 @@ public class Diagram
         GetClassByName(oldName).Rename(newName);
 
     }
+
+
+    /// <summary>
+    /// Adds Attribute to class.
+    /// Pre-condition: attributeName is avlid
+    /// </summary>
+    /// <param name="className">Class to add attribute to</param>
+    /// <param name="attributeName">valid name of Attribute</param>
+    /// <exception cref="ClassNonexistentException">Thrown if Class does not exist</exception>
+    /// <exception cref="AttributeAlreadyExistsException">Thrown if attribute </exception>
+    public void AddAttribute(string className, string attributeName)
+    {
+        if (!ClassExists(className))
+        {
+            throw new ClassNonexistentException(string.Format("Class {0} does not exist", className));
+        }
+        Class c = GetClassByName(className);
+        if (c.AttributeExists(attributeName))
+        {
+            throw new AttributeAlreadyExistsException(string.Format("Attribute {0} already exists", attributeName));
+        }
+        
+        c.AddAttribute(attributeName);
+        
+        
+    }
     
     /// <summary>
     /// List all classes of the current diagram, or a message that there are no classes.
