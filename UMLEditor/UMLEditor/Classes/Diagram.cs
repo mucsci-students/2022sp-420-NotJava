@@ -39,6 +39,19 @@ public class Diagram
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="SourceName"></param>
+    /// <param name="DestName"></param>
+    /// <returns></returns>
+    public bool RelationshipExists (string SourceName, string DestName)
+    {
+
+        return GetRelationshipByName(SourceName, DestName) != null;
+
+    }
+    
+    /// <summary>
     /// Finds the class with the specified name, if it exists
     /// </summary>
     /// <param name="name">Name of class you are looking for</param>
@@ -217,4 +230,22 @@ public class Diagram
         // Delete relationship
         Relationships.Remove(GetRelationshipByName(SourceName, DestName));
     }
+    
+     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="SourceName"></param>
+    /// <param name="DestName"></param>
+    /// <exception cref="RelationshipNonexistentException"></exception>
+    public void DeleteRelationship(string SourceName, string DestName)
+    {
+        if (!RelationshipExists(SourceName, DestName))
+        {
+            throw new RelationshipNonexistentException(string.Format("Relationship {0} -> {1} does not exist", SourceName, DestName));
+        }
+        
+        // Delete relationship
+        Relationships.Remove(GetRelationshipByName(SourceName, DestName));
+    }
+}
 }
