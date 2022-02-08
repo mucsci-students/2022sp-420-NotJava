@@ -52,6 +52,24 @@ public class Diagram
     }
     
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="SourceName"></param>
+    /// <param name="DestName"></param>
+    /// <returns></returns>
+    public Relationship GetRelationshipByName(string SourceName, string DestName)
+    {
+        foreach (Relationship r in Relationships)
+        {
+            if (r.SourceClass == SourceName && r.DestinationClass == DestName)
+            {
+                return r;
+            }
+        }
+        return null;
+    }
+    
+    /// <summary>
     /// Finds the class with the specified name, if it exists
     /// </summary>
     /// <param name="name">Name of class you are looking for</param>
