@@ -98,6 +98,16 @@ public class Diagram
 
     }
     
+    public void DeleteClass(string ClassName)
+    {
+        if (!ClassExists(ClassName))
+        {
+            throw new ClassNonexistentException(string.Format("Class {0} does not exist", ClassName));
+        }
+        
+        Classes.Remove(GetClassByName(ClassName));
+    }
+    
     /// <summary>
     /// List all classes of the current diagram, or a message that there are no classes.
     /// </summary>
