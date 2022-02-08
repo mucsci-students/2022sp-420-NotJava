@@ -452,6 +452,31 @@ namespace UMLEditor.Views
 
         }
 
+        /// <summary>
+        /// Checks if class name is valid
+        /// </summary>
+        /// <param name="word">The potential name of the class</param>
+        /// <returns></returns>
+        private bool isClassNameValid(string word)
+        {
+            
+            
+            if (!Char.IsLetter(word[0]) && word[0] != '_')
+            {
+                
+                // Invalid input arguments
+                OutputBox.Text = 
+                    "Class must be a single word that starts with an alphabetic character or an underscore.  " +
+                    "Please enter your Class into the input box and click 'Add Class'.";
+                
+                InputBox.Focus();
+                return false;
+                
+            }
+
+            return true;
+        }
+
         private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
         {
             //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
@@ -459,8 +484,9 @@ namespace UMLEditor.Views
             
             //Split the input into words to use later on.
             string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
-
-            if (words.Length == 0)
+            
+            //Assures only one word was given as input for a class name
+            if (words.Length != 1)
             {
                 
                 // No input arguments
@@ -472,18 +498,9 @@ namespace UMLEditor.Views
                 return;
 
             }
-            
-            else if (words.Length != 1 || (!Char.IsLetter(words[0][0]) && words[0][0] != '_'))
+            if(!isClassNameValid(words[0]))
             {
-                
-                // Invalid input arguments
-                OutputBox.Text = 
-                    "Class must be a single word that starts with an alphabetic character or an underscore.  " +
-                    "Please enter your Class into the input box and click 'Add Class'.";
-                
-                InputBox.Focus();
                 return;
-                
             }
 
             try
@@ -514,8 +531,56 @@ namespace UMLEditor.Views
 
         private void Class_RenameClass_OnClick(object sender, RoutedEventArgs e)
         {
+            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
+            string input = InputBox.Text;
             
+            //Split the input into words to use later on.
+            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
+            
+            //Assures two words were given as input for a class rename
+            if (words.Length != 2)
+            {
+                
+                // No input arguments
+                OutputBox.Text = 
+                    "To rename a Class, please enter the class to rename followed by " +
+                    " the new name in the form 'A B' into the input box and then click 'Rename Class'.";
+                
+                InputBox.Focus();
+                return;
+
+            }
+            
+            if(!isClassNameValid(words[1]))
+            {
+                return;
+            }
+
+            try
+            {
+
+                ActiveDiagram.RenameClass(words[0], words[1]);
+
+            }
+
+            catch (ClassAlreadyExistsException exception)
+            {
+
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+
+            }
+            catch (ClassNonexistentException)
+            {
+                
+            }
+            
+            ClearInputBox();
+            OutputBox.Text = string.Format("Class Renamed {0} to {1}", words[0], words[1]);
         }
+        
+        
         
     }
 }
