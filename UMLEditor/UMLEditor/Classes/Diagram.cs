@@ -86,6 +86,11 @@ public class Diagram
         
     }
 
+    /// <summary>
+    /// Adds a class to the diagram.  Ensures the desired class to add does not already exist
+    /// </summary>
+    /// <param name="ClassName">The name of the class to add</param>
+    /// <exception cref="ClassAlreadyExistsException">Ensures there is not already a class by this name</exception>
     public void AddClass(string ClassName)
     {
         if (ClassExists(ClassName))
@@ -95,6 +100,29 @@ public class Diagram
         
         // Create a new class
         Classes.Add(new Class(ClassName));
+
+    }
+    
+    /// <summary>
+    /// Renames a class oldName to newName
+    /// </summary>
+    /// <param name="oldName">The name of the class to rename</param>
+    /// <param name="newName">The new name of the class</param>
+    /// <exception cref="ClassNonexistentException">Thrown if the class oldName does not exist</exception>
+    /// <exception cref="ClassAlreadyExistsException">Thrown if the class newName already exists</exception>
+    public void RenameClass(string oldName, string newName)
+    {
+        if (!ClassExists(oldName))
+        {
+            throw new ClassNonexistentException(string.Format("Class {0} does not exist", oldName));
+        }
+        if (ClassExists(newName))
+        {
+            throw new ClassAlreadyExistsException(string.Format("Class {0} already exists", newName));
+        }
+        
+        // Rename class
+        GetClassByName(oldName).Rename(newName);
 
     }
     

@@ -108,4 +108,14 @@ public class Class
 
         return msg;
     }
+
+    /// <summary>
+    /// Renames class
+    /// Pre-condition: name is a validly formatted class name
+    /// </summary>
+    /// <param name="name"></param>
+    public void Rename(string name)
+    {
+        ClassName = name;
+    }
 }
