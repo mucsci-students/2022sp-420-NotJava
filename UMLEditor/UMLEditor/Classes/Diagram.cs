@@ -136,6 +136,7 @@ public class Diagram
 
     }
     
+    
     /// <summary>
     /// List all classes of the current diagram, or a message that there are no classes.
     /// </summary>

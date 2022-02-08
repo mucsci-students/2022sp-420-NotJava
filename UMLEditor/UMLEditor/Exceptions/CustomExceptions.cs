@@ -24,3 +24,9 @@ public class ClassAlreadyExistsException : Exception
     public ClassAlreadyExistsException(string message) : base(message)
     { }
 }
+
+public class AttributeAlreadyExistsException : Exception
+{
+    public AttributeAlreadyExistsException(string message) : base(message)
+    { }
+}
