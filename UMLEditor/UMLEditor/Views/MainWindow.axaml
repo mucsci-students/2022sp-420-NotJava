@@ -78,7 +78,8 @@
                 
                         <Button Grid.Row="1" 
                                 Grid.Column="0"
-                                Content="Lorem ipsum"/>
+                                Click="DeleteRelationship_OnClick"
+                                Content="Delete Relationship"/>
     
                         <Button Grid.Row="2" 
                                 Grid.Column="0" 

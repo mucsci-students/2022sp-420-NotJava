@@ -8,11 +8,11 @@ public class Relationship
 {
     // Used for JSON serialization  and deserialization
     [JsonProperty("sourceclass")]
-    private string SourceClass;
+    public string SourceClass { get; private set; }
     
     // Used for JSON serialization  and deserialization
     [JsonProperty("destinationclass")]
-    private string DestinationClass;
+    public string DestinationClass { get; private set; }
 
     public Relationship()
     {

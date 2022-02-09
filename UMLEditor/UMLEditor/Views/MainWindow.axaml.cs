@@ -637,11 +637,19 @@ namespace UMLEditor.Views
 
             try
             {
-                
+
                 ActiveDiagram.DeleteClass(words[0]);
-                
+
             }
-            
+
+            catch (ClassAlreadyExistsException exception)
+
+            {
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+            }
+
             catch (ClassInUseException exception)
             {
                 OutputBox.Text = exception.Message;
@@ -707,6 +715,7 @@ namespace UMLEditor.Views
             OutputBox.Text = string.Format("Class Renamed {0} to {1}", words[0], words[1]);
         }
         
+
         /// <summary>
         /// 
         /// </summary>
@@ -841,9 +850,6 @@ namespace UMLEditor.Views
 
             ClearInputBox();
             OutputBox.Text = string.Format("Attribute renamed {0} to {1}", words[1], words[2]);
-
-
         }
-        
     }
 }
