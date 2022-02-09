@@ -64,7 +64,8 @@
                 
                         <Button Grid.Row="4" 
                                 Grid.Column="1" 
-                                Content="Lorem ipsum"/>
+                                Click="Class_RenameAttribute_OnClick"
+                                Content="Rename Attribute"/>
                 
                         <Button Grid.Row="5" 
                                 Grid.Column="1" 

@@ -709,7 +709,73 @@ namespace UMLEditor.Views
             OutputBox.Text = string.Format("Class Renamed {0} to {1}", words[0], words[1]);
         }
         
-        
+                /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Class_RenameAttribute_OnClick(object sender, RoutedEventArgs e)
+        {
+            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
+            string input = InputBox.Text;
+
+            //Split the input into words to use later on.
+            string[] words = input.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            //Assures three words were given as input for a attribute rename
+            if (words.Length != 3)
+            {
+
+                // No input arguments
+                OutputBox.Text =
+                    "To rename a attribute please enter the class followed by" +
+                    " the old name and new name"+
+                    "in the form 'A B C' into the input box and then click 'Rename Attribute'.";
+
+                InputBox.Focus();
+                return;
+
+            }
+
+            if (!isValidName(words[1]))
+            {
+                return;
+            }
+
+            string TargetClassName = words[0];
+
+            // Get CurrentClass for use in reaching its attributes
+            Class CurrentClass = ActiveDiagram.GetClassByName(TargetClassName);
+            // If the TargetClass does not exist throw an error
+            if (CurrentClass == null)
+            {
+                OutputBox.Text = "Nonexistent class entered";
+                InputBox.Focus();
+                return;
+            }
+
+            try
+            {
+
+                CurrentClass.RenameAttribute(words[1], words[2]);
+
+            }
+
+            // Check if the attribute doesn't exist.
+            catch (AttributeNonexistentException exception)
+            {
+
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+
+            }
+
+            ClearInputBox();
+            OutputBox.Text = string.Format("Attribute renamed {0} to {1}", words[1], words[2]);
+
+
+        }
         
     }
 }
