@@ -30,4 +30,9 @@ public class AttributeObject
     {
         return string.Format("Attribute: {0}", AttributeName);
     }
+    
+    public void AttRename(string name)
+    {
+        AttributeName = name;
+    }
 }

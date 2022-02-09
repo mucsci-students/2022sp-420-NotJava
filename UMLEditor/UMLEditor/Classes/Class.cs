@@ -123,6 +123,22 @@ public class Class
 
         return msg;
     }
+    
+    public void RenameAttribute(string oldName, string newName)
+    {
+        if (!AttributeExists(oldName))
+        {
+            throw new AttributeNonexistentException(string.Format("Attribute {0} does not exist", oldName));
+        }
+        if (AttributeExists(newName))
+        {
+            throw new AttributeAlreadyExistsException(string.Format("Attribute {0} already exists", newName));
+        }
+        
+        // Rename attribute
+        GetAttributeByName(oldName).AttRename(newName);
+        
+    }
 
     /// <summary>
     /// Renames class
