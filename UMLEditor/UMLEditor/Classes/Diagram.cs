@@ -39,6 +39,23 @@ public class Diagram
     }
 
     /// <summary>
+    /// Check if class is currently used in a relationship.
+    /// </summary>
+    /// <param name="name">Name of the class you are checking</param>
+    /// <returns>Returns true if class is in a relationship in the diagram, false if not.</returns>
+    public bool ClassIsInRelationship(string name)
+    {
+        foreach (Relationship r in Relationships)
+        {
+            if (r.SourceClass == name || r.DestinationClass == name)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     /// <param name="SourceName"></param>
@@ -139,6 +156,12 @@ public class Diagram
         if (!ClassExists(ClassName))
         {
             throw new ClassNonexistentException(string.Format("Class {0} does not exist", ClassName));
+        }
+
+        if (ClassIsInRelationship(ClassName))
+        {
+            throw new ClassInUseException(string.Format("Class {0} is in use by a relationship and cannot be deleted",
+                ClassName));
         }
         
         Classes.Remove(GetClassByName(ClassName));

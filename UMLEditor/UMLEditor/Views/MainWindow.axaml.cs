@@ -637,11 +637,11 @@ namespace UMLEditor.Views
 
             try
             {
-                
+
                 ActiveDiagram.DeleteClass(words[0]);
-                
+
             }
-            
+
             catch (ClassAlreadyExistsException exception)
             {
 
@@ -649,6 +649,13 @@ namespace UMLEditor.Views
                 InputBox.Focus();
                 return;
 
+            }
+
+            catch (ClassInUseException exception)
+            {
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
             }
             
             ClearInputBox();
