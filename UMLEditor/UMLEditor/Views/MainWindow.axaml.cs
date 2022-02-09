@@ -733,15 +733,15 @@ namespace UMLEditor.Views
                 return;
 
             }
-
-            if(words.Length != 2)
+            
+            //Ensures two classes entered
+            if (words.Length != 2)
             {
                 OutputBox.Text =
-                    "You need to have two classes to delete a relationship";
+                    "Two classes required to delete relationship";
                 
                 InputBox.Focus();
                 return;
-
             }
             
             string SourceClassName = words[0];
@@ -814,9 +814,10 @@ namespace UMLEditor.Views
                 return;
             }
             
+            //ensures user didn't change old name to new name
             if (words[1] == words[2])
             {
-                OutputBox.Text = "old name is the same as the new name.";
+                OutputBox.Text = "This old name is the same as the new name.";
                 InputBox.Focus();
                 return;
             }
