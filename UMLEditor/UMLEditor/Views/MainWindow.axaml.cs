@@ -637,11 +637,11 @@ namespace UMLEditor.Views
 
             try
             {
-                
+
                 ActiveDiagram.DeleteClass(words[0]);
-                
+
             }
-            
+
             catch (ClassAlreadyExistsException exception)
             {
 
@@ -649,6 +649,13 @@ namespace UMLEditor.Views
                 InputBox.Focus();
                 return;
 
+            }
+
+            catch (ClassInUseException exception)
+            {
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
             }
             
             ClearInputBox();
@@ -709,7 +716,8 @@ namespace UMLEditor.Views
             OutputBox.Text = string.Format("Class Renamed {0} to {1}", words[0], words[1]);
         }
         
-                /// <summary>
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="sender"></param>
@@ -774,6 +782,57 @@ namespace UMLEditor.Views
             ClearInputBox();
             OutputBox.Text = string.Format("Attribute renamed {0} to {1}", words[1], words[2]);
 
+
+        }
+
+         /// <summary>
+         /// 
+         /// </summary>
+         /// <param name="sender"></param>
+         /// <param name="e"></param>
+         private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
+            string input = InputBox.Text;
+            
+            //Split the input into words to use later on.
+            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
+
+            if (words.Length == 0)
+            {
+                
+                // No input arguments
+                OutputBox.Text = 
+                    "To delete a relationship, please enter source and destination in the format " +
+                    "'A B' into the input box and then click 'Delete Relationship'.";
+                
+                InputBox.Focus();
+                return;
+
+            }
+            
+            string SourceClassName = words[0];
+            string DestClassName = words[1];
+            
+            try
+            {
+                
+                ActiveDiagram.DeleteRelationship(SourceClassName, DestClassName);
+                
+            }
+            
+            catch (RelationshipNonexistentException exception)
+            {
+
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+
+            }
+            
+            ClearInputBox();
+            OutputBox.Text = string.Format("Relationship Deleted ({0} => {1})", SourceClassName, DestClassName);
 
         }
         

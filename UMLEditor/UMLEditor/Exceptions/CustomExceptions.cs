@@ -1,4 +1,6 @@
 ﻿
+using Avalonia.Data;
+
 namespace UMLEditor.Exceptions;
 
 using System;
@@ -9,6 +11,12 @@ public class ClassNonexistentException : Exception
     public ClassNonexistentException(string message) : base(message)
     {  }
 
+}
+
+public class ClassInUseException : Exception
+{
+    public ClassInUseException(string message) : base(message)
+    {  }
 }
 
 public class AttributeNonexistentException : Exception
