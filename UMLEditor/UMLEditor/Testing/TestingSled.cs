@@ -30,6 +30,15 @@ public static class TestingSled
         
         ///////////////////////////////////////////////////////////////////////////////////////
         
+        // Test Relationship class
+        ///////////////////////////////////////////////////////////////////////////////////////
+        
+        PrintColoredLine("Testing Relationship...", SUCCESS_COLOR);
+        RelationshipTester.TestCreation();
+        PrintColoredLine("\nRelationship has passed all tests\n", SUCCESS_COLOR);
+        
+        ///////////////////////////////////////////////////////////////////////////////////////
+        
         // Test...
         
         PrintColoredLine("All tests passed", SUCCESS_COLOR);
