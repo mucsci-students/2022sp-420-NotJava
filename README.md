@@ -19,6 +19,6 @@ Cross-platform, GUI-based UML editor written for Millersville University CSCI 42
 
 Daniel Foreacre
 Gavin Fry
-Matthew Young
+Matthew Young: Yes Sir.   
 Robert Bunning 
 CJ Sydorko

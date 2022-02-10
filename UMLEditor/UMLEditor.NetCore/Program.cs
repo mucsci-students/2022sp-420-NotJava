@@ -1,4 +1,4 @@
-﻿using System;
+﻿sing System;
 using Avalonia;
 using Avalonia.ReactiveUI;
 
@@ -12,8 +12,16 @@ namespace UMLEditor.NetCore
         [STAThread]
         public static void Main(string[] args)
         {
-            BuildAvaloniaApp()
-                .StartWithClassicDesktopLifetime(args);
+            if (args.Length != 0 && args[0] == "-test")
+            {
+
+            }
+
+            else
+            {
+                BuildAvaloniaApp()
+                    .StartWithClassicDesktopLifetime(args);
+            }
         }
 
         // Avalonia configuration, don't remove; also used by visual designer.
