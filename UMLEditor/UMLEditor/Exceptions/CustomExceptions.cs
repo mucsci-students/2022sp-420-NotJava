@@ -44,3 +44,9 @@ public class RelationshipNonexistentException : Exception
     public RelationshipNonexistentException(string message) : base(message)
     {  }
 }
+
+public class InvalidNameException : Exception
+{
+    public InvalidNameException(string message) : base(message)
+    { }
+}
