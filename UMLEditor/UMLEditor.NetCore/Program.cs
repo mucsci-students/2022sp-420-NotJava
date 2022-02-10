@@ -1,6 +1,7 @@
-﻿sing System;
+﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
+using UMLEditor.Testing;
 
 namespace UMLEditor.NetCore
 {
@@ -14,7 +15,7 @@ namespace UMLEditor.NetCore
         {
             if (args.Length != 0 && args[0] == "-test")
             {
-
+                ClassTester.runTests();
             }
 
             else
