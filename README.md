@@ -18,7 +18,7 @@ Cross-platform, GUI-based UML editor written for Millersville University CSCI 42
 ### For CLI:
 _**WARNING:** CLI is not yet available, but it will be coming in a future update. Running in CLI mode right now does nothing._
 
-- To run the native executable in CLI mode: ``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore -cli``
+- To run the native executable in CLI mode: <br />``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore -cli``
 
 ### For Test Mode:
 _Test mode runs all available unit tests for the code and does nothing else._
