@@ -22,7 +22,7 @@ _**WARNING:** CLI is not yet available, but it will be coming in a future update
 
 ### For Test Mode:
 _Test mode runs all available unit tests for the code and does nothing else._
-- To run the native executable in test mode: ``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore -test``
+- To run the native executable in test mode: <br />``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore -test``
 
 ### Team Members
 
