@@ -23,7 +23,7 @@ public class AttributeObject
     /// <param name="name">Name of attribute</param>
     public AttributeObject(string name)
     {
-        checkValidAttributeName(name);
+        CheckValidAttributeName(name);
         AttributeName = name;
     }
 
@@ -43,16 +43,16 @@ public class AttributeObject
     /// <param name="name">Name to rename attribute to</param>
     public void AttRename(string name)
     {
-        checkValidAttributeName(name);
+        CheckValidAttributeName(name);
         AttributeName = name;
     }
     
-    private void checkValidAttributeName(string name)
+    private void CheckValidAttributeName(string name)
     {
         if (!Char.IsLetter(name[0]) && name[0] != '_')
         {
-            throw new InvalidNameException(String.Format("{0} is an invalid class name.  " +
-                                                         "Class name must be a single word that starts with an alphabetic " +
+            throw new InvalidNameException(String.Format("{0} is an invalid attribute name.  " +
+                                                         "Attribute name must be a single word that starts with an alphabetic " +
                                                          "character or an underscore.  " +
                                                          "Please Try again.", name));
         }

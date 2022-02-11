@@ -32,7 +32,7 @@ public class Class
     /// <exception cref="InvalidNameException">Thrown if the name provided is invlalid</exception>
     public Class(string name) : this()
     {
-        checkValidClassName(name);
+        CheckValidClassName(name);
         ClassName = name;
 
     }
@@ -154,7 +154,7 @@ public class Class
     /// </summary>
     /// <param name="name">Name that is checked for validity</param>
     /// <exception cref="InvalidNameException">Thrown if the name is not valid</exception>
-    private void checkValidClassName(string name)
+    private void CheckValidClassName(string name)
     {
         if (!Char.IsLetter(name[0]) && name[0] != '_')
         {
@@ -172,7 +172,7 @@ public class Class
     /// <param name="name">name to rename class to</param>
     public void Rename(string name)
     {
-        checkValidClassName(name);
+        CheckValidClassName(name);
         ClassName = name;
     }
 }
