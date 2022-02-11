@@ -1,4 +1,5 @@
-﻿using System.Reflection.PortableExecutable;
+﻿using System;
+using System.Reflection.PortableExecutable;
 using Newtonsoft.Json;
 using UMLEditor.Exceptions;
 
@@ -28,9 +29,10 @@ public class Class
     /// Constructor for class "name"
     /// </summary>
     /// <param name="name">Name of the class being created</param>
+    /// <exception cref="InvalidNameException">Thrown if the name provided is invlalid</exception>
     public Class(string name) : this()
     {
-
+        CheckValidClassName(name);
         ClassName = name;
 
     }
@@ -124,6 +126,13 @@ public class Class
         return msg;
     }
     
+    /// <summary>
+    /// Renames an attribute
+    /// </summary>
+    /// <param name="oldName">Attribute to rename</param>
+    /// <param name="newName">New name of attribute</param>
+    /// <exception cref="AttributeNonexistentException">Thrown if oldName attribute does not exist</exception>
+    /// <exception cref="AttributeAlreadyExistsException">Thrown if newName attribute already exists</exception>
     public void RenameAttribute(string oldName, string newName)
     {
         if (!AttributeExists(oldName))
@@ -141,12 +150,29 @@ public class Class
     }
 
     /// <summary>
-    /// Renames class
-    /// Pre-condition: name is a validly formatted class name
+    /// Checks if a given class name is valid.  Throws an exception if not
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="name">Name that is checked for validity</param>
+    /// <exception cref="InvalidNameException">Thrown if the name is not valid</exception>
+    private void CheckValidClassName(string name)
+    {
+        if (!Char.IsLetter(name[0]) && name[0] != '_')
+        {
+            throw new InvalidNameException(String.Format("{0} is an invalid class name.  " +
+                                                         "Class name must be a single word that starts with an alphabetic " +
+                                                         "character or an underscore.  " +
+                                                         "Please Try again.", name));
+        }
+    }
+
+    /// <summary>
+    /// Renames class.  Checks to ensure name is valid
+    /// Pre-condition: Class "name" does not already exist
+    /// </summary>
+    /// <param name="name">name to rename class to</param>
     public void Rename(string name)
     {
+        CheckValidClassName(name);
         ClassName = name;
     }
 }
