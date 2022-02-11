@@ -37,6 +37,6 @@ public static class ClassTester
         Console.Write("Class toString: " + newClass.ToString() + "\n");
         
         // Test Attributes
-        AttributeTester.TestCreation();
+        AttributeTester.RunTests();
     }
 }
