@@ -401,18 +401,6 @@ namespace UMLEditor.Views
                 return;
                 
             }
-            
-            // Checks if class name is valid
-            if(!isValidName(words[0]))
-            {
-                return;
-            }
-            
-            // Checks if Attribute name is valid
-            if(!isValidName(words[1]))
-            {
-                return;
-            }
 
             if (!ActiveDiagram.ClassExists(words[0]))
             {
@@ -429,6 +417,12 @@ namespace UMLEditor.Views
 
             }
 
+            catch (InvalidNameException exception)
+            {
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+            }
             catch (AttributeAlreadyExistsException exception)
             {
 
@@ -514,31 +508,6 @@ namespace UMLEditor.Views
 
         }
 
-        /// <summary>
-        /// Checks if class name is valid
-        /// </summary>
-        /// <param name="word">The potential name of the class</param>
-        /// <returns></returns>
-        private bool isValidName(string word)
-        {
-            
-            
-            if (!Char.IsLetter(word[0]) && word[0] != '_')
-            {
-                
-                // Invalid input arguments
-                OutputBox.Text = 
-                    "Name must be a single word that starts with an alphabetic character or an underscore.  " +
-                    "Please enter your Name into the input box and click The appropriate button.";
-                
-                InputBox.Focus();
-                return false;
-                
-            }
-
-            return true;
-        }
-
         private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
         {
             //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
@@ -560,18 +529,20 @@ namespace UMLEditor.Views
                 return;
 
             }
-            if(!isValidName(words[0]))
-            {
-                return;
-            }
 
             try
             {
-                
+
                 ActiveDiagram.AddClass(words[0]);
-                
+
             }
-            
+
+            catch (InvalidNameException exception)
+            {
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+            }
             catch (ClassAlreadyExistsException exception)
             {
 
@@ -683,11 +654,6 @@ namespace UMLEditor.Views
                 return;
 
             }
-            
-            if(!isValidName(words[1]))
-            {
-                return;
-            }
 
             try
             {
@@ -696,6 +662,12 @@ namespace UMLEditor.Views
 
             }
 
+            catch (InvalidNameException exception)
+            {
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
+            }
             catch (ClassAlreadyExistsException exception)
             {
 
@@ -715,12 +687,6 @@ namespace UMLEditor.Views
             OutputBox.Text = string.Format("Class Renamed {0} to {1}", words[0], words[1]);
         }
         
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
         {
 
@@ -776,12 +742,7 @@ namespace UMLEditor.Views
             OutputBox.Text = string.Format("Relationship Deleted ({0} => {1})", SourceClassName, DestClassName);
 
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+
         private void Class_RenameAttribute_OnClick(object sender, RoutedEventArgs e)
         {
             //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
@@ -804,13 +765,7 @@ namespace UMLEditor.Views
                 return;
 
             }
-
-            if (!isValidName(words[2]))
-            {
-                return;
-            }
             
-
             string TargetClassName = words[0];
 
             // Get CurrentClass for use in reaching its attributes
@@ -830,12 +785,20 @@ namespace UMLEditor.Views
                 InputBox.Focus();
                 return;
             }
-            
+
             try
             {
 
                 CurrentClass.RenameAttribute(words[1], words[2]);
 
+            }
+
+            // Check if name is valid
+            catch (InvalidNameException exception)
+            {
+                OutputBox.Text = exception.Message;
+                InputBox.Focus();
+                return;
             }
             
             // Check if the attribute doesn't exist.
