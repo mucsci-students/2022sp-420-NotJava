@@ -1,7 +1,4 @@
-﻿
-using Avalonia.Data;
-
-namespace UMLEditor.Exceptions;
+﻿namespace UMLEditor.Exceptions;
 
 using System;
 

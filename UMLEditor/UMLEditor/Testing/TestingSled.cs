@@ -1,6 +1,6 @@
-﻿using System;
+﻿namespace UMLEditor.Testing;
 
-namespace UMLEditor.Testing;
+using System;
 
 /// <summary>
 /// A tool that will invoke the unit tests
@@ -47,8 +47,6 @@ public static class TestingSled
         PrintColoredLine("\nRelationship has passed all tests\n", SUCCESS_COLOR);
         
         ///////////////////////////////////////////////////////////////////////////////////////
-        
-        // Test...
         
         PrintColoredLine("All tests passed", SUCCESS_COLOR);
 

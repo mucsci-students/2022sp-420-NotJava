@@ -1,9 +1,8 @@
-﻿using System;
+﻿namespace UMLEditor.Testing;
+
 using System.Diagnostics;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
-
-namespace UMLEditor.Testing;
 
 public static class ClassTester
 {

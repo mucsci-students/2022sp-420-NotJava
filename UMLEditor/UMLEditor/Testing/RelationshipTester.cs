@@ -1,11 +1,9 @@
-using System;
-using System.Diagnostics;
-
 namespace UMLEditor.Testing;
 
+using System.Diagnostics;
 using UMLEditor.Classes;
 
-public class RelationshipTester
+public static class RelationshipTester
 {
     public static void RunTests()
     {
@@ -26,8 +24,8 @@ public class RelationshipTester
         Debug.Assert(
             newRelation.SourceClass == "Test1" && newRelation.DestinationClass == "Test2",
             string.Format("New Relationship classes were incorrect. " +
-                          "Expected \"{0}\" and \"{1}\" but got \"{2}\" and \"{3}\"\n"
-                , class1.ClassName, class2.ClassName, newRelation.SourceClass, newRelation.DestinationClass)
+                          "Expected \"{0}\" and \"{1}\" but got \"{2}\" and \"{3}\"\n",
+                class1.ClassName, class2.ClassName, newRelation.SourceClass, newRelation.DestinationClass)
         );
         TestingSled.PrintColoredLine("Tested fields of relationship\n", TestingSled.SUCCESS_COLOR);
         

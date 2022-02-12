@@ -1,8 +1,6 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
-using Avalonia.Threading;
-using UMLEditor.Classes;
 using UMLEditor.Testing;
 
 namespace UMLEditor.NetCore
@@ -28,9 +26,11 @@ namespace UMLEditor.NetCore
         public static void Main(string[] args)
         {
             
+            // Ensure at least one arg is provided
             if (args.Length >= 1)
             {
 
+                // Extract the first flag
                 string providedArg = args[0];
 
                 switch (providedArg)
@@ -39,8 +39,12 @@ namespace UMLEditor.NetCore
                     case("-test"):
                         
                         // Unit testing mode
-                        try { TestingSled.RunTests(); }
+                        try
+                        {
+                            TestingSled.RunTests();
+                        }
 
+                        // If any unhandled exceptions come out of RunTests, display info here 
                         catch (Exception e)
                         {
 
@@ -52,13 +56,13 @@ namespace UMLEditor.NetCore
                             
                         }
                         
+                        // Pause the program for user input (ensure user always gets to read output)
                         Console.Write("Press enter to exit... ");
                         Console.ReadLine();
                         break;
                     
+                    // CLI mode
                     case("-cli"):
-                        
-                        // CLI mode
                         Environment.Exit((int)CustomExitCodes.ERROR_UNIMPLEMENTED);
                         break;
                     

@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 public class JSONDiagramFile : IDiagramFile
 {
 
-    public Diagram LoadDiagram(string fromFile)
+    public Diagram? LoadDiagram(string fromFile)
     {
         return JsonConvert.DeserializeObject<Diagram>(File.ReadAllText(fromFile));
     }

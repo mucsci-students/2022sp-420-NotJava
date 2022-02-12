@@ -1,10 +1,8 @@
-﻿using System;
+﻿namespace UMLEditor.Classes;
+
+using System;
 using Newtonsoft.Json;
 using UMLEditor.Exceptions;
-
-namespace UMLEditor.Classes;
-
-using System.Collections.Generic;
 
 public class AttributeObject
 {
@@ -47,6 +45,11 @@ public class AttributeObject
         AttributeName = name;
     }
     
+    /// <summary>
+    /// Checks if the provided name is a valid attribute name.
+    /// </summary>
+    /// <param name="name">The name to test.</param>
+    /// <exception cref="InvalidNameException">If the provided name is invalid.</exception>
     private void CheckValidAttributeName(string name)
     {
         if (!Char.IsLetter(name[0]) && name[0] != '_')

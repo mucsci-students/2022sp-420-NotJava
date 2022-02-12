@@ -1,11 +1,7 @@
-﻿using System;
+﻿namespace UMLEditor.Testing;
+
 using System.Diagnostics;
-using System.Reflection.Metadata;
-
-namespace UMLEditor.Testing;
-
 using UMLEditor.Classes;
-using UMLEditor.Exceptions;
 
 public static class AttributeTester
 {
@@ -57,11 +53,14 @@ public static class AttributeTester
     private static void TestToString (ref string attribName)
     {
         
+        // Expected toString format
         string tostringFormat = "Attribute: {0}";
         string expectedToString = string.Format(tostringFormat, attribName);
 
+        // Create the new attribute
         AttributeObject newAttrib = new AttributeObject(attribName);
 
+        // Ensure that the ToString is what we expected
         Debug.Assert(
 
             newAttrib.ToString().Equals(expectedToString),

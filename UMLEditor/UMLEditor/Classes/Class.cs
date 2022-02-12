@@ -1,11 +1,10 @@
-﻿using System;
-using System.Reflection.PortableExecutable;
+﻿namespace UMLEditor.Classes;
+
+using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using UMLEditor.Exceptions;
 
-namespace UMLEditor.Classes;
-
-using System.Collections.Generic;
 public class Class
 {
     // Used for JSON serialization  and deserialization
@@ -29,12 +28,11 @@ public class Class
     /// Constructor for class "name"
     /// </summary>
     /// <param name="name">Name of the class being created</param>
-    /// <exception cref="InvalidNameException">Thrown if the name provided is invlalid</exception>
+    /// <exception cref="InvalidNameException">Thrown if the name provided is invalid</exception>
     public Class(string name) : this()
     {
         CheckValidClassName(name);
         ClassName = name;
-
     }
 
     /// <summary>
@@ -69,13 +67,13 @@ public class Class
     /// </summary>
     /// <param name="name">Name of attribute you are looking for</param>
     /// <returns>Returns the attribute if exists, or null if it does not</returns>
-    public AttributeObject GetAttributeByName(string name)
+    public AttributeObject? GetAttributeByName(string name)
     {
-        foreach (AttributeObject CurrentAttribute in Attributes)
+        foreach (AttributeObject currentAttribute in Attributes)
         {
-            if (CurrentAttribute.AttributeName == name)
+            if (currentAttribute.AttributeName == name)
             {
-                return CurrentAttribute;
+                return currentAttribute;
             }
         }
         return null; 
@@ -84,19 +82,19 @@ public class Class
     /// <summary>
     /// Deletes an attribute within a specified class
     /// </summary>
-    /// <param name="TargetAttributeName">AttributeObject to be deleted</param>
+    /// <param name="targetAttributeName">AttributeObject to be deleted</param>
     /// <exception cref="AttributeNonexistentException">If attribute does not exist</exception>
-    public void DeleteAttribute(string TargetAttributeName)
+    public void DeleteAttribute(string targetAttributeName)
     {
         
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent attribute name entered ({0}).";
         
         // Ensure the provided classes exist
-        bool RemoveWorked = Attributes.Remove(GetAttributeByName(TargetAttributeName));
-        if (!RemoveWorked)
+        bool removeWorked = Attributes.Remove(GetAttributeByName(targetAttributeName));
+        if (!removeWorked)
         {
 
-            throw new AttributeNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, TargetAttributeName));
+            throw new AttributeNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, targetAttributeName));
             
         }
 
