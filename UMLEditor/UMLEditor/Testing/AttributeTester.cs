@@ -5,6 +5,7 @@ using System.Reflection.Metadata;
 namespace UMLEditor.Testing;
 
 using UMLEditor.Classes;
+using UMLEditor.Exceptions;
 
 public static class AttributeTester
 {
@@ -20,6 +21,7 @@ public static class AttributeTester
         TestCreation(ref attribName);
         TestToString(ref attribName);
         TestRename(ref attribName);
+        TestInvalidNames();
         
     }
 
@@ -71,6 +73,33 @@ public static class AttributeTester
 
     }
 
+    private static void TestInvalidNames()
+    {
+
+        string invalidName = "123456";
+        
+        // Test constructing with an invalid name
+        try
+        {
+
+            // If it is working, this should throw an exception
+            AttributeObject newAttrib = new AttributeObject(invalidName);
+
+            // If we get here, name validation is not working
+            Debug.Fail(string.Format("{0} is not a valid attribute name." +
+                                     "An exception should have been thrown when trying to create an attribute with its name.", invalidName));
+
+        }
+
+        catch
+        {
+            
+            PrintSuccess("PASS: Attribute rejected an invalid name on construction: {0}", invalidName);
+            
+        }
+        
+    }
+    
     private static void TestRename(ref string attribName)
     {
 
@@ -87,6 +116,28 @@ public static class AttributeTester
                           "Expected {0} but was {1}", newName, toTest.AttributeName)
             
         );
+        
+        
+        string invalidName = "123456";
+        // Test renaming with an invalid name
+        try
+        {
+
+            // If it is working, this should throw an exception
+            toTest.AttRename(invalidName);
+
+            // If we get here, name validation is not working
+            Debug.Fail(string.Format("{0} is not a valid attribute name." +
+                                     "An exception should have been thrown when trying to rename an attribute with this name.", invalidName));
+
+        }
+
+        catch
+        {
+            
+            PrintSuccess("PASS: Attribute rejected an invalid name on rename: {0}", invalidName);
+            
+        }
         
     }
     

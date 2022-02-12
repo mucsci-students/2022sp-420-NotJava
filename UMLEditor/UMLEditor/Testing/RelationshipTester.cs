@@ -7,11 +7,11 @@ using UMLEditor.Classes;
 
 public class RelationshipTester
 {
-    public static void TestCreation()
+    public static void RunTests()
     {
         // Make sure we can instantiate a default relationship
         Relationship newRelation = new Relationship();
-        Console.Write("New default relationship constructed.\n");
+        TestingSled.PrintColoredLine("New default relationship constructed.", TestingSled.SUCCESS_COLOR);
 
         // Create new classes for testing
         Class class1 = new Class("Test1");
@@ -19,7 +19,7 @@ public class RelationshipTester
         
         // Make sure we can instantiate a test relationship
         newRelation = new Relationship("Test1", "Test2");
-        Console.Write("New relationship between Test1 and Test2 created\n");
+        TestingSled.PrintColoredLine("New relationship between Test1 and Test2 created", TestingSled.SUCCESS_COLOR);
         
         // At this point, if no exceptions were thrown then we are okay
         // Make sure the name actually came through
@@ -29,12 +29,12 @@ public class RelationshipTester
                           "Expected \"{0}\" and \"{1}\" but got \"{2}\" and \"{3}\"\n"
                 , class1.ClassName, class2.ClassName, newRelation.SourceClass, newRelation.DestinationClass)
         );
-        Console.Write("Tested fields of relationship\n");
+        TestingSled.PrintColoredLine("Tested fields of relationship\n", TestingSled.SUCCESS_COLOR);
         
         // Test creation of a relationship with nonexistent classes
         newRelation = new Relationship("Test1", "Test3");
-        Console.Write("Testing new relationship with nonexistent Test3 class\n");
+        TestingSled.PrintColoredLine("Testing new relationship with nonexistent Test3 class", TestingSled.SUCCESS_COLOR);
         
-        Console.Write("Relationship toString: " + newRelation.ToString() + "\n");
+        TestingSled.PrintColoredLine("Relationship toString: " + newRelation.ToString(), TestingSled.SUCCESS_COLOR);
     }
 }

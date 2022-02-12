@@ -16,8 +16,8 @@ namespace UMLEditor.NetCore
         private enum CustomExitCodes
         {
             
-            ERROR_UNIMPLEMENTED = -100,
-            ERROR_FAILED_UNIT_TEST = -101
+            ERROR_UNIMPLEMENTED = 5,
+            ERROR_FAILED_UNIT_TEST = 6
 
         }
 

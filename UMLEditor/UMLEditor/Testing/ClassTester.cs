@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Diagnostics;
 using UMLEditor.Classes;
+using UMLEditor.Exceptions;
 
 namespace UMLEditor.Testing;
 
 public static class ClassTester
 {
-    public static void TestCreation()
+    public static void RunTests()
     {
-        Console.Write("Testing Class: \n");
         // Make sure we can instantiate a default class
         Class newClass = new Class();
-        Console.Write("New default class constructed.\n");
+        TestingSled.PrintColoredLine("New default class constructed.", TestingSled.SUCCESS_COLOR);
 
         // Make sure we can instantiate a test class
         newClass = new Class("TestClass1");
-        Console.Write("New class TestClass1 created\n");
+        TestingSled.PrintColoredLine("New class TestClass1 created", TestingSled.SUCCESS_COLOR);
         
         // At this point, if no exceptions were thrown then we are okay
         // Make sure the name actually came through
@@ -25,18 +25,44 @@ public static class ClassTester
                           "Expected \"{0}\" but got \"{1}\"\n"
                 , "TestClass1", newClass.ClassName)
         );
-        Console.Write("Tested fields of TestClass1\n");
+        TestingSled.PrintColoredLine("Tested fields of TestClass1", TestingSled.SUCCESS_COLOR);
         
         // Test creation of a class with invalid names
-        Class invalidClass = new Class("%#0923");
-        Console.Write("Tested new class with invalid name %#0923\n");
+        try
+        {
+
+            Class invalidClass = new Class("%#0923");
+            Debug.Fail("Class should reject invalid names on construction. Class did not reject %#0923");
+
+        }
+
+        catch (InvalidNameException)
+        {
+            
+            TestingSled.PrintColoredLine("Tested new class with invalid name %#0923", TestingSled.SUCCESS_COLOR);
+            
+        }
+        
+        // Test renaming a class to an invalid name
+        try
+        {
+
+            newClass.Rename("%#0923");
+            Debug.Fail("Class should reject invalid names when renaming. Class did not reject %#0923");
+
+        }
+
+        catch (InvalidNameException)
+        {
+            
+            TestingSled.PrintColoredLine("Tested renaming class with invalid name %#0923", TestingSled.SUCCESS_COLOR);
+            
+        }
+        
         Class duplicateClass = new Class("TestClass1");
-        Console.Write("Tested new class with name in use TestClass1\n");
+        TestingSled.PrintColoredLine("Tested new class with name in use TestClass1", TestingSled.SUCCESS_COLOR);
         
         // Test ToString function
-        Console.Write("Class toString: " + newClass.ToString() + "\n");
-        
-        // Test Attributes
-        AttributeTester.RunTests();
+        TestingSled.PrintColoredLine("Class toString: " + newClass.ToString(), TestingSled.SUCCESS_COLOR);
     }
 }
