@@ -145,7 +145,7 @@
                                 Grid.Row="1" 
                                 Grid.Column="0" 
                                 Width="375"
-                                Click="SaveButtonOnClick"
+                                Click="Save_Button_OnClick"
                                 Content="Save Diagram"/>
                         
                         <Button Name="LoadDiagramButton"

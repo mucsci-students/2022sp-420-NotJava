@@ -1,12 +1,9 @@
-﻿using System;
-using System.Net.Security;
-using DynamicData.Kernel;
+﻿namespace UMLEditor.Classes;
+
+using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using UMLEditor.Exceptions;
-
-namespace UMLEditor.Classes;
-
-using System.Collections.Generic;
 
 public class Diagram
 {
@@ -56,29 +53,29 @@ public class Diagram
     }
 
     /// <summary>
-    /// 
+    /// Checks if a relationship between the two classes.
     /// </summary>
-    /// <param name="SourceName"></param>
-    /// <param name="DestName"></param>
-    /// <returns></returns>
-    public bool RelationshipExists (string SourceName, string DestName)
+    /// <param name="sourceName">The source class in the relationship</param>
+    /// <param name="destName">The destination class in the relationship</param>
+    /// <returns>True if the relationship exists, false otherwise</returns>
+    public bool RelationshipExists (string sourceName, string destName)
     {
 
-        return GetRelationshipByName(SourceName, DestName) != null;
+        return GetRelationshipByName(sourceName, destName) != null;
 
     }
     
     /// <summary>
-    /// 
+    /// Gets the relationship between the two classes, if it exists.
     /// </summary>
-    /// <param name="SourceName"></param>
-    /// <param name="DestName"></param>
-    /// <returns></returns>
-    public Relationship GetRelationshipByName(string SourceName, string DestName)
+    /// <param name="sourceName">The source class in the relationship</param>
+    /// <param name="destName">The destination class in the relationship</param>
+    /// <returns>The found relationship object, or null if none exists</returns>
+    public Relationship? GetRelationshipByName(string sourceName, string destName)
     {
         foreach (Relationship r in Relationships)
         {
-            if (r.SourceClass == SourceName && r.DestinationClass == DestName)
+            if (r.SourceClass == sourceName && r.DestinationClass == destName)
             {
                 return r;
             }
@@ -91,13 +88,13 @@ public class Diagram
     /// </summary>
     /// <param name="name">Name of class you are looking for</param>
     /// <returns>Returns the class if exists, or null if it does not</returns>
-    public Class GetClassByName(string name)
+    public Class? GetClassByName(string name)
     {
-        foreach (Class CurrentClass in Classes)
+        foreach (Class currentClass in Classes)
         {
-            if (CurrentClass.ClassName == name)
+            if (currentClass.ClassName == name)
             {
-                return CurrentClass;
+                return currentClass;
             }
         }
         return null; 
@@ -106,30 +103,30 @@ public class Diagram
     /// <summary>
     /// Creates a relationship between the two classes, if they exist
     /// </summary>
-    /// <param name="SourceClassName">The source class for the relationship</param>
-    /// <param name="DestClassName">The destination class for the relationship</param>
+    /// <param name="sourceClassName">The source class for the relationship</param>
+    /// <param name="destClassName">The destination class for the relationship</param>
     /// <exception cref="ClassNonexistentException">If either class does not exist</exception>
-    public void AddRelationship(string SourceClassName, string DestClassName)
+    public void AddRelationship(string sourceClassName, string destClassName)
     {
         
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent class name entered ({0}).";
         // Ensure the provided classes exist
-        if (!ClassExists(SourceClassName))
+        if (!ClassExists(sourceClassName))
         {
 
-            throw new ClassNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, SourceClassName));
+            throw new ClassNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, sourceClassName));
             
         }
         
-        else if (!(ClassExists(DestClassName)))
+        else if (!(ClassExists(destClassName)))
         {
 
-            throw new ClassNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, DestClassName));
+            throw new ClassNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, destClassName));
 
         }
 
         // Create and add the new relationship
-        Relationship newRel = new Relationship(SourceClassName, DestClassName);
+        Relationship newRel = new Relationship(sourceClassName, destClassName);
         Relationships.Add(newRel);
         
     }
@@ -137,34 +134,34 @@ public class Diagram
     /// <summary>
     /// Adds a class to the diagram.  Ensures the desired class to add does not already exist
     /// </summary>
-    /// <param name="ClassName">The name of the class to add</param>
+    /// <param name="className">The name of the class to add</param>
     /// <exception cref="ClassAlreadyExistsException">Ensures there is not already a class by this name</exception>
-    public void AddClass(string ClassName)
+    public void AddClass(string className)
     {
-        if (ClassExists(ClassName))
+        if (ClassExists(className))
         {
-            throw new ClassAlreadyExistsException(string.Format("Class {0} already exists", ClassName));
+            throw new ClassAlreadyExistsException(string.Format("Class {0} already exists", className));
         }
         
         // Create a new class
-        Classes.Add(new Class(ClassName));
+        Classes.Add(new Class(className));
 
     }
     
-    public void DeleteClass(string ClassName)
+    public void DeleteClass(string className)
     {
-        if (!ClassExists(ClassName))
+        if (!ClassExists(className))
         {
-            throw new ClassNonexistentException(string.Format("Class {0} does not exist", ClassName));
+            throw new ClassNonexistentException(string.Format("Class {0} does not exist", className));
         }
 
-        if (ClassIsInRelationship(ClassName))
+        if (ClassIsInRelationship(className))
         {
             throw new ClassInUseException(string.Format("Class {0} is in use by a relationship and cannot be deleted",
-                ClassName));
+                className));
         }
         
-        Classes.Remove(GetClassByName(ClassName));
+        Classes.Remove(GetClassByName(className));
     }
     
     /// <summary>
@@ -186,8 +183,14 @@ public class Diagram
         }
         
         // Rename class
-        GetClassByName(oldName).Rename(newName);
+        Class foundClass = GetClassByName(oldName); 
+        foundClass.Rename(newName);
 
+        foreach (Relationship currentRel in GetInvolvedRelationships(oldName))
+        {
+            currentRel.RenameMember(oldName, newName);
+        }
+        
     }
     
     
@@ -238,20 +241,44 @@ public class Diagram
 
     
     /// <summary>
-    /// 
+    /// Deletes the provided relationship, if it exists
     /// </summary>
-    /// <param name="SourceName"></param>
-    /// <param name="DestName"></param>
-    /// <exception cref="RelationshipNonexistentException"></exception>
-    public void DeleteRelationship(string SourceName, string DestName)
+    /// <param name="sourceName">Source class in the relationship</param>
+    /// <param name="destName">Destination class in the relationship</param>
+    /// <exception cref="RelationshipNonexistentException">If the relationship does not exist</exception>
+    public void DeleteRelationship(string sourceName, string destName)
     {
-        if (!RelationshipExists(SourceName, DestName))
+        if (!RelationshipExists(sourceName, destName))
         {
-            throw new RelationshipNonexistentException(string.Format("Relationship {0} -> {1} does not exist", SourceName, DestName));
+            throw new RelationshipNonexistentException(string.Format("Relationship {0} -> {1} does not exist", sourceName, destName));
         }
         
         // Delete relationship
-        Relationships.Remove(GetRelationshipByName(SourceName, DestName));
+        Relationships.Remove(GetRelationshipByName(sourceName, destName));
     }
 
+    /// <summary>
+    /// Returns a list of all relationships the provided class is involved with
+    /// </summary>
+    /// <param name="onClassName">The class to find relationships for</param>
+    /// <returns></returns>
+    public List<Relationship> GetInvolvedRelationships(string onClassName)
+    {
+
+        List<Relationship> result = new List<Relationship>();
+
+        foreach (Relationship currentRel in Relationships)
+        {
+
+            if (currentRel.SourceClass == onClassName || currentRel.DestinationClass == onClassName)
+            {
+                result.Add(currentRel);
+            }
+            
+        }
+        
+        return result;
+
+    }
+    
 }

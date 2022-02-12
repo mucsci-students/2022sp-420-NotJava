@@ -7,21 +7,22 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
+using UMLEditor.Interfaces;
 
 namespace UMLEditor.Views
 {
     public partial class MainWindow : Window
     {
 
-        private Diagram ActiveDiagram;
+        private Diagram _activeDiagram;
 
-        private TextBox OutputBox;
-        private TextBox InputBox;
+        private readonly TextBox _outputBox;
+        private readonly TextBox _inputBox;
 
-        private JSONDiagramFile ActiveFile;
+        private IDiagramFile _activeFile;
 
-        private OpenFileDialog OpenDialog;
-        private SaveFileDialog SaveDialog;
+        private readonly OpenFileDialog _openFileDialog;
+        private readonly SaveFileDialog _saveFileDialog;
         
         private Button SaveDiagramButton;
         private Button LoadDiagramButton;
@@ -31,15 +32,15 @@ namespace UMLEditor.Views
             
             InitializeComponent();
             
-            ActiveDiagram = new Diagram();
-            ActiveFile = new JSONDiagramFile();
+            _activeDiagram = new Diagram();
+            _activeFile = new JSONDiagramFile();
             
-            OutputBox = this.FindControl<TextBox>("OutputBox");
-            InputBox = this.FindControl<TextBox>("InputBox");
+            _outputBox = this.FindControl<TextBox>("OutputBox");
+            _inputBox = this.FindControl<TextBox>("InputBox");
 
             SaveDiagramButton = this.FindControl<Button>("SaveDiagramButton");
             LoadDiagramButton = this.FindControl<Button>("LoadDiagramButton");
-            InitFileDialogs(out OpenDialog, out SaveDialog, new []{ "json" });
+            InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
             
         }
 
@@ -55,21 +56,25 @@ namespace UMLEditor.Views
         /// <param name="saveFD">The SaveFileDialog to configure</param>
         /// <param name="filteredExtensions">An array of file extensions that will be selectable in the dialogs.
         /// No need for the "." in the extension.</param>
-        private void InitFileDialogs(out OpenFileDialog openFD, out SaveFileDialog saveFD, string[] filteredExtensions)
+        private void InitFileDialogs(out OpenFileDialog openFD, out SaveFileDialog saveFD, params string[] filteredExtensions)
         {
 
-            string WorkingDir = Directory.GetCurrentDirectory();
+            string workingDir = Directory.GetCurrentDirectory();
             
+            /* - Construct the open file dialog
+             * - Set its title
+             * - Disallow selecting multiple files in this dialog */
             openFD = new OpenFileDialog();
             openFD.Title = "Load Diagram From File";
             openFD.AllowMultiple = false;
             
+            // Construct / init the save dialog
             saveFD = new SaveFileDialog();
             saveFD.Title = "Save Diagram To File";
 
-            // Make the save/ open dialog open to the working directory by default
-            openFD.Directory = WorkingDir;
-            saveFD.Directory = WorkingDir;
+            // Make the save / open dialog open to the working directory by default
+            openFD.Directory = workingDir;
+            saveFD.Directory = workingDir;
 
             foreach (string extension in filteredExtensions)
             {
@@ -92,10 +97,11 @@ namespace UMLEditor.Views
         private void ClearInputBox()
         {
 
+            // Ask the UI thread to clear the input box
             Dispatcher.UIThread.Post(() =>
             {
                 
-                InputBox.Text = "";                
+                _inputBox.Text = "";                
                 
             });
             
@@ -116,7 +122,7 @@ namespace UMLEditor.Views
                 Dispatcher.UIThread.Post(() =>
                 {
 
-                    OutputBox.Text += text;
+                    _outputBox.Text += text;
 
                 });
                 
@@ -127,7 +133,7 @@ namespace UMLEditor.Views
             Dispatcher.UIThread.Post((() =>
             {
 
-                OutputBox.Text = text;
+                _outputBox.Text = text;
 
             }));
             
@@ -144,7 +150,7 @@ namespace UMLEditor.Views
             ClearInputBox();            
             
             // Output list of possible commands.
-            OutputBox.Text = 
+            _outputBox.Text = 
                 "New Class: Add a new class to the diagram" + 
                 "\nDelete Class: Delete an existing class" +
                 "\nRename Class: Rename an existing class" +
@@ -160,18 +166,16 @@ namespace UMLEditor.Views
                 "\nList Relationships: List all relationships of a class";
             
         }
-
-        // On button click: Display all classes of current diagram to output box
+        
         private void List_Classes_OnClick(object sender, RoutedEventArgs e)
         {
-            OutputBox.Text = ActiveDiagram.ListClasses();
+            _outputBox.Text = _activeDiagram.ListClasses();
         }
         
-        // On button click: Display all attributes of selected class to output box
         private void List_Attributes_OnClick(object sender, RoutedEventArgs e)
         {
             //Get input from input box
-            string input = InputBox.Text;
+            string input = _inputBox.Text;
             
             //Split the input into class names
             string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
@@ -179,36 +183,35 @@ namespace UMLEditor.Views
             if (words.Length != 1)
             {
                 // Error for invalid input
-                OutputBox.Text =
+                _outputBox.Text =
                     "To list the attributes of an existing class enter the " +
                     "class name into the input box and then click 'List Attributes'.";
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
             }
             
-            Class CurrentClass = ActiveDiagram.GetClassByName(words[0]);
+            Class currentClass = _activeDiagram.GetClassByName(words[0]);
 
             // If the TargetClass does not exist throw an error
-            if (CurrentClass == null)
+            if (currentClass == null)
             {
-                OutputBox.Text = "Nonexistent class entered";
-                InputBox.Focus();
+                _outputBox.Text = "Nonexistent class entered";
+                _inputBox.Focus();
                 return;
             }
-            OutputBox.Text = CurrentClass.ListAttributes();
+            _outputBox.Text = currentClass.ListAttributes();
         }
         
-        // On button click: Display all relationships of current diagram to output box
         private void List_Relationships_OnClick(object sender, RoutedEventArgs e)
         {
-            OutputBox.Text = ActiveDiagram.ListRelationships();
+            _outputBox.Text = _activeDiagram.ListRelationships();
         }
 
         private void AddRelationship_OnClick(object sender, RoutedEventArgs e)
         {
 
             //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = InputBox.Text;
+            string input = _inputBox.Text;
             
             //Split the input into words to use later on.
             string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
@@ -217,11 +220,11 @@ namespace UMLEditor.Views
             {
                 
                 // No input arguments
-                OutputBox.Text = 
+                _outputBox.Text = 
                     "To create a new relationship, please enter source and destination in the format " +
                     "'A B' into the input box and then click 'Add Relationship'.";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
 
             }
@@ -230,40 +233,40 @@ namespace UMLEditor.Views
             {
                 
                 // Invalid input arguments
-                OutputBox.Text = 
+                _outputBox.Text = 
                     "Input must be in the form 'A B' with only one source and one destination.  " +
                     "Please enter your relationship into the input box and click 'Add Relationship'.";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
                 
             }
 
-            string SourceClassName = words[0];
-            string DestClassName = words[1];
+            string sourceClassName = words[0];
+            string destClassName = words[1];
             
             try
             {
                 
-                ActiveDiagram.AddRelationship(SourceClassName, DestClassName);
+                _activeDiagram.AddRelationship(sourceClassName, destClassName);
                 
             }
             
             catch (ClassNonexistentException exception)
             {
 
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
+                _outputBox.Text = exception.Message;
+                _inputBox.Focus();
                 return;
 
             }
             
             ClearInputBox();
-            OutputBox.Text = string.Format("Relationship created ({0} => {1})", SourceClassName, DestClassName);
+            _outputBox.Text = string.Format("Relationship created ({0} => {1})", sourceClassName, destClassName);
 
         }
 
-        private void SaveButtonOnClick(object sender, RoutedEventArgs e)
+        private void Save_Button_OnClick(object sender, RoutedEventArgs e)
         {
 
             // Disable the save diagram button to disallow opening selector multiple times
@@ -271,7 +274,7 @@ namespace UMLEditor.Views
             
             /* Open the file save dialog on its own thread
              * Obtain a future from this action */
-            Task<string?> saveTask = SaveDialog.ShowAsync(this);
+            Task<string?> saveTask = _saveFileDialog.ShowAsync(this);
             saveTask.ContinueWith((Task<string?> finishedTask) =>
             {
 
@@ -285,7 +288,7 @@ namespace UMLEditor.Views
                     try
                     {
 
-                        ActiveFile.SaveDiagram(ref ActiveDiagram, selectedFile);
+                        _activeFile.SaveDiagram(ref _activeDiagram, selectedFile);
                         WriteToOutput(string.Format("Current diagram saved to {0}", selectedFile));
                         ClearInputBox();
 
@@ -327,7 +330,7 @@ namespace UMLEditor.Views
 
             /* Open the file selection dialog on its own thread
              * Obtain a future from this action */
-            Task<string[]?> loadTask = OpenDialog.ShowAsync(this);
+            Task<string[]?> loadTask = _openFileDialog.ShowAsync(this);
             loadTask.ContinueWith((Task<string[]?> taskResult) =>
             {
 
@@ -347,7 +350,7 @@ namespace UMLEditor.Views
                     try
                     {
 
-                        ActiveDiagram = ActiveFile.LoadDiagram(chosenFile);
+                        _activeDiagram = _activeFile.LoadDiagram(chosenFile);
                         ClearInputBox();
                         WriteToOutput(string.Format("Diagram loaded from {0}", chosenFile));
 
@@ -384,56 +387,51 @@ namespace UMLEditor.Views
         private void Add_Attribute_OnClick(object sender, RoutedEventArgs e)
         {
             //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid
-            string input = InputBox.Text;
+            string input = _inputBox.Text;
             
             //Split the input into words to use later on.
             string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
             
+            // Make sure at least two words were provided in the input box
             if (words.Length != 2)
             {
                 
                 // Invalid input arguments
-                OutputBox.Text = 
+                _outputBox.Text = 
                     "To add an attribute enter source class and attribute in the format " +
                     "'Class Attribute' into the input box and then click 'Add Attribute'.";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
                 
             }
 
-            if (!ActiveDiagram.ClassExists(words[0]))
+            // Make sure the first word is the name of a class that exists
+            if (!_activeDiagram.ClassExists(words[0]))
             {
                 string message = string.Format("Class {0} does not exist", words[0]);
-                OutputBox.Text = message;
-                InputBox.Focus();
+                _outputBox.Text = message;
+                _inputBox.Focus();
                 return;
             }
 
             try
             {
 
-                ActiveDiagram.GetClassByName(words[0]).AddAttribute(words[1]);
+                // Add the attribute to the provided class
+                _activeDiagram.GetClassByName(words[0]).AddAttribute(words[1]);
 
             }
 
-            catch (InvalidNameException exception)
+            catch (Exception exception)
             {
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
+                _outputBox.Text = exception.Message;
+                _inputBox.Focus();
                 return;
             }
-            catch (AttributeAlreadyExistsException exception)
-            {
-
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
-                return;
-
-            }
-
+            
             ClearInputBox();
-            OutputBox.Text = string.Format("Class {0} given Attribute {1}", words[0], words[1]);
+            _outputBox.Text = string.Format("Class {0} given Attribute {1}", words[0], words[1]);
         }
         
         
@@ -441,7 +439,7 @@ namespace UMLEditor.Views
         {
             
             //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, delete attribute if is.
-            string input = InputBox.Text;
+            string input = _inputBox.Text;
             
             //Split the input into words to use later on.
             string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
@@ -450,11 +448,11 @@ namespace UMLEditor.Views
             {
                 
                 // No input arguments
-                OutputBox.Text = 
+                _outputBox.Text = 
                     "To delete an existing attribute enter source class and attribute in the format " +
                     "'Class Attribute' into the input box and then click 'Delete Attribute'.";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
 
             }
@@ -463,33 +461,33 @@ namespace UMLEditor.Views
             {
                 
                 // Invalid input arguments
-                OutputBox.Text = 
+                _outputBox.Text = 
                     "Input must be in the form 'Class Attribute' with only one class and one attribute.  " +
                     "Please enter this into the input box and click 'Delete Attribute'.";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
                 
             }
             
-            string TargetClassName = words[0];
-            string TargetAttributeName = words[1];
+            string targetClassName = words[0];
+            string targetAttributeName = words[1];
 
             // Create CurrentClass for use in reaching its attributes
-            Class CurrentClass = ActiveDiagram.GetClassByName(TargetClassName);
+            Class currentClass = _activeDiagram.GetClassByName(targetClassName);
 
             // If the TargetClass does not exist throw an error
-            if (CurrentClass == null)
+            if (currentClass == null)
             {
-                OutputBox.Text = "Nonexistent class entered";
-                InputBox.Focus();
+                _outputBox.Text = "Nonexistent class entered";
+                _inputBox.Focus();
                 return;
             }
 
             try
             {
                 
-                CurrentClass.DeleteAttribute(TargetAttributeName);
+                currentClass.DeleteAttribute(targetAttributeName);
 
             }
             
@@ -497,35 +495,35 @@ namespace UMLEditor.Views
             catch (AttributeNonexistentException exception)
             {
 
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
+                _outputBox.Text = exception.Message;
+                _inputBox.Focus();
                 return;
 
             }
             
             ClearInputBox();
-            OutputBox.Text = string.Format("Attribute Deleted ({0} => {1})", TargetClassName, TargetAttributeName);
+            _outputBox.Text = string.Format("Attribute Deleted ({0} => {1})", targetClassName, targetAttributeName);
 
         }
 
         private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
         {
-            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = InputBox.Text;
+            // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
+            string input = _inputBox.Text;
             
-            //Split the input into words to use later on.
+            // Split the input into words to use later on.
             string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
             
-            //Assures only one word was given as input for a class name
+            // Assures only one word was given as input for a class name
             if (words.Length != 1)
             {
                 
                 // No input arguments
-                OutputBox.Text = 
+                _outputBox.Text = 
                     "To create a new Class, please enter a class name " +
                     "into the input box and then click 'Add Class'.";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
 
             }
@@ -533,48 +531,41 @@ namespace UMLEditor.Views
             try
             {
 
-                ActiveDiagram.AddClass(words[0]);
+                // Try to create a class with the first provided word as its name
+                _activeDiagram.AddClass(words[0]);
 
             }
 
-            catch (InvalidNameException exception)
+            catch (Exception exception)
             {
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
+                _outputBox.Text = exception.Message;
+                _inputBox.Focus();
                 return;
-            }
-            catch (ClassAlreadyExistsException exception)
-            {
-
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
-                return;
-
             }
             
             ClearInputBox();
-            OutputBox.Text = string.Format("Class Created {0}", words[0]);
+            _outputBox.Text = string.Format("Class Created {0}", words[0]);
 
         }
 
         private void Class_DeleteClass_OnClick(object sender, RoutedEventArgs e)
         {
-            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, delete attribute if is.
-            string input = InputBox.Text;
+            // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, delete attribute if is.
+            string input = _inputBox.Text;
             
-            //Split the input into words to use later on.
+            // Split the input into words to use later on.
             string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
 
             if (words.Length == 0)
             {
                 
                 // No input arguments
-                OutputBox.Text = 
+                _outputBox.Text = 
                     "To delete an existing class enter the name of class" +
                     "'ClassName' into the input box and then click 'Delete Class'. "+
                     "Deleting will delete relationship and attributes with it.";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
 
             }
@@ -583,128 +574,102 @@ namespace UMLEditor.Views
             {
                 
                 // Invalid input arguments
-                OutputBox.Text = 
+                _outputBox.Text = 
                     "Class must be a single word that starts with an alphabetic character or an underscore. " +
                     "Please enter this into the input box and click 'Delete Class'.";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
                 
             }
             
-            string TargetClassName = words[0];
-            
+            string targetClassName = words[0];
 
             // Create CurrentClass for use in reaching its attributes
-            Class CurrentClass = ActiveDiagram.GetClassByName(TargetClassName);
+            Class currentClass = _activeDiagram.GetClassByName(targetClassName);
 
             // If the TargetClass does not exist throw an error
-            if (CurrentClass == null)
+            if (currentClass == null)
             {
-                OutputBox.Text = "Nonexistent class entered";
-                InputBox.Focus();
+                _outputBox.Text = "Nonexistent class entered";
+                _inputBox.Focus();
                 return;
             }
 
             try
             {
-
-                ActiveDiagram.DeleteClass(words[0]);
-
+                _activeDiagram.DeleteClass(words[0]);
             }
 
-            catch (ClassAlreadyExistsException exception)
+            catch (Exception exception)
 
             {
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
+                _outputBox.Text = exception.Message;
+                _inputBox.Focus();
                 return;
             }
 
-            catch (ClassInUseException exception)
-            {
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
-                return;
-            }
-            
             ClearInputBox();
-            OutputBox.Text = string.Format("Class Deleted {0}", words[0]);
+            _outputBox.Text = string.Format("Class Deleted {0}", words[0]);
 
         }
 
         private void Class_RenameClass_OnClick(object sender, RoutedEventArgs e)
         {
-            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = InputBox.Text;
+            // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
+            string input = _inputBox.Text;
             
-            //Split the input into words to use later on.
+            // Split the input into words to use later on.
             string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
             
-            //Assures two words were given as input for a class rename
+            // Assures two words were given as input for a class rename
             if (words.Length != 2)
             {
                 
                 // No input arguments
-                OutputBox.Text = 
+                _outputBox.Text = 
                     "To rename a Class, please enter the class to rename followed by " +
                     " the new name in the form 'A B' into the input box and then click 'Rename Class'.";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
 
             }
 
             try
             {
-
-                ActiveDiagram.RenameClass(words[0], words[1]);
-
+                _activeDiagram.RenameClass(words[0], words[1]);
             }
 
-            catch (InvalidNameException exception)
+            catch (Exception exception)
             {
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
-                return;
-            }
-            catch (ClassAlreadyExistsException exception)
-            {
-
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
-                return;
-
-            }
-            catch (ClassNonexistentException exception)
-            {
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
+                _outputBox.Text = exception.Message;
+                _inputBox.Focus();
                 return;
             }
             
             ClearInputBox();
-            OutputBox.Text = string.Format("Class Renamed {0} to {1}", words[0], words[1]);
+            _outputBox.Text = string.Format("Class Renamed {0} to {1}", words[0], words[1]);
         }
         
         private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
         {
 
-            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = InputBox.Text;
+            // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
+            string input = _inputBox.Text;
             
-            //Split the input into words to use later on.
+            // Split the input into words to use later on.
             string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
 
             if (words.Length == 0)
             {
                 
                 // No input arguments
-                OutputBox.Text = 
+                _outputBox.Text = 
                     "To delete a relationship, please enter source and destination in the format " +
                     "'A B' into the input box and then click 'Delete Relationship'.";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
 
             }
@@ -712,107 +677,96 @@ namespace UMLEditor.Views
             //Ensures two classes entered
             if (words.Length != 2)
             {
-                OutputBox.Text =
+                _outputBox.Text =
                     "Two classes required to delete relationship";
                 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
             }
             
-            string SourceClassName = words[0];
-            string DestClassName = words[1];
+            string sourceClassName = words[0];
+            string destClassName = words[1];
             
             try
             {
                 
-                ActiveDiagram.DeleteRelationship(SourceClassName, DestClassName);
+                _activeDiagram.DeleteRelationship(sourceClassName, destClassName);
                 
             }
             
             catch (RelationshipNonexistentException exception)
             {
 
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
+                _outputBox.Text = exception.Message;
+                _inputBox.Focus();
                 return;
 
             }
             
             ClearInputBox();
-            OutputBox.Text = string.Format("Relationship Deleted ({0} => {1})", SourceClassName, DestClassName);
+            _outputBox.Text = string.Format("Relationship Deleted ({0} => {1})", sourceClassName, destClassName);
 
         }
 
         private void Class_RenameAttribute_OnClick(object sender, RoutedEventArgs e)
         {
-            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = InputBox.Text;
+            // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
+            string input = _inputBox.Text;
 
-            //Split the input into words to use later on.
+            // Split the input into words to use later on.
             string[] words = input.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            //Assures three words were given as input for a attribute rename
+            // Assures three words were given as input for a attribute rename
             if (words.Length != 3)
             {
 
                 // No input arguments
-                OutputBox.Text =
+                _outputBox.Text =
                     "To rename a attribute please enter the class followed by" +
                     " the old name and new name"+
                     "in the form 'A B C' into the input box and then click 'Rename Attribute'.";
 
-                InputBox.Focus();
+                _inputBox.Focus();
                 return;
 
             }
             
-            string TargetClassName = words[0];
+            string targetClassName = words[0];
 
             // Get CurrentClass for use in reaching its attributes
-            Class CurrentClass = ActiveDiagram.GetClassByName(TargetClassName);
+            Class currentClass = _activeDiagram.GetClassByName(targetClassName);
             // If the TargetClass does not exist throw an error
-            if (CurrentClass == null)
+            if (currentClass == null)
             {
-                OutputBox.Text = "Nonexistent class entered";
-                InputBox.Focus();
+                _outputBox.Text = "Nonexistent class entered";
+                _inputBox.Focus();
                 return;
             }
             
-            //ensures user didn't change old name to new name
+            // ensures user didn't change old name to new name
             if (words[1] == words[2])
             {
-                OutputBox.Text = "This old name is the same as the new name.";
-                InputBox.Focus();
+                _outputBox.Text = "New name cannot match previous name.";
+                _inputBox.Focus();
                 return;
             }
 
             try
             {
 
-                CurrentClass.RenameAttribute(words[1], words[2]);
+                currentClass.RenameAttribute(words[1], words[2]);
 
             }
 
-            // Check if name is valid
-            catch (InvalidNameException exception)
+            catch (Exception exception)
             {
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
+                _outputBox.Text = exception.Message;
+                _inputBox.Focus();
                 return;
             }
             
-            // Check if the attribute doesn't exist.
-            catch (AttributeNonexistentException exception)
-            {
-
-                OutputBox.Text = exception.Message;
-                InputBox.Focus();
-                return;
-
-            }
-
             ClearInputBox();
-            OutputBox.Text = string.Format("Attribute renamed {0} to {1}", words[1], words[2]);
+            _outputBox.Text = string.Format("Attribute renamed {0} to {1}", words[1], words[2]);
         }
     }
 }

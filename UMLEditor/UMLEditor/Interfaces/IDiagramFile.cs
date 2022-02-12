@@ -10,7 +10,7 @@ public interface IDiagramFile
     /// </summary>
     /// <param name="fromFile">The file name to load from</param>
     /// <returns>The diagram loaded from the provided file</returns>
-    public Diagram LoadDiagram(string fromFile);
+    public Diagram? LoadDiagram(string fromFile);
 
     /// <summary>
     /// Saves the provided diagram to the provided file.
