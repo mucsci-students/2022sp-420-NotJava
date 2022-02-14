@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="UMLEditor/UMLEditor/App.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/MainView.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/MainWindow.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+      </map>
+    </option>
+  </component>
+</project>
