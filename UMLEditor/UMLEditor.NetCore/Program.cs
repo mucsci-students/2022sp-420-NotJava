@@ -1,7 +1,6 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
-using UMLEditor.Testing;
 
 namespace UMLEditor.NetCore
 {
@@ -15,7 +14,6 @@ namespace UMLEditor.NetCore
         {
             
             ERROR_UNIMPLEMENTED = 5,
-            ERROR_FAILED_UNIT_TEST = 6
 
         }
 
@@ -35,31 +33,6 @@ namespace UMLEditor.NetCore
 
                 switch (providedArg)
                 {
-                    
-                    case("-test"):
-                        
-                        // Unit testing mode
-                        try
-                        {
-                            TestingSled.RunTests();
-                        }
-
-                        // If any unhandled exceptions come out of RunTests, display info here 
-                        catch (Exception e)
-                        {
-
-                            string message = string.Format("FATAL: Exception when running unit tests: {0}\n" +
-                                                           "Stack Trace:\n{1}", e.Message, e.StackTrace);
-                            
-                            TestingSled.PrintColoredLine(message, TestingSled.ERROR_COLOR);
-                            Environment.ExitCode = (int)CustomExitCodes.ERROR_FAILED_UNIT_TEST;
-                            
-                        }
-                        
-                        // Pause the program for user input (ensure user always gets to read output)
-                        Console.Write("Press enter to exit... ");
-                        Console.ReadLine();
-                        break;
                     
                     // CLI mode
                     case("-cli"):
