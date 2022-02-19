@@ -105,8 +105,10 @@ public class Diagram
     /// </summary>
     /// <param name="sourceClassName">The source class for the relationship</param>
     /// <param name="destClassName">The destination class for the relationship</param>
+    /// <param name="relationshipType">The type of relationship</param>
     /// <exception cref="ClassNonexistentException">If either class does not exist</exception>
-    public void AddRelationship(string sourceClassName, string destClassName)
+    /// <exception cfef="InvalidRelationshipTypeException">If the given relationship type is not valid</exception>
+    public void AddRelationship(string sourceClassName, string destClassName, string relationshipType)
     {
         
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent class name entered ({0}).";
@@ -126,7 +128,7 @@ public class Diagram
         }
 
         // Create and add the new relationship
-        Relationship newRel = new Relationship(sourceClassName, destClassName);
+        Relationship newRel = new Relationship(sourceClassName, destClassName, relationshipType);
         Relationships.Add(newRel);
         
     }
