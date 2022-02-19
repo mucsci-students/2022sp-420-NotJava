@@ -1,6 +1,7 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
+using UMLEditor.Classes;
 
 namespace UMLEditor.NetCore
 {
@@ -36,6 +37,7 @@ namespace UMLEditor.NetCore
                     
                     // CLI mode
                     case("-cli"):
+
                         Environment.Exit((int)CustomExitCodes.ERROR_UNIMPLEMENTED);
                         break;
                     

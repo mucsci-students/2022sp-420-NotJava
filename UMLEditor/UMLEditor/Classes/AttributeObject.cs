@@ -4,12 +4,13 @@ using System;
 using Newtonsoft.Json;
 using UMLEditor.Exceptions;
 
-public class AttributeObject
+public abstract class AttributeObject
 {
     // Used for JSON serialization  and deserialization
     [JsonProperty("attributename")]
-    public string AttributeName { get; private set; }
+    public string AttributeName { get; protected set; }
 
+    /*
     public AttributeObject()
     {
         AttributeName = "";
@@ -24,6 +25,7 @@ public class AttributeObject
         CheckValidAttributeName(name);
         AttributeName = name;
     }
+    */
 
     /// <summary>
     /// Stringifies Attribute

@@ -7,6 +7,7 @@ namespace UnitTests;
 [TestFixture]
 public class AttributeUnitTests
 {
+    /*
     [SetUp]
     public void Setup()
     {
@@ -54,4 +55,5 @@ public class AttributeUnitTests
     }
 
     private string attribName = "";
+    */
 }

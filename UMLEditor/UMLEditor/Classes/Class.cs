@@ -7,13 +7,19 @@ using UMLEditor.Exceptions;
 
 public class Class
 {
-    // Used for JSON serialization  and deserialization
     [JsonProperty("classname")]
     public string ClassName { get; private set; }
     
-    // Used for JSON serialization  and deserialization
+    [JsonProperty("fields")]
+    public List<Parameter> Fields;
+
+    [JsonProperty("methods")]
+    public List<Method> Methods;
+    
+    /*
     [JsonProperty("attributes")]
     public List<AttributeObject> Attributes { get; private set; }
+    */
 
     /// <summary>
     /// Default constructor for class
@@ -21,18 +27,23 @@ public class Class
     public Class()
     {
         ClassName = "";
-        Attributes = new List<AttributeObject>();
+        Fields = new List<Parameter>();
     }
 
     /// <summary>
     /// Constructor for class "name"
     /// </summary>
     /// <param name="name">Name of the class being created</param>
+    /// <param name="withFields">(Optional) A list of fields to include in this class</param>
     /// <exception cref="InvalidNameException">Thrown if the name provided is invalid</exception>
-    public Class(string name) : this()
+    public Class(string name, params Parameter[] withFields) : this()
     {
         CheckValidClassName(name);
         ClassName = name;
+        
+        // TODO: Add an initializer for the methods
+        // Copy over the provided fields
+        Fields.AddRange(withFields);
     }
 
     /// <summary>
@@ -47,7 +58,7 @@ public class Class
             throw new AttributeAlreadyExistsException(string.Format("Attribute {0} already exists", name));
         }
         
-        Attributes.Add(new AttributeObject(name));
+        // Attributes.Add(new AttributeObject(name));
     }
 
     /// <summary>
@@ -69,6 +80,7 @@ public class Class
     /// <returns>Returns the attribute if exists, or null if it does not</returns>
     public AttributeObject? GetAttributeByName(string name)
     {
+        /*
         foreach (AttributeObject currentAttribute in Attributes)
         {
             if (currentAttribute.AttributeName == name)
@@ -76,6 +88,7 @@ public class Class
                 return currentAttribute;
             }
         }
+        */
         return null; 
     }
     
@@ -90,7 +103,8 @@ public class Class
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent attribute name entered ({0}).";
         
         // Ensure the provided classes exist
-        bool removeWorked = Attributes.Remove(GetAttributeByName(targetAttributeName));
+        // bool removeWorked = Attributes.Remove(GetAttributeByName(targetAttributeName));
+        bool removeWorked = false;
         if (!removeWorked)
         {
 
@@ -108,6 +122,7 @@ public class Class
     {
         string msg = "";
 
+        /*
         if (Attributes.Count == 0)
         {
             msg = "There are no attributes currently.";
@@ -120,6 +135,7 @@ public class Class
                 msg += string.Format("    {0}\n", a.ToString());
             }
         }
+        */
 
         return msg;
     }
