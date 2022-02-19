@@ -7,26 +7,25 @@ public class Method : AttributeObject
 {
 
     [JsonProperty("params")]
-    private List<Parameter> _parameters;
+    private List<NameTypeObject> _parameters;
 
-    [JsonProperty("params")] 
+    [JsonProperty("return_type")] 
     public string ReturnType { get; private set; }
 
     /// <summary>
     /// Constructs a new method with the provided name and (optionally) a list of parameters
     /// </summary>
-    /// <param name="name">The name of the new method</param>
+    /// <param name="withName">The name of the new method</param>
     /// <param name="returnType">The type this method returns</param>
     /// <param name="withParams">An array of parameters to use</param>
-    public Method(string name, string returnType, params Parameter[] withParams)
+    public Method(string withName, string returnType, params NameTypeObject[] withParams)
     {
-
-        // NOTE: Maybe withParams should be a List<Parameter> and not an array?
         
-        AttributeName = name;
+        CheckValidAttributeName(withName);
+        AttributeName = withName;
         ReturnType = returnType; 
         
-        _parameters = new List<Parameter>();
+        _parameters = new List<NameTypeObject>();
         _parameters.AddRange(withParams);
 
     }

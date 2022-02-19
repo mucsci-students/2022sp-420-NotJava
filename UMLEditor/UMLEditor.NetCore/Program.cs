@@ -38,6 +38,22 @@ namespace UMLEditor.NetCore
                     // CLI mode
                     case("-cli"):
 
+                        Diagram testDiagram = new Diagram();
+                        
+                        testDiagram.AddClass("A");
+                        testDiagram.AddClass("B");
+                        
+                        testDiagram.GetClassByName("A").AddField("Test1","int");
+                        testDiagram.GetClassByName("A").AddField("Test2","potato");
+                        testDiagram.GetClassByName("A").AddMethod("Test2","potato");
+                        testDiagram.GetClassByName("A").AddMethod("Test3","string");
+                        testDiagram.GetClassByName("A").AddMethod("Test4","potato");
+                        
+                        Console.WriteLine(testDiagram.GetClassByName("A").ListAttributes());
+                        Console.WriteLine(testDiagram.GetClassByName("B").ListAttributes());
+                        
+                        
+
                         Environment.Exit((int)CustomExitCodes.ERROR_UNIMPLEMENTED);
                         break;
                     

@@ -2,7 +2,10 @@
 
 using Newtonsoft.Json;
 
-public class Parameter : AttributeObject
+/// <summary>
+/// A generic type that contains two string fields, a name, and a type.
+/// </summary>
+public class NameTypeObject : AttributeObject
 {
     
     [JsonProperty("type")]
@@ -13,9 +16,10 @@ public class Parameter : AttributeObject
     /// </summary>
     /// <param name="withName">The name of the parameter</param>
     /// <param name="withType">The name of the type of the parameter</param>
-    public Parameter(string withName, string withType)
+    public NameTypeObject(string withName, string withType)
     {
-
+        
+        CheckValidAttributeName(withName);
         AttributeName = withName;
         Type = withType;
 

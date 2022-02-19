@@ -10,23 +10,6 @@ public abstract class AttributeObject
     [JsonProperty("attributename")]
     public string AttributeName { get; protected set; }
 
-    /*
-    public AttributeObject()
-    {
-        AttributeName = "";
-    }
-
-    /// <summary>
-    /// Constructs Attribute object.  Ensures name is valid
-    /// </summary>
-    /// <param name="name">Name of attribute</param>
-    public AttributeObject(string name)
-    {
-        CheckValidAttributeName(name);
-        AttributeName = name;
-    }
-    */
-
     /// <summary>
     /// Stringifies Attribute
     /// </summary>
@@ -52,7 +35,7 @@ public abstract class AttributeObject
     /// </summary>
     /// <param name="name">The name to test.</param>
     /// <exception cref="InvalidNameException">If the provided name is invalid.</exception>
-    private void CheckValidAttributeName(string name)
+    protected void CheckValidAttributeName(string name)
     {
         if (!Char.IsLetter(name[0]) && name[0] != '_')
         {

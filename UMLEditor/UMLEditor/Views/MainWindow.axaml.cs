@@ -419,7 +419,7 @@ namespace UMLEditor.Views
             {
 
                 // Add the attribute to the provided class
-                _activeDiagram.GetClassByName(words[0]).AddAttribute(words[1]);
+                //_activeDiagram.GetClassByName(words[0]).AddAttribute(words[1]);
 
             }
 
@@ -487,7 +487,7 @@ namespace UMLEditor.Views
             try
             {
                 
-                currentClass.DeleteAttribute(targetAttributeName);
+                //currentClass.DeleteAttribute(targetAttributeName);
 
             }
             
@@ -754,7 +754,7 @@ namespace UMLEditor.Views
             try
             {
 
-                currentClass.RenameAttribute(words[1], words[2]);
+                //currentClass.RenameAttribute(words[1], words[2]);
 
             }
 
