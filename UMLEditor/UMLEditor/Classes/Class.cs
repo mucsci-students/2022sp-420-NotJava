@@ -117,7 +117,7 @@ public class Class
             msg += string.Format("{0} attributes: \n", ClassName);
             foreach (AttributeObject a in Attributes)
             {
-                msg += string.Format("    {0}\n", a.ToString());
+                msg += string.Format("26-    {0}\n", a.ToString());
             }
         }
 

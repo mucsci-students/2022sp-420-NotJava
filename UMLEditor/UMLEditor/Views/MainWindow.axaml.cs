@@ -222,19 +222,19 @@ namespace UMLEditor.Views
                 // No input arguments
                 _outputBox.Text = 
                     "To create a new relationship, please enter source and destination in the format " +
-                    "'A B' into the input box and then click 'Add Relationship'.";
+                    "'A B C' into the input box and then click 'Add Relationship'.";
                 
                 _inputBox.Focus();
                 return;
 
             }
             
-            else if (words.Length != 2)
+            else if (words.Length != 3)
             {
                 
                 // Invalid input arguments
                 _outputBox.Text = 
-                    "Input must be in the form 'A B' with only one source and one destination.  " +
+                    "Input must be in the form 'A B C' with only one source, one destination and the type." +
                     "Please enter your relationship into the input box and click 'Add Relationship'.";
                 
                 _inputBox.Focus();
@@ -244,11 +244,12 @@ namespace UMLEditor.Views
 
             string sourceClassName = words[0];
             string destClassName = words[1];
+            string relationshipType = words[2];
             
             try
             {
                 
-                _activeDiagram.AddRelationship(sourceClassName, destClassName);
+                _activeDiagram.AddRelationship(sourceClassName, destClassName, relationshipType);
                 
             }
             
