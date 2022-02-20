@@ -7,13 +7,23 @@ namespace UnitTests;
 [TestFixture]
 public class AttributeUnitTests
 {
-    /*
+    
     [SetUp]
     public void Setup()
     {
-        attribName = "TestAttrib";
+        methodName1 = "TestMethod1";
+        methodName2 = "TestMethod2";
+        sameMethodName = methodName1;
+        validType = "string";
     }
 
+    [Test]
+    public void CreateNewMethodObjectTest()
+    {
+        Method newMethod = new Method(methodName1, validType);
+        Assert.IsInstanceOf<Method>(newMethod);
+    }
+    /*
     [Test]
     public void CreateDefaultAttributeObjectTest()
     {
@@ -52,8 +62,11 @@ public class AttributeUnitTests
     {
         AttributeObject attrib = new AttributeObject(attribName);
         Assert.Throws<InvalidNameException>(delegate { attrib.AttRename("%#0923"); });
-    }
+    }*/
 
-    private string attribName = "";
-    */
+    private string methodName1 = "";
+    private string methodName2 = "";
+    private string sameMethodName = "";
+    private string validType = "";
+
 }

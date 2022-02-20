@@ -30,11 +30,7 @@ public class Method : AttributeObject
 
     }
 
-    /// <summary>
-    /// Adds one parameter to the method
-    /// </summary>
-    /// <param name="param">Parameter to add to method</param> 
-    public void AddParam(NameTypeObject param)
+    private bool ParamInList(NameTypeObject param)
     {
         bool found = false;
         foreach (NameTypeObject p in _parameters)
@@ -45,7 +41,18 @@ public class Method : AttributeObject
             }
         }
 
-        if (found)
+        return found;
+    }
+
+    /// <summary>
+    /// Adds one parameter to the method
+    /// </summary>
+    /// <param name="param">Parameter to add to method</param>
+    /// <exception cref="NameTypeObjectAlreadyExistsException">If parameter (name and type) already exists</exception>
+    public void AddParam(NameTypeObject param)
+    {
+
+        if (ParamInList(param))
         {
             throw new NameTypeObjectAlreadyExistsException($"{param} already exists as a parameter.");
         }
@@ -53,11 +60,29 @@ public class Method : AttributeObject
         _parameters.Add(param);
     }
 
+    /// <summary>
+    /// Overloaded AddParam function to add multiple parameters to the method
+    /// </summary>
+    /// <param name="parameters">List of parameters to add to method</param>
+    /// <exception cref="NameTypeObjectAlreadyExistsException">If parameter (name and type) already exists</exception>
     public void AddParam(List<NameTypeObject> parameters)
     {
+        NameTypeObject foundParam = null;
         foreach (NameTypeObject p in parameters)
         {
-            
+            if (ParamInList(p))
+            {
+                foundParam = p;
+            }
+        }
+        if (foundParam is null)
+        {
+            throw new NameTypeObjectAlreadyExistsException($"{foundParam} already exists as a parameter.");
+        }
+
+        foreach (NameTypeObject p in parameters)
+        {
+            _parameters.Add(p);
         }
     }
     
