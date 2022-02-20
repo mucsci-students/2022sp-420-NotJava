@@ -138,7 +138,7 @@ public class Class
     /// Deletes a field within this class.
     /// </summary>
     /// <param name="targetField">Field to be deleted</param>
-    /// <exception cref="AttributeNonexistentException">If field does not exist</exception>
+    /// <exception cref="AttributeNonexistentException">Thrown if field does not exist</exception>
     public void DeleteField(string targetFieldName)
     {
         
@@ -159,7 +159,7 @@ public class Class
     /// Deletes a method within this class.
     /// </summary>
     /// <param name="targetMethod">Method to be deleted</param>
-    /// <exception cref="AttributeNonexistentException">If method does not exist</exception>
+    /// <exception cref="AttributeNonexistentException">Thrown if method does not exist</exception>
     public void DeleteMethod(string targetMethodName)
     {
         
@@ -240,7 +240,7 @@ public class Class
     /// <param name="newName">New name of field</param>
     /// <exception cref="AttributeNonexistentException">Thrown if oldName field does not exist</exception>
     /// <exception cref="AttributeAlreadyExistsException">Thrown if newName field already exists</exception>
-    /// <exception cref="InvalidNameException">If the provided name is invalid.</exception>
+    /// <exception cref="InvalidNameException">Thrown if the provided name is invalid.</exception>
     public void RenameField(string oldName, string newName)
     {
         
@@ -265,7 +265,7 @@ public class Class
     /// <param name="newName">New name of method</param>
     /// <exception cref="AttributeNonexistentException">Thrown if oldName method does not exist</exception>
     /// <exception cref="AttributeAlreadyExistsException">Thrown if newName method already exists</exception>
-    /// <exception cref="InvalidNameException">If the provided name is invalid.</exception>
+    /// <exception cref="InvalidNameException">Thrown if the provided name is invalid.</exception>
     public void RenameMethod(string oldName, string newName)
     {
         
