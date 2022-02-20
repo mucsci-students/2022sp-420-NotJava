@@ -1,7 +1,6 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
-using UMLEditor.Classes;
 
 namespace UMLEditor.NetCore
 {
@@ -37,22 +36,6 @@ namespace UMLEditor.NetCore
                     
                     // CLI mode
                     case("-cli"):
-
-                        Diagram testDiagram = new Diagram();
-                        
-                        testDiagram.AddClass("A");
-                        testDiagram.AddClass("B");
-                        
-                        testDiagram.GetClassByName("A").AddField("Test1","int");
-                        testDiagram.GetClassByName("A").AddField("Test2","potato");
-                        testDiagram.GetClassByName("A").AddMethod("Test2","potato");
-                        testDiagram.GetClassByName("A").AddMethod("Test3","string");
-                        testDiagram.GetClassByName("A").AddMethod("Test4","potato");
-                        
-                        testDiagram.GetClassByName("A").GetMethodByName("Test2").AddParam(new NameTypeObject("P1", "string") );
-                        testDiagram.GetClassByName("A").GetMethodByName("Test2").AddParam(new NameTypeObject("P1", "string") );
-                        
-
                         Environment.Exit((int)CustomExitCodes.ERROR_UNIMPLEMENTED);
                         break;
                     

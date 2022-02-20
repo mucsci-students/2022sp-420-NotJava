@@ -13,9 +13,71 @@
         
         <StackPanel>
                 
+                <DockPanel
+                        Background="Gray">
+                        <Menu DockPanel.Dock="Top">
+                                <MenuItem Header="_File">
+                                        <MenuItem Header="_Save"
+                                                  Click="Save_Button_OnClick"
+                                                  />
+                                        <MenuItem Header="_Load"
+                                                  Click="LoadButton_OnClick"
+                                                  />
+                                </MenuItem>
+                                <MenuItem Header="_Class">
+                                        <MenuItem Header="_Add"
+                                                  Click="Class_AddClass_OnClick"
+                                                  />
+                                        <MenuItem Header="_Delete"
+                                                  Click="Class_DeleteClass_OnClick"
+                                                  />
+                                        <MenuItem Header="_Rename"
+                                                  Click="Class_RenameClass_OnClick"
+                                                  />
+                                        <MenuItem Header="_List"
+                                                  Click="List_Classes_OnClick"
+                                                  />
+                                </MenuItem>
+                                <MenuItem Header="_Attribute">
+                                        <MenuItem Header="_Add"
+                                                  Click="Add_Attribute_OnClick"
+                                                  />
+                                        <MenuItem Header="_Delete"
+                                                  Click="Delete_Attribute_OnClick"
+                                                  />
+                                        <MenuItem Header="_Rename"
+                                                  Click="Class_RenameAttribute_OnClick"
+                                                  />
+                                        <MenuItem Header="_List"
+                                                  Click="List_Attributes_OnClick"
+                                                  />
+                                </MenuItem>
+                                <MenuItem Header="_Relationship">
+                                        <MenuItem Header="_Add"
+                                                  Click="AddRelationship_OnClick"
+                                                  />
+                                        <MenuItem Header="_Delete"
+                                                  Click="DeleteRelationship_OnClick"
+                                                  />
+                                        <MenuItem Header="_List"
+                                                  Click="List_Relationships_OnClick"
+                                                  />
+                                </MenuItem>
+                                <MenuItem Header="Utility">
+                                        <MenuItem Header="_Help"
+                                                  Click="HelpB_OnClick"
+                                                  />
+                                        <MenuItem Header="_Exit"
+                                                  Click="ExitB_OnClick"
+                                                  />
+                                                
+                                </MenuItem>
+                        </Menu>
+                </DockPanel>
+                
                 <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" 
                       ColumnDefinitions="Auto,Auto,*" 
-                      Margin="25" 
+                      Margin="5, 70" 
                       Width="750">
                 
                         <Grid.Styles>

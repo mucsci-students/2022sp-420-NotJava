@@ -1,17 +1,15 @@
 ﻿namespace UMLEditor.Classes;
 
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UMLEditor.Exceptions;
 
 public class Diagram
 {
-    // Used for JSON serialization  and deserialization
-    [JsonProperty("classes")]
+    [JsonProperty("classes", Required = Required.Always)]
     public List<Class> Classes { get; private set; }
     
-    [JsonProperty("relationships")]
+    [JsonProperty("relationships",  Required = Required.Always)]
     public List<Relationship> Relationships { get; private set; }
 
     /// <summary>
@@ -105,8 +103,10 @@ public class Diagram
     /// </summary>
     /// <param name="sourceClassName">The source class for the relationship</param>
     /// <param name="destClassName">The destination class for the relationship</param>
+    /// <param name="relationshipType">The type of relationship</param>
     /// <exception cref="ClassNonexistentException">If either class does not exist</exception>
-    public void AddRelationship(string sourceClassName, string destClassName)
+    /// <exception cfef="InvalidRelationshipTypeException">If the given relationship type is not valid</exception>
+    public void AddRelationship(string sourceClassName, string destClassName, string relationshipType)
     {
         
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent class name entered ({0}).";
@@ -126,7 +126,7 @@ public class Diagram
         }
 
         // Create and add the new relationship
-        Relationship newRel = new Relationship(sourceClassName, destClassName);
+        Relationship newRel = new Relationship(sourceClassName, destClassName, relationshipType);
         Relationships.Add(newRel);
         
     }
@@ -148,6 +148,12 @@ public class Diagram
 
     }
     
+    /// <summary>
+    /// Deletes the class that has the provided name
+    /// </summary>
+    /// <param name="className">The name of the class to delete</param>
+    /// <exception cref="ClassNonexistentException">If the provided class does not exist</exception>
+    /// <exception cref="ClassInUseException">If the class is currently involved in a relationship</exception>
     public void DeleteClass(string className)
     {
         if (!ClassExists(className))
@@ -222,7 +228,6 @@ public class Diagram
     /// <returns>A string containing all relationships of the given diagram, separated by new lines.</returns>
     public string ListRelationships()
     {
-        Console.Write("In method");
         string msg = "";
         if (Relationships.Count == 0)
         {
@@ -238,7 +243,6 @@ public class Diagram
 
         return msg;
     }
-
     
     /// <summary>
     /// Deletes the provided relationship, if it exists
@@ -261,7 +265,7 @@ public class Diagram
     /// Returns a list of all relationships the provided class is involved with
     /// </summary>
     /// <param name="onClassName">The class to find relationships for</param>
-    /// <returns></returns>
+    /// <returns>A list containing all relationships the provided class is involved with</returns>
     public List<Relationship> GetInvolvedRelationships(string onClassName)
     {
 

@@ -1,9 +1,8 @@
-﻿using UMLEditor.Exceptions;
-
-namespace UMLEditor.Classes;
+﻿namespace UMLEditor.Classes;
 
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using UMLEditor.Exceptions;
 
 public class Method : AttributeObject
 {
@@ -15,18 +14,28 @@ public class Method : AttributeObject
     public string ReturnType { get; private set; }
 
     /// <summary>
+    /// Default ctor
+    /// </summary>
+    public Method()
+    {
+
+        AttributeName = "";
+        ReturnType = "";
+        _parameters = new List<NameTypeObject>();
+
+    }
+
+    /// <summary>
     /// Constructs a new method with the provided name and (optionally) a list of parameters
     /// </summary>
     /// <param name="withName">The name of the new method</param>
     /// <param name="returnType">The type this method returns</param>
-    public Method(string withName, string returnType)
+    public Method(string withName, string returnType) : this()
     {
         
         CheckValidAttributeName(withName);
         AttributeName = withName;
         ReturnType = returnType; 
-        
-        _parameters = new List<NameTypeObject>();
 
     }
 

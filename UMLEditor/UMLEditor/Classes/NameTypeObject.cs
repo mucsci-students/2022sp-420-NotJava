@@ -12,6 +12,17 @@ public class NameTypeObject : AttributeObject
     public string Type { get; private set; }
 
     /// <summary>
+    /// Default ctor
+    /// </summary>
+    public NameTypeObject()
+    {
+
+        AttributeName = "";
+        Type = "";
+
+    }
+
+    /// <summary>
     /// Constructs a parameter with the provided name and type
     /// </summary>
     /// <param name="withName">The name of the parameter</param>
