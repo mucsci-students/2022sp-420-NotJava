@@ -48,6 +48,12 @@ public class RelationshipNonexistentException : Exception
     {  }
 }
 
+public class InvalidRelationshipTypeException : Exception
+{
+    public InvalidRelationshipTypeException(string message) : base(message)
+    {  }
+}
+
 public class InvalidNameException : Exception
 {
     public InvalidNameException(string message) : base(message)

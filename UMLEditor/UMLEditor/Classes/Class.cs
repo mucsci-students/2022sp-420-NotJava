@@ -202,7 +202,7 @@ public class Class
         {
             foreach (NameTypeObject a in Fields)
             {
-                msg += string.Format("    {0}\n", a.ToString());
+                msg += string.Format("26-    {0}\n", a.ToString());
             }
         }
 
