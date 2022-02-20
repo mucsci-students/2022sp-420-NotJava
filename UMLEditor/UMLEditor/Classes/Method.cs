@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Classes;
+﻿using UMLEditor.Exceptions;
+
+namespace UMLEditor.Classes;
 
 using System.Collections.Generic;
 using Newtonsoft.Json;
@@ -17,8 +19,7 @@ public class Method : AttributeObject
     /// </summary>
     /// <param name="withName">The name of the new method</param>
     /// <param name="returnType">The type this method returns</param>
-    /// <param name="withParams">An array of parameters to use</param>
-    public Method(string withName, string returnType, params NameTypeObject[] withParams)
+    public Method(string withName, string returnType)
     {
         
         CheckValidAttributeName(withName);
@@ -26,10 +27,41 @@ public class Method : AttributeObject
         ReturnType = returnType; 
         
         _parameters = new List<NameTypeObject>();
-        _parameters.AddRange(withParams);
 
     }
 
+    /// <summary>
+    /// Adds one parameter to the method
+    /// </summary>
+    /// <param name="param">Parameter to add to method</param> 
+    public void AddParam(NameTypeObject param)
+    {
+        bool found = false;
+        foreach (NameTypeObject p in _parameters)
+        {
+            if (p == param)
+            {
+                found = true;
+            }
+        }
+
+        if (found)
+        {
+            throw new NameTypeObjectAlreadyExistsException($"{param} already exists as a parameter.");
+        }
+        
+        _parameters.Add(param);
+    }
+
+    public void AddParam(List<NameTypeObject> parameters)
+    {
+        foreach (NameTypeObject p in parameters)
+        {
+            
+        }
+    }
+    
+    
     /// <summary>
     /// Returns the parameter list as a string separated list
     /// </summary>

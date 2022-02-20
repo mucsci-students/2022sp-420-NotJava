@@ -25,6 +25,25 @@ public class NameTypeObject : AttributeObject
 
     }
 
+
+    public static bool operator ==(NameTypeObject a, NameTypeObject b)
+    {
+        if (a is null && b is null)
+        {
+            return true;
+        }
+        else if ((a is null && !(b is null)) || (!(a is null) && b is null))
+        {
+            return false;
+        }
+        return ((a.Type == b.Type) && (a.AttributeName == b.AttributeName));
+    }
+    
+    public static bool operator !=(NameTypeObject a, NameTypeObject b)
+    {
+        return !(a == b);
+    }
+    
     public override string ToString()
     {
         return $"{Type} {AttributeName}";

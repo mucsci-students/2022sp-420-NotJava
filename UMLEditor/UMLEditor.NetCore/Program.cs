@@ -49,9 +49,8 @@ namespace UMLEditor.NetCore
                         testDiagram.GetClassByName("A").AddMethod("Test3","string");
                         testDiagram.GetClassByName("A").AddMethod("Test4","potato");
                         
-                        Console.WriteLine(testDiagram.GetClassByName("A").ListAttributes());
-                        Console.WriteLine(testDiagram.GetClassByName("B").ListAttributes());
-                        
+                        testDiagram.GetClassByName("A").GetMethodByName("Test2").AddParam(new NameTypeObject("P1", "string") );
+                        testDiagram.GetClassByName("A").GetMethodByName("Test2").AddParam(new NameTypeObject("P1", "string") );
                         
 
                         Environment.Exit((int)CustomExitCodes.ERROR_UNIMPLEMENTED);
