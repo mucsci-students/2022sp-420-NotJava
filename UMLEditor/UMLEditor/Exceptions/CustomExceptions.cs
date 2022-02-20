@@ -24,6 +24,12 @@ public class AttributeNonexistentException : Exception
 
 }
 
+public class NameTypeObjectAlreadyExistsException : Exception
+{
+    public NameTypeObjectAlreadyExistsException(string message) : base(message)
+    {  }
+}
+
 public class ClassAlreadyExistsException : Exception
 {
     public ClassAlreadyExistsException(string message) : base(message)
