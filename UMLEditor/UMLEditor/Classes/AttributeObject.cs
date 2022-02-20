@@ -7,7 +7,7 @@ using UMLEditor.Exceptions;
 public abstract class AttributeObject
 {
     // Used for JSON serialization  and deserialization
-    [JsonProperty("attributename")]
+    [JsonProperty("name")]
     public string AttributeName { get; protected set; }
 
     /// <summary>

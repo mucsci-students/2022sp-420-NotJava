@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
 using UMLEditor.Classes;
+using UMLEditor.Interfaces;
 
 namespace UMLEditor.NetCore
 {
@@ -38,6 +39,10 @@ namespace UMLEditor.NetCore
                     // CLI mode
                     case("-cli"):
 
+                        IDiagramFile FileIO = new JSONDiagramFile();
+                        Diagram current =  FileIO.LoadDiagram("example.json");
+                        
+                        /*
                         Diagram testDiagram = new Diagram();
                         
                         testDiagram.AddClass("A");
@@ -52,6 +57,7 @@ namespace UMLEditor.NetCore
                         testDiagram.GetClassByName("A").GetMethodByName("Test2").AddParam(new NameTypeObject("P1", "string") );
                         testDiagram.GetClassByName("A").GetMethodByName("Test2").AddParam(new NameTypeObject("P1", "string") );
                         
+                        */
 
                         Environment.Exit((int)CustomExitCodes.ERROR_UNIMPLEMENTED);
                         break;

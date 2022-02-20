@@ -7,7 +7,7 @@ using UMLEditor.Exceptions;
 
 public class Class
 {
-    [JsonProperty("classname")]
+    [JsonProperty("name")]
     public string ClassName { get; private set; }
     
     [JsonProperty("fields")]
