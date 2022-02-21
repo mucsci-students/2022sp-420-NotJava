@@ -12,14 +12,15 @@ public class GenericModal : Window
     public GenericModal()
     {
         InitializeComponent();
-#if DEBUG
+        
         this.AttachDevTools();
-#endif
+        
     }
 
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
+        
     }
 
     private void ModalExit_OnClick(object sender, RoutedEventArgs e)
