@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using ReactiveUI;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
 using UMLEditor.Interfaces;
@@ -769,5 +770,12 @@ namespace UMLEditor.Views
             ClearInputBox();
             _outputBox.Text = string.Format("Attribute renamed {0} to {1}", words[1], words[2]);
         }
+
+        private void TestModal_OnClick(object sender, RoutedEventArgs e)
+        {
+            var window = new GenericModal();
+            window.Show();
+        }
+
     }
 }

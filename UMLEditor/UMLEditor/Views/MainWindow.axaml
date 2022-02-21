@@ -70,6 +70,9 @@
                                         <MenuItem Header="_Exit"
                                                   Click="ExitB_OnClick"
                                                   />
+                                        <MenuItem Header="_Test Modal"
+                                                  Click="TestModal_OnClick"
+                                        />
                                                 
                                 </MenuItem>
                         </Menu>
