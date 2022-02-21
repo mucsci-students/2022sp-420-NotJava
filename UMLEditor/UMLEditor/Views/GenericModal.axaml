@@ -16,15 +16,23 @@
                 Orientation="Vertical"
                 Background="Gray">
             
-            <ScrollViewer
-                Height="350"
-                Width="1000">
+            <Border
+                BorderThickness="2"
+                BorderBrush="White"
+                Margin="10">
                 
-            </ScrollViewer>
-        
+                <ScrollViewer
+                    Height="350"
+                    Width="1000">
+                
+                </ScrollViewer>
+                
+            </Border>
+                
             <StackPanel
                 Orientation="Horizontal"
-                HorizontalAlignment="Center">
+                HorizontalAlignment="Center"
+                Margin="0,0,0,10">
                 
                 <Button
                     Content="Okay" HorizontalContentAlignment="Center"
