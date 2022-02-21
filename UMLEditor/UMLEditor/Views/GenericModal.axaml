@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="1000"
         x:Class="UMLEditor.Views.GenericModal"
-        WindowStartupLocation="CenterScreen" SystemDecorations="Full"
+        WindowStartupLocation="CenterScreen" SystemDecorations="None"
         CanResize="False"
         Height="450" Width="1000"
         Title="GenericModal">
