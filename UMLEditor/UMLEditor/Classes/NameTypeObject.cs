@@ -25,12 +25,13 @@ public class NameTypeObject : AttributeObject
     /// <summary>
     /// Constructs a parameter with the provided name and type
     /// </summary>
-    /// <param name="withName">The name of the parameter</param>
     /// <param name="withType">The name of the type of the parameter</param>
-    public NameTypeObject(string withName, string withType)
+    /// <param name="withName">The name of the parameter</param>
+    public NameTypeObject(string withType, string withName)
     {
         
         CheckValidAttributeName(withName);
+        CheckValidAttributeName(withType);
         AttributeName = withName;
         Type = withType;
 

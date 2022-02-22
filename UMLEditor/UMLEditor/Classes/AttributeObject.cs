@@ -39,8 +39,8 @@ public abstract class AttributeObject
     {
         if (!Char.IsLetter(name[0]) && name[0] != '_')
         {
-            throw new InvalidNameException(String.Format("{0} is an invalid attribute name.  " +
-                                                         "Attribute name must be a single word that starts with an alphabetic " +
+            throw new InvalidNameException(String.Format("{0} is an invalid attribute name or type.  " +
+                                                         "Attribute name/type must be a single word that starts with an alphabetic " +
                                                          "character or an underscore.  " +
                                                          "Please Try again.", name));
         }

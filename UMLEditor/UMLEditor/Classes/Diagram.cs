@@ -38,7 +38,7 @@ public class Diagram
     /// </summary>
     /// <param name="name">Name of the class you are checking</param>
     /// <returns>Returns true if class is in a relationship in the diagram, false if not.</returns>
-    public bool ClassIsInRelationship(string name)
+    public bool IsClassInRelationship(string name)
     {
         foreach (Relationship r in Relationships)
         {
@@ -161,7 +161,7 @@ public class Diagram
             throw new ClassNonexistentException(string.Format("Class {0} does not exist", className));
         }
 
-        if (ClassIsInRelationship(className))
+        if (IsClassInRelationship(className))
         {
             throw new ClassInUseException(string.Format("Class {0} is in use by a relationship and cannot be deleted",
                 className));
