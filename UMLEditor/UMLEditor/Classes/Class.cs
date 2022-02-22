@@ -110,16 +110,7 @@ public class Class
     /// <returns>Returns true if exists, false if not.</returns>
     public bool MethodExists (string name)
     {
-
-        foreach (Method currentMethod in Methods)
-        {
-            if (currentMethod.AttributeName == name)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return GetMethodByName(name) != null;
     }
 
     /// <summary>
@@ -127,8 +118,7 @@ public class Class
     /// </summary>
     /// <param name="name">Name of method you are looking for</param>
     /// <returns>Returns the method if it exists, or null if it does not</returns>
-    /// <exception cref="AttributeNonexistentException">If method does not exist in class</exception>
-    public Method GetMethodByName(string name)
+    public Method? GetMethodByName(string name)
     {
         
         foreach (Method currentMethod in Methods)
@@ -138,8 +128,8 @@ public class Class
                 return currentMethod;
             }
         }
-        
-        throw new AttributeNonexistentException($"Method {name} does not exist in class {ClassName}"); 
+
+        return null;
     }
 
     /// <summary>
