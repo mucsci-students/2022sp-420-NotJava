@@ -9,6 +9,8 @@ public class Diagram
     [JsonProperty("classes", Required = Required.Always)]
     private List<Class> _classes;
 
+    // Public accessor for Classes
+    // Creates copies to ensure data integrity
     public List<Class> Classes
     {
         get
@@ -26,6 +28,8 @@ public class Diagram
     [JsonProperty("relationships", Required = Required.Always)]
     private List<Relationship> _relationships;
 
+    // Public accessor for Relationships
+    // Creates copies to ensure data integrity
     public List<Relationship> Relationships
     {
         get
@@ -54,7 +58,7 @@ public class Diagram
     /// </summary>
     /// <param name="name">Name of the class you are checking</param>
     /// <returns>Returns true if exists, false if not.</returns>
-    public bool ClassExists (string name)
+    private bool ClassExists (string name)
     {
 
         return GetClassByName(name) != null;
@@ -66,7 +70,7 @@ public class Diagram
     /// </summary>
     /// <param name="name">Name of the class you are checking</param>
     /// <returns>Returns true if class is in a relationship in the diagram, false if not.</returns>
-    public bool IsClassInRelationship(string name)
+    private bool IsClassInRelationship(string name)
     {
         foreach (Relationship r in _relationships)
         {
@@ -97,7 +101,7 @@ public class Diagram
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
     /// <returns>The found relationship object, or null if none exists</returns>
-    public Relationship? GetRelationshipByName(string sourceName, string destName)
+    private Relationship? GetRelationshipByName(string sourceName, string destName)
     {
         foreach (Relationship r in _relationships)
         {
@@ -114,7 +118,7 @@ public class Diagram
     /// </summary>
     /// <param name="name">Name of class you are looking for</param>
     /// <returns>Returns the class if exists, or null if it does not</returns>
-    public Class? GetClassByName(string name)
+    private Class? GetClassByName(string name)
     {
         foreach (Class currentClass in _classes)
         {
@@ -137,19 +141,18 @@ public class Diagram
     public void AddRelationship(string sourceClassName, string destClassName, string relationshipType)
     {
         
-        const string NONEXISTENT_NAME_FORMAT = "Nonexistent class name entered ({0}).";
         // Ensure the provided classes exist
         if (!ClassExists(sourceClassName))
         {
 
-            throw new ClassNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, sourceClassName));
+            throw new ClassNonexistentException($"Nonexistent class name entered ({sourceClassName}).");
             
         }
         
         else if (!(ClassExists(destClassName)))
         {
 
-            throw new ClassNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, destClassName));
+            throw new ClassNonexistentException($"Nonexistent class name entered ({destClassName}).");
 
         }
 
@@ -168,7 +171,7 @@ public class Diagram
     {
         if (ClassExists(className))
         {
-            throw new ClassAlreadyExistsException(string.Format("Class {0} already exists", className));
+            throw new ClassAlreadyExistsException($"Class {className} already exists");
         }
         
         // Create a new class
@@ -209,15 +212,15 @@ public class Diagram
     {
         if (!ClassExists(oldName))
         {
-            throw new ClassNonexistentException(string.Format("Class {0} does not exist", oldName));
+            throw new ClassNonexistentException($"Class {oldName} does not exist");
         }
         if (ClassExists(newName))
         {
-            throw new ClassAlreadyExistsException(string.Format("Class {0} already exists", newName));
+            throw new ClassAlreadyExistsException($"Class {newName} already exists");
         }
         
         // Rename class
-        Class foundClass = GetClassByName(oldName); 
+        Class? foundClass = GetClassByName(oldName); 
         foundClass.Rename(newName);
 
         foreach (Relationship currentRel in GetInvolvedRelationships(oldName))
@@ -243,7 +246,7 @@ public class Diagram
         {
             foreach (Class c in _classes)
             {
-                msg += string.Format("{0}\n", c.ClassName);
+                msg += $"{c.ClassName}\n";
             }
         }
 
@@ -265,7 +268,7 @@ public class Diagram
         {
             foreach (Relationship r in _relationships)
             {
-                msg += string.Format("{0}\n", r.ToString());
+                msg += $"{r}\n";
             }
         }
 
@@ -294,7 +297,7 @@ public class Diagram
     /// </summary>
     /// <param name="onClassName">The class to find relationships for</param>
     /// <returns>A list containing all relationships the provided class is involved with</returns>
-    public List<Relationship> GetInvolvedRelationships(string onClassName)
+    private List<Relationship> GetInvolvedRelationships(string onClassName)
     {
 
         List<Relationship> result = new List<Relationship>();

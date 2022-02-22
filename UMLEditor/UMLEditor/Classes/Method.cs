@@ -10,6 +10,22 @@ public class Method : AttributeObject
     [JsonProperty("params")]
     private List<NameTypeObject> _parameters;
 
+    // Public accessor for Parameters
+    // Creates copies to ensure data integrity
+    public List<NameTypeObject> Parameters
+    {
+        get
+        {
+            List<NameTypeObject> localParams = new List<NameTypeObject>();
+            foreach (NameTypeObject p in _parameters)
+            {
+                localParams.Add(new NameTypeObject(p));
+            }
+
+            return localParams;
+        }
+    }
+
     [JsonProperty("return_type")] 
     public string ReturnType { get; private set; }
 
@@ -37,6 +53,20 @@ public class Method : AttributeObject
         AttributeName = withName;
         ReturnType = returnType; 
 
+    }
+
+    /// <summary>
+    /// Copy constructor
+    /// </summary>
+    /// <param name="m">Method object to copy</param>
+    public Method(Method m) : this(m.ReturnType, m.AttributeName)
+    {
+        List<NameTypeObject> copyParams = new List<NameTypeObject>(m._parameters.Count);
+        foreach (NameTypeObject p in m._parameters)
+        {
+            copyParams.Add(p);
+        }
+        _parameters = copyParams;
     }
 
     /// <summary>

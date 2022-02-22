@@ -190,16 +190,18 @@ namespace UMLEditor.Views
                 return;
             }
             
-            Class currentClass = _activeDiagram.GetClassByName(words[0]);
+            // Commented out because the GUI will be reworked
+            /*Class currentClass = _activeDiagram.GetClassByName(words[0]);
+            
 
-            // If the TargetClass does not exist throw an error
+            // Warn user if the requested class does not exist
             if (currentClass == null)
             {
                 _outputBox.Text = "Nonexistent class entered";
                 _inputBox.Focus();
                 return;
             }
-            _outputBox.Text = currentClass.ListAttributes();
+            _outputBox.Text = currentClass.ListAttributes();*/
         }
         
         private void List_Relationships_OnClick(object sender, RoutedEventArgs e)
@@ -407,8 +409,9 @@ namespace UMLEditor.Views
                 
             }
 
+            // Commented out because gui will be reworked
             // Make sure the first word is the name of a class that exists
-            if (!_activeDiagram.ClassExists(words[0]))
+            /*if (!_activeDiagram.ClassExists(words[0]))
             {
                 string message = string.Format("Class {0} does not exist", words[0]);
                 _outputBox.Text = message;
@@ -429,7 +432,7 @@ namespace UMLEditor.Views
                 _outputBox.Text = exception.Message;
                 _inputBox.Focus();
                 return;
-            }
+            }*/
             
             ClearInputBox();
             _outputBox.Text = string.Format("Class {0} given Attribute {1}", words[0], words[1]);
@@ -474,8 +477,9 @@ namespace UMLEditor.Views
             string targetClassName = words[0];
             string targetAttributeName = words[1];
 
+            // Commented out because gui will be reworked
             // Create CurrentClass for use in reaching its attributes
-            Class currentClass = _activeDiagram.GetClassByName(targetClassName);
+            /*Class currentClass = _activeDiagram.GetClassByName(targetClassName);
 
             // If the TargetClass does not exist throw an error
             if (currentClass == null)
@@ -500,7 +504,7 @@ namespace UMLEditor.Views
                 _inputBox.Focus();
                 return;
 
-            }
+            }*/
             
             ClearInputBox();
             _outputBox.Text = string.Format("Attribute Deleted ({0} => {1})", targetClassName, targetAttributeName);
@@ -586,8 +590,9 @@ namespace UMLEditor.Views
             
             string targetClassName = words[0];
 
+            // Commented out because gui will be reworked
             // Create CurrentClass for use in reaching its attributes
-            Class currentClass = _activeDiagram.GetClassByName(targetClassName);
+            /*Class currentClass = _activeDiagram.GetClassByName(targetClassName);
 
             // If the TargetClass does not exist throw an error
             if (currentClass == null)
@@ -608,7 +613,7 @@ namespace UMLEditor.Views
                 _outputBox.Text = exception.Message;
                 _inputBox.Focus();
                 return;
-            }
+            }*/
 
             ClearInputBox();
             _outputBox.Text = string.Format("Class Deleted {0}", words[0]);
@@ -734,8 +739,9 @@ namespace UMLEditor.Views
             
             string targetClassName = words[0];
 
+            // Commented out because gui will be reworked
             // Get CurrentClass for use in reaching its attributes
-            Class currentClass = _activeDiagram.GetClassByName(targetClassName);
+            /*Class currentClass = _activeDiagram.GetClassByName(targetClassName);
             // If the TargetClass does not exist throw an error
             if (currentClass == null)
             {
@@ -764,7 +770,7 @@ namespace UMLEditor.Views
                 _outputBox.Text = exception.Message;
                 _inputBox.Focus();
                 return;
-            }
+            }*/
             
             ClearInputBox();
             _outputBox.Text = string.Format("Attribute renamed {0} to {1}", words[1], words[2]);

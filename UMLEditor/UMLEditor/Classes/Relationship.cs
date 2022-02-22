@@ -50,7 +50,7 @@ public class Relationship
     /// <summary>
     /// Copy constructor
     /// </summary>
-    /// <param name="r">Relationship to copy</param>
+    /// <param name="r">Relationship object to copy</param>
     public Relationship(Relationship r) : this(r.SourceClass, r.DestinationClass, r.RelationshipType)
     { }
 

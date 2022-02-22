@@ -11,11 +11,42 @@ public class Class
     public string ClassName { get; private set; }
     
     [JsonProperty("fields")]
-    public List<NameTypeObject> Fields;
+    private List<NameTypeObject> _fields;
+    
+    // Public accessor for Fields
+    // Creates copies to ensure data integrity
+    public List<NameTypeObject> Fields
+    {
+        get
+        {
+            List<NameTypeObject> localFields = new List<NameTypeObject>();
+            foreach (NameTypeObject f in _fields)
+            {
+                localFields.Add(new NameTypeObject(f));
+            }
+
+            return localFields;
+        }
+    }
 
     [JsonProperty("methods")]
-    public List<Method> Methods;
+    private List<Method> _methods;
     
+    // Public accessor for Methods
+    // Creates copies to ensure data integrity
+    public List<Method> Methods
+    {
+        get
+        {
+            List<Method> localMethods = new List<Method>();
+            foreach (Method m in _methods)
+            {
+                localMethods.Add(new Method(m));
+            }
+
+            return localMethods;
+        }
+    }
 
     /// <summary>
     /// Default constructor for class
@@ -23,8 +54,8 @@ public class Class
     public Class()
     {
         ClassName = "";
-        Fields = new List<NameTypeObject>();
-        Methods = new List<Method>();
+        _fields = new List<NameTypeObject>();
+        _methods = new List<Method>();
     }
 
     /// <summary>
@@ -46,7 +77,19 @@ public class Class
     /// <param name="c">Class object to copy</param>
     public Class(Class c) : this(c.ClassName)
     {
-        
+        List<NameTypeObject> copyFields = new List<NameTypeObject>(c._fields.Count);
+        List<Method> copyMethods = new List<Method>(c._methods.Count);
+        foreach (NameTypeObject f in c._fields)
+        {
+            copyFields.Add(f);
+        }
+
+        foreach (Method m in c._methods)
+        {
+            copyMethods.Add(m);
+        }
+        _fields = copyFields;
+        _methods = copyMethods;
     }
 
     /// <summary>
@@ -61,7 +104,7 @@ public class Class
         {
             throw new AttributeAlreadyExistsException(string.Format("Field {0} already exists", name));
         }
-        Fields.Add(new NameTypeObject(name, type));
+        _fields.Add(new NameTypeObject(name, type));
         
     }
     
@@ -77,7 +120,7 @@ public class Class
         {
             throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", name));
         }
-        Methods.Add(new Method(returnType, name));
+        _methods.Add(new Method(returnType, name));
         
     }
 
@@ -101,7 +144,7 @@ public class Class
     public NameTypeObject? GetFieldByName(string name)
     {
         
-        foreach (NameTypeObject currentField in Fields)
+        foreach (NameTypeObject currentField in _fields)
         {
             if (currentField.AttributeName == name)
             {
@@ -130,7 +173,7 @@ public class Class
     public Method? GetMethodByName(string name)
     {
         
-        foreach (Method currentMethod in Methods)
+        foreach (Method currentMethod in _methods)
         {
             if (currentMethod.AttributeName == name)
             {
@@ -152,7 +195,7 @@ public class Class
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent field name entered ({0}).";
         
         // Ensure the provided classes exist
-        bool removeWorked = Fields.Remove(GetFieldByName(targetFieldName));
+        bool removeWorked = _fields.Remove(GetFieldByName(targetFieldName));
         if (!removeWorked)
         {
 
@@ -173,7 +216,7 @@ public class Class
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent method name entered ({0}).";
         
         // Ensure the provided classes exist
-        bool removeWorked = Methods.Remove(GetMethodByName(targetMethodName));
+        bool removeWorked = _methods.Remove(GetMethodByName(targetMethodName));
         if (!removeWorked)
         {
 
@@ -201,13 +244,13 @@ public class Class
         
         string msg = string.Format("{0} fields: \n", ClassName);
         
-        if (Fields.Count == 0)
+        if (_fields.Count == 0)
         {
             msg += "    There are no fields currently. \n";
         }
         else
         {
-            foreach (NameTypeObject a in Fields)
+            foreach (NameTypeObject a in _fields)
             {
                 msg += string.Format("    {0}\n", a.ToString());
             }
@@ -225,13 +268,13 @@ public class Class
         
         string msg = string.Format("{0} methods: \n", ClassName);
         
-        if (Methods.Count == 0)
+        if (_methods.Count == 0)
         {
             msg += "    There are no methods currently. \n";
         }
         else
         {
-            foreach (Method a in Methods)
+            foreach (Method a in _methods)
             {
                 msg += string.Format("    {0}\n", a.ToString());
             }
