@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using UMLEditor.Exceptions;
+using Exceptions;
 
 public class Class
 {
@@ -44,9 +44,9 @@ public class Class
     /// Adds field to class.
     /// Pre-condition: name of field is valid
     /// </summary>
-    /// <param name="name">Valid name of new field</param>
     /// <param name="type">Valid type of new field</param>
-    public void AddField(string name, string type)
+    /// <param name="name">Valid name of new field</param>
+    public void AddField(string type, string name)
     {
         if (FieldExists(name))
         {
@@ -60,15 +60,15 @@ public class Class
     /// Adds method to class.
     /// Pre-condition: name of method is valid
     /// </summary>
-    /// <param name="name">Valid name of new method</param>
     /// <param name="returnType">Valid returnType of new method</param>
-    public void AddMethod(string name, string returnType)
+    /// <param name="name">Valid name of new method</param>
+    public void AddMethod(string returnType, string name)
     {
         if (MethodExists(name))
         {
             throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", name));
         }
-        Methods.Add(new Method(name, returnType));
+        Methods.Add(new Method(returnType, name));
         
     }
 
@@ -111,8 +111,15 @@ public class Class
     public bool MethodExists (string name)
     {
 
-        return GetMethodByName(name) != null;
+        foreach (Method currentMethod in Methods)
+        {
+            if (currentMethod.AttributeName == name)
+            {
+                return true;
+            }
+        }
 
+        return false;
     }
 
     /// <summary>
@@ -120,7 +127,8 @@ public class Class
     /// </summary>
     /// <param name="name">Name of method you are looking for</param>
     /// <returns>Returns the method if it exists, or null if it does not</returns>
-    public Method? GetMethodByName(string name)
+    /// <exception cref="AttributeNonexistentException">If method does not exist in class</exception>
+    public Method GetMethodByName(string name)
     {
         
         foreach (Method currentMethod in Methods)
@@ -131,7 +139,7 @@ public class Class
             }
         }
         
-        return null; 
+        throw new AttributeNonexistentException($"Method {name} does not exist in class {ClassName}"); 
     }
 
     /// <summary>
