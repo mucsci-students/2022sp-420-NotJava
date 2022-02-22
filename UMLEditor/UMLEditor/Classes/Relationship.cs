@@ -48,6 +48,13 @@ public class Relationship
     }
 
     /// <summary>
+    /// Copy constructor
+    /// </summary>
+    /// <param name="r">Relationship to copy</param>
+    public Relationship(Relationship r) : this(r.SourceClass, r.DestinationClass, r.RelationshipType)
+    { }
+
+    /// <summary>
     /// Helper function to check if a given relationship type is valid
     /// </summary>
     /// <param name="type">The relationship type to check</param>

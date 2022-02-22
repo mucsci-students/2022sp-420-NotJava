@@ -37,6 +37,13 @@ public class NameTypeObject : AttributeObject
 
     }
 
+    /// <summary>
+    /// Copy constructor
+    /// </summary>
+    /// <param name="n">NameTypeObject to copy</param>
+    public NameTypeObject(NameTypeObject n) : this(n.Type, n.AttributeName)
+    { }
+
 
     public static bool operator ==(NameTypeObject a, NameTypeObject b)
     {

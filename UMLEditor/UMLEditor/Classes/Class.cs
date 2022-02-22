@@ -41,6 +41,15 @@ public class Class
     }
 
     /// <summary>
+    /// Copy constructor
+    /// </summary>
+    /// <param name="c">Class object to copy</param>
+    public Class(Class c) : this(c.ClassName)
+    {
+        
+    }
+
+    /// <summary>
     /// Adds field to class.
     /// Pre-condition: name of field is valid
     /// </summary>
