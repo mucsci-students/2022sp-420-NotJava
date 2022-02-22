@@ -53,11 +53,27 @@ public class RelationshipUnitTests
     }
 
     [Test]
-    public void InvalidTypeTests()
+    public void InvalidTypeTest()
     {
         Assert.Throws<InvalidRelationshipTypeException>(delegate { new Relationship(class2Name, class1Name, types[2]); });
         Assert.Throws<InvalidRelationshipTypeException>(delegate { new Relationship(class2Name, class1Name, types[3]); });
         Assert.Throws<InvalidRelationshipTypeException>(delegate { new Relationship(class2Name, class1Name, types[4]); });
+    }
+
+    [Test]
+    public void ChangeTypeTest()
+    {
+        Relationship testRel = new Relationship(class1Name, class2Name, types[0]);
+        testRel.ChangeType(types[1]);
+        Assert.AreEqual(types[1], testRel.RelationshipType);
+    }
+
+    [Test]
+    public void InvalidChangeTypeTest()
+    {
+        Relationship testRel = new Relationship(class1Name, class2Name, types[0]);
+        Assert.Throws<InvalidRelationshipTypeException>(delegate { testRel.ChangeType(types[2]); });
+        Assert.Throws<InvalidRelationshipTypeException>(delegate { testRel.ChangeType(types[4]); });
     }
     
     private string class1Name = "";
