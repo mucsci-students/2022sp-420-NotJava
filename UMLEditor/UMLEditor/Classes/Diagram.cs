@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using UMLEditor.Exceptions;
+using Exceptions;
 
 public class Diagram
 {

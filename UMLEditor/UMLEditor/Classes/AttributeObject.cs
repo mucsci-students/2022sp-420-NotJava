@@ -2,7 +2,7 @@
 
 using System;
 using Newtonsoft.Json;
-using UMLEditor.Exceptions;
+using Exceptions;
 
 public abstract class AttributeObject
 {

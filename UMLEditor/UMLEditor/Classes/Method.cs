@@ -1,11 +1,8 @@
-﻿using System;
-using Microsoft.CodeAnalysis.Scripting.Hosting;
-
-namespace UMLEditor.Classes;
+﻿namespace UMLEditor.Classes;
 
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using UMLEditor.Exceptions;
+using Exceptions;
 
 public class Method : AttributeObject
 {
