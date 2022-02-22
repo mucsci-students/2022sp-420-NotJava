@@ -11,9 +11,10 @@ public class CommandLine
 {
     private Diagram _activeDiagram;
     private IDiagramFile _activeFile;
-    public static readonly ConsoleColor ERROR_COLOR = ConsoleColor.Red;
+    private static readonly ConsoleColor ERROR_COLOR = ConsoleColor.Red;
+    private static readonly ConsoleColor SUCCESS_COLOR = ConsoleColor.DarkGreen;
 
-    public void runCLI()
+    public void RunCli()
     {
         _activeDiagram = new Diagram();
         _activeFile = new JSONDiagramFile();
@@ -46,13 +47,13 @@ public class CommandLine
                     // Try to create a class with the first provided word as its name
                     _activeDiagram.AddClass(arguments.ElementAt(0));
 
-                    Console.WriteLine($"Class {words[1]} created");
+                    PrintColoredLine($"Class {words[1]} created", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("To create a new Class, please enter a class name " +
-                                     "into the input box and then click press enter.", ERROR_COLOR);
+                    PrintColoredLine("To create a new Class, please enter \"add_class\" " +
+                                     "followed by a class name into the console and then click press enter.", ERROR_COLOR);
                 }
 
                 break;
@@ -98,6 +99,11 @@ public class CommandLine
                 break;
 
             case ("help"):
+                if (arguments.Count() > 0)
+                {
+                    PrintColoredLine("invalid command: help does not take any arguments", ERROR_COLOR);
+                    break;
+                }
                 PrintColoredLine("\nadd_class: Add a new class to the diagram" +
                                  "\ndelete_class: Delete an existing class" +
                                  "\nrename_class: Rename an existing class" +
@@ -110,15 +116,14 @@ public class CommandLine
                                  "\nload_diagram: Load a previously saved diagram" +
                                  "\nlist_classes: List all existing classes" +
                                  "\nlist_attributes: List all attributes of a class" +
-                                 "\nlist_relationships: List all relationships of a class\n", ConsoleColor.Green);
+                                 "\nlist_relationships: List all relationships of a class\n", ConsoleColor.DarkCyan);
                 break;
 
             case ("save_diagram"):
                 if (arguments.Count() == 1)
                 {
-                    string[] fileString = arguments.ElementAt(0)
-                        .Split(".".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                    if (fileString[1] != "json")
+                    string fileString = arguments.ElementAt(0);
+                    if (!fileString.EndsWith(".json"))
                     {
                         PrintColoredLine("Please use .json file extension", ERROR_COLOR);
                         break;
@@ -127,7 +132,7 @@ public class CommandLine
                     _activeFile.SaveDiagram(ref _activeDiagram, arguments.ElementAt(0));
 
 
-                    Console.WriteLine($"Current diagram saved to {arguments.ElementAt(0)}");
+                    PrintColoredLine($"Current diagram saved to {arguments.ElementAt(0)}", SUCCESS_COLOR);
                 }
 
                 else
@@ -140,9 +145,8 @@ public class CommandLine
             case ("load_diagram"):
                 if (arguments.Count() == 1)
                 {
-                    string[] fileString = arguments.ElementAt(0)
-                        .Split(".".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                    if (fileString[1] != "json")
+                    string fileString = arguments.ElementAt(0);
+                    if (!fileString.EndsWith(".json"))
                     {
                         PrintColoredLine("Please provide a file with a .json file extension", ERROR_COLOR);
                         break;
@@ -151,7 +155,7 @@ public class CommandLine
                     _activeDiagram = _activeFile.LoadDiagram(arguments.ElementAt(0));
 
 
-                    Console.WriteLine($"Diagram {arguments.ElementAt(0)} loaded.");
+                    PrintColoredLine($"Diagram {arguments.ElementAt(0)} loaded.", SUCCESS_COLOR);
                 }
 
                 else
