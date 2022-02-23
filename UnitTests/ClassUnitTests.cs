@@ -5,7 +5,7 @@ using UMLEditor.Exceptions;
 namespace UnitTests;
 
 [TestFixture]
-public class Tests
+public class ClassUnitTests
 {
     [SetUp]
     public void Setup()
