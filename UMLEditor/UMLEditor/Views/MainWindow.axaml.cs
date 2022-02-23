@@ -348,7 +348,7 @@ namespace UMLEditor.Views
                 {
 
                     // Pull only the first selected file (AllowMultiple should be turned off on the dialog)
-                    string chosenFile = selectedFiles[0];
+                    string chosenFile = selectedFiles![0];
                     
                     try
                     {

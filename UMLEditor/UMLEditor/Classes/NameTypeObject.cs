@@ -1,11 +1,12 @@
 ﻿namespace UMLEditor.Classes;
 
+using System;
 using Newtonsoft.Json;
 
 /// <summary>
 /// A generic type that contains two string fields, a name, and a type.
 /// </summary>
-public class NameTypeObject : AttributeObject
+public class NameTypeObject : AttributeObject, ICloneable
 {
     
     [JsonProperty("type")]
@@ -55,7 +56,7 @@ public class NameTypeObject : AttributeObject
         {
             return false;
         }
-        return ((a.Type == b.Type) && (a.AttributeName == b.AttributeName));
+        return ((a!.Type == b!.Type) && (a.AttributeName == b.AttributeName));
     }
     
     public static bool operator !=(NameTypeObject a, NameTypeObject b)
@@ -67,5 +68,10 @@ public class NameTypeObject : AttributeObject
     {
         return $"{Type} {AttributeName}";
     }
-    
+
+    public object Clone()
+    {
+        return new NameTypeObject(this);
+    }
+
 }

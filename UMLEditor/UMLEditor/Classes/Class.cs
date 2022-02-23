@@ -1,11 +1,12 @@
 ﻿namespace UMLEditor.Classes;
 
+using UMLEditor.Utility;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Exceptions;
 
-public class Class
+public class Class: ICloneable
 {
     [JsonProperty("name")]
     public string ClassName { get; private set; }
@@ -17,16 +18,7 @@ public class Class
     // Creates copies to ensure data integrity
     public List<NameTypeObject> Fields
     {
-        get
-        {
-            List<NameTypeObject> localFields = new List<NameTypeObject>();
-            foreach (NameTypeObject f in _fields)
-            {
-                localFields.Add(new NameTypeObject(f));
-            }
-
-            return localFields;
-        }
+        get => Utilities.CloneContainer(_fields);
     }
 
     [JsonProperty("methods")]
@@ -36,16 +28,7 @@ public class Class
     // Creates copies to ensure data integrity
     public List<Method> Methods
     {
-        get
-        {
-            List<Method> localMethods = new List<Method>();
-            foreach (Method m in _methods)
-            {
-                localMethods.Add(new Method(m));
-            }
-
-            return localMethods;
-        }
+        get => Utilities.CloneContainer(_methods);
     }
 
     /// <summary>
@@ -62,13 +45,11 @@ public class Class
     /// Constructor for class "name"
     /// </summary>
     /// <param name="name">Name of the class being created</param>
-    /// <param name="withFields">(Optional) A list of fields to include in this class</param>
     /// <exception cref="InvalidNameException">Thrown if the name provided is invalid</exception>
     public Class(string name) : this()
     {
         CheckValidClassName(name);
         ClassName = name;
-        
     }
 
     /// <summary>
@@ -77,19 +58,8 @@ public class Class
     /// <param name="c">Class object to copy</param>
     public Class(Class c) : this(c.ClassName)
     {
-        List<NameTypeObject> copyFields = new List<NameTypeObject>(c._fields.Count);
-        List<Method> copyMethods = new List<Method>(c._methods.Count);
-        foreach (NameTypeObject f in c._fields)
-        {
-            copyFields.Add(f);
-        }
-
-        foreach (Method m in c._methods)
-        {
-            copyMethods.Add(m);
-        }
-        _fields = copyFields;
-        _methods = copyMethods;
+        _fields = Utilities.CloneContainer(c._fields);
+        _methods = Utilities.CloneContainer(c._methods);
     }
 
     /// <summary>
@@ -129,10 +99,10 @@ public class Class
     /// </summary>
     /// <param name="name">Name of the Field you are checking</param>
     /// <returns>Returns true if exists, false if not.</returns>
-    public bool FieldExists (string name)
+    private bool FieldExists (string name)
     {
 
-        return GetFieldByName(name) != null;
+        return GetFieldByName(name) is not null;
 
     }
 
@@ -141,7 +111,7 @@ public class Class
     /// </summary>
     /// <param name="name">Name of field you are looking for</param>
     /// <returns>Returns the field if exists, or null if it does not</returns>
-    public NameTypeObject? GetFieldByName(string name)
+    private NameTypeObject? GetFieldByName(string name)
     {
         
         foreach (NameTypeObject currentField in _fields)
@@ -162,7 +132,7 @@ public class Class
     /// <returns>Returns true if exists, false if not.</returns>
     public bool MethodExists (string name)
     {
-        return GetMethodByName(name) != null;
+        return GetMethodByName(name) is not null;
     }
 
     /// <summary>
@@ -170,7 +140,7 @@ public class Class
     /// </summary>
     /// <param name="name">Name of method you are looking for</param>
     /// <returns>Returns the method if it exists, or null if it does not</returns>
-    public Method? GetMethodByName(string name)
+    private Method? GetMethodByName(string name)
     {
         
         foreach (Method currentMethod in _methods)
@@ -187,7 +157,7 @@ public class Class
     /// <summary>
     /// Deletes a field within this class.
     /// </summary>
-    /// <param name="targetField">Field to be deleted</param>
+    /// <param name="targetFieldName">Field to be deleted</param>
     /// <exception cref="AttributeNonexistentException">Thrown if field does not exist</exception>
     public void DeleteField(string targetFieldName)
     {
@@ -208,7 +178,7 @@ public class Class
     /// <summary>
     /// Deletes a method within this class.
     /// </summary>
-    /// <param name="targetMethod">Method to be deleted</param>
+    /// <param name="targetMethodName">Method to be deleted</param>
     /// <exception cref="AttributeNonexistentException">Thrown if method does not exist</exception>
     public void DeleteMethod(string targetMethodName)
     {
@@ -304,7 +274,7 @@ public class Class
         }
         
         // Rename field
-        GetFieldByName(oldName).AttRename(newName);
+        GetFieldByName(oldName)!.AttRename(newName);
         
     }
     
@@ -329,7 +299,7 @@ public class Class
         }
         
         // Rename field
-        GetMethodByName(oldName).AttRename(newName);
+        GetMethodByName(oldName)!.AttRename(newName);
         
     }
 
@@ -358,5 +328,10 @@ public class Class
     {
         CheckValidClassName(name);
         ClassName = name;
+    }
+
+    public object Clone()
+    {
+        return new Class(this);
     }
 }
