@@ -36,6 +36,8 @@ public class CommandLine
     private void ExecuteCommand(string input)
     {
         //TODO The following is a good way to handle input for basic commands.  For commands that can have variable input, a different method, such as regular expressions, should be utilized for reading commandline input
+        
+        //TODO if we want to seperate the view and the controller, put this function in a controller class and have it return a struct that contains a string message and a console color.
          
         List<string> words = (input.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)).ToList();
         string command = words[0].ToLower();
