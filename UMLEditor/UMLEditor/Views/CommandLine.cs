@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UMLEditor.Classes;
 using UMLEditor.Interfaces;
@@ -9,11 +9,12 @@ namespace UMLEditor.Views;
 
 public class CommandLine
 {
-    private Diagram _activeDiagram;
-    private IDiagramFile _activeFile;
+    private Diagram? _activeDiagram;
+    private IDiagramFile? _activeFile;
     private static readonly ConsoleColor ERROR_COLOR = ConsoleColor.Red;
     private static readonly ConsoleColor SUCCESS_COLOR = ConsoleColor.DarkGreen;
-
+    
+    [SuppressMessage("ReSharper", "FunctionNeverReturns")]
     public void RunCli()
     {
         _activeDiagram = new Diagram();
@@ -23,7 +24,7 @@ public class CommandLine
             Console.Write("Enter Command: ");
             try
             {
-                ExecuteCommand(Console.ReadLine());
+                ExecuteCommand(Console.ReadLine()!);
             }
             catch (Exception e)
             {
@@ -34,18 +35,18 @@ public class CommandLine
 
     private void ExecuteCommand(string input)
     {
-        //TODO The following is a good way to handle input for basic commands.  For commands that can have variable input, a differemt method, such as regular expressions, should be utilized for reading commandline input
+        //TODO The following is a good way to handle input for basic commands.  For commands that can have variable input, a different method, such as regular expressions, should be utilized for reading commandline input
          
         List<string> words = (input.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)).ToList();
         string command = words[0].ToLower();
-        var arguments = words.Skip(1);
+        List<string> arguments = words.Skip(1).ToList();
         switch (command)
         {
             case ("add_class"):
-                if (arguments.Count() == 1)
+                if (arguments.Count == 1)
                 {
                     // Try to create a class with the first provided word as its name
-                    _activeDiagram.AddClass(arguments.ElementAt(0));
+                    _activeDiagram!.AddClass(arguments[0]);
 
                     PrintColoredLine($"Class {words[1]} created", SUCCESS_COLOR);
                 }
@@ -53,7 +54,7 @@ public class CommandLine
                 else
                 {
                     PrintColoredLine("To create a new Class, please enter \"add_class\" " +
-                                     "followed by a class name into the console and then click press enter.", ERROR_COLOR);
+                                     "followed by a class name into the console and then press enter.", ERROR_COLOR);
                 }
 
                 break;
@@ -66,11 +67,19 @@ public class CommandLine
                 //TODO 
                 break;
 
-            case ("add_attribute"):
+            case ("add_field"):
                 //TODO 
                 break;
 
-            case ("delete_attribute"):
+            case ("delete_field"):
+                //TODO 
+                break;
+            
+            case ("add_method"):
+                //TODO 
+                break;
+
+            case ("delete_method"):
                 //TODO 
                 break;
 
@@ -99,9 +108,9 @@ public class CommandLine
                 break;
 
             case ("help"):
-                if (arguments.Count() > 0)
+                if (arguments.Count > 0)
                 {
-                    PrintColoredLine("invalid command: help does not take any arguments", ERROR_COLOR);
+                    PrintColoredLine("Invalid command: help does not take any arguments", ERROR_COLOR);
                     break;
                 }
                 PrintColoredLine("\nadd_class: Add a new class to the diagram" +
@@ -120,7 +129,7 @@ public class CommandLine
                 break;
 
             case ("save_diagram"):
-                if (arguments.Count() == 1)
+                if (arguments.Count == 1)
                 {
                     string fileString = arguments.ElementAt(0);
                     if (!fileString.EndsWith(".json"))
@@ -129,10 +138,10 @@ public class CommandLine
                         break;
                     }
 
-                    _activeFile.SaveDiagram(ref _activeDiagram, arguments.ElementAt(0));
+                    _activeFile!.SaveDiagram(ref _activeDiagram!, arguments[0]);
 
 
-                    PrintColoredLine($"Current diagram saved to {arguments.ElementAt(0)}", SUCCESS_COLOR);
+                    PrintColoredLine($"Current diagram saved to {arguments[0]}", SUCCESS_COLOR);
                 }
 
                 else
@@ -143,19 +152,19 @@ public class CommandLine
                 break;
 
             case ("load_diagram"):
-                if (arguments.Count() == 1)
+                if (arguments.Count == 1)
                 {
-                    string fileString = arguments.ElementAt(0);
+                    string fileString = arguments[0];
                     if (!fileString.EndsWith(".json"))
                     {
                         PrintColoredLine("Please provide a file with a .json file extension", ERROR_COLOR);
                         break;
                     }
 
-                    _activeDiagram = _activeFile.LoadDiagram(arguments.ElementAt(0));
+                    _activeDiagram = _activeFile!.LoadDiagram(arguments[0]);
 
 
-                    PrintColoredLine($"Diagram {arguments.ElementAt(0)} loaded.", SUCCESS_COLOR);
+                    PrintColoredLine($"Diagram {arguments[0]} loaded.", SUCCESS_COLOR);
                 }
 
                 else
