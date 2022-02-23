@@ -104,7 +104,7 @@ public class Class
         {
             throw new AttributeAlreadyExistsException(string.Format("Field {0} already exists", name));
         }
-        _fields.Add(new NameTypeObject(name, type));
+        _fields.Add(new NameTypeObject(type, name));
         
     }
     
