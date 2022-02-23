@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using NUnit.Framework;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
@@ -6,7 +5,7 @@ using UMLEditor.Exceptions;
 namespace UnitTests;
 
 [TestFixture]
-public class Tests
+public class ClassUnitTests
 {
     [SetUp]
     public void Setup()

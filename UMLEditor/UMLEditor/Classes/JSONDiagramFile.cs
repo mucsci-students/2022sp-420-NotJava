@@ -1,7 +1,7 @@
 ﻿namespace UMLEditor.Classes;
 
 using System.IO;
-using UMLEditor.Interfaces;
+using Interfaces;
 using Newtonsoft.Json;
 
 public class JSONDiagramFile : IDiagramFile

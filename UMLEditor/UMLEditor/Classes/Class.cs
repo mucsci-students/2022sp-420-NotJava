@@ -1,21 +1,35 @@
 ﻿namespace UMLEditor.Classes;
 
+using UMLEditor.Utility;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using UMLEditor.Exceptions;
+using Exceptions;
 
-public class Class
+public class Class: ICloneable
 {
     [JsonProperty("name")]
     public string ClassName { get; private set; }
     
     [JsonProperty("fields")]
-    public List<NameTypeObject> Fields;
+    private List<NameTypeObject> _fields;
+    
+    // Public accessor for Fields
+    // Creates copies to ensure data integrity
+    public List<NameTypeObject> Fields
+    {
+        get => Utilities.CloneContainer(_fields);
+    }
 
     [JsonProperty("methods")]
-    public List<Method> Methods;
+    private List<Method> _methods;
     
+    // Public accessor for Methods
+    // Creates copies to ensure data integrity
+    public List<Method> Methods
+    {
+        get => Utilities.CloneContainer(_methods);
+    }
 
     /// <summary>
     /// Default constructor for class
@@ -23,36 +37,44 @@ public class Class
     public Class()
     {
         ClassName = "";
-        Fields = new List<NameTypeObject>();
-        Methods = new List<Method>();
+        _fields = new List<NameTypeObject>();
+        _methods = new List<Method>();
     }
 
     /// <summary>
     /// Constructor for class "name"
     /// </summary>
     /// <param name="name">Name of the class being created</param>
-    /// <param name="withFields">(Optional) A list of fields to include in this class</param>
     /// <exception cref="InvalidNameException">Thrown if the name provided is invalid</exception>
     public Class(string name) : this()
     {
         CheckValidClassName(name);
         ClassName = name;
-        
+    }
+
+    /// <summary>
+    /// Copy constructor
+    /// </summary>
+    /// <param name="c">Class object to copy</param>
+    public Class(Class c) : this(c.ClassName)
+    {
+        _fields = Utilities.CloneContainer(c._fields);
+        _methods = Utilities.CloneContainer(c._methods);
     }
 
     /// <summary>
     /// Adds field to class.
     /// Pre-condition: name of field is valid
     /// </summary>
-    /// <param name="name">Valid name of new field</param>
     /// <param name="type">Valid type of new field</param>
-    public void AddField(string name, string type)
+    /// <param name="name">Valid name of new field</param>
+    public void AddField(string type, string name)
     {
         if (FieldExists(name))
         {
             throw new AttributeAlreadyExistsException(string.Format("Field {0} already exists", name));
         }
-        Fields.Add(new NameTypeObject(name, type));
+        _fields.Add(new NameTypeObject(type, name));
         
     }
     
@@ -60,15 +82,15 @@ public class Class
     /// Adds method to class.
     /// Pre-condition: name of method is valid
     /// </summary>
-    /// <param name="name">Valid name of new method</param>
     /// <param name="returnType">Valid returnType of new method</param>
-    public void AddMethod(string name, string returnType)
+    /// <param name="name">Valid name of new method</param>
+    public void AddMethod(string returnType, string name)
     {
         if (MethodExists(name))
         {
             throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", name));
         }
-        Methods.Add(new Method(name, returnType));
+        _methods.Add(new Method(returnType, name));
         
     }
 
@@ -77,10 +99,10 @@ public class Class
     /// </summary>
     /// <param name="name">Name of the Field you are checking</param>
     /// <returns>Returns true if exists, false if not.</returns>
-    public bool FieldExists (string name)
+    private bool FieldExists (string name)
     {
 
-        return GetFieldByName(name) != null;
+        return GetFieldByName(name) is not null;
 
     }
 
@@ -89,10 +111,10 @@ public class Class
     /// </summary>
     /// <param name="name">Name of field you are looking for</param>
     /// <returns>Returns the field if exists, or null if it does not</returns>
-    public NameTypeObject? GetFieldByName(string name)
+    private NameTypeObject? GetFieldByName(string name)
     {
         
-        foreach (NameTypeObject currentField in Fields)
+        foreach (NameTypeObject currentField in _fields)
         {
             if (currentField.AttributeName == name)
             {
@@ -110,9 +132,7 @@ public class Class
     /// <returns>Returns true if exists, false if not.</returns>
     public bool MethodExists (string name)
     {
-
-        return GetMethodByName(name) != null;
-
+        return GetMethodByName(name) is not null;
     }
 
     /// <summary>
@@ -120,24 +140,24 @@ public class Class
     /// </summary>
     /// <param name="name">Name of method you are looking for</param>
     /// <returns>Returns the method if it exists, or null if it does not</returns>
-    public Method? GetMethodByName(string name)
+    private Method? GetMethodByName(string name)
     {
         
-        foreach (Method currentMethod in Methods)
+        foreach (Method currentMethod in _methods)
         {
             if (currentMethod.AttributeName == name)
             {
                 return currentMethod;
             }
         }
-        
-        return null; 
+
+        return null;
     }
 
     /// <summary>
     /// Deletes a field within this class.
     /// </summary>
-    /// <param name="targetField">Field to be deleted</param>
+    /// <param name="targetFieldName">Field to be deleted</param>
     /// <exception cref="AttributeNonexistentException">Thrown if field does not exist</exception>
     public void DeleteField(string targetFieldName)
     {
@@ -145,7 +165,7 @@ public class Class
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent field name entered ({0}).";
         
         // Ensure the provided classes exist
-        bool removeWorked = Fields.Remove(GetFieldByName(targetFieldName));
+        bool removeWorked = _fields.Remove(GetFieldByName(targetFieldName));
         if (!removeWorked)
         {
 
@@ -158,7 +178,7 @@ public class Class
     /// <summary>
     /// Deletes a method within this class.
     /// </summary>
-    /// <param name="targetMethod">Method to be deleted</param>
+    /// <param name="targetMethodName">Method to be deleted</param>
     /// <exception cref="AttributeNonexistentException">Thrown if method does not exist</exception>
     public void DeleteMethod(string targetMethodName)
     {
@@ -166,7 +186,7 @@ public class Class
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent method name entered ({0}).";
         
         // Ensure the provided classes exist
-        bool removeWorked = Methods.Remove(GetMethodByName(targetMethodName));
+        bool removeWorked = _methods.Remove(GetMethodByName(targetMethodName));
         if (!removeWorked)
         {
 
@@ -194,13 +214,13 @@ public class Class
         
         string msg = string.Format("{0} fields: \n", ClassName);
         
-        if (Fields.Count == 0)
+        if (_fields.Count == 0)
         {
             msg += "    There are no fields currently. \n";
         }
         else
         {
-            foreach (NameTypeObject a in Fields)
+            foreach (NameTypeObject a in _fields)
             {
                 msg += string.Format("    {0}\n", a.ToString());
             }
@@ -218,13 +238,13 @@ public class Class
         
         string msg = string.Format("{0} methods: \n", ClassName);
         
-        if (Methods.Count == 0)
+        if (_methods.Count == 0)
         {
             msg += "    There are no methods currently. \n";
         }
         else
         {
-            foreach (Method a in Methods)
+            foreach (Method a in _methods)
             {
                 msg += string.Format("    {0}\n", a.ToString());
             }
@@ -254,7 +274,7 @@ public class Class
         }
         
         // Rename field
-        GetFieldByName(oldName).AttRename(newName);
+        GetFieldByName(oldName)!.AttRename(newName);
         
     }
     
@@ -279,7 +299,7 @@ public class Class
         }
         
         // Rename field
-        GetMethodByName(oldName).AttRename(newName);
+        GetMethodByName(oldName)!.AttRename(newName);
         
     }
 
@@ -308,5 +328,10 @@ public class Class
     {
         CheckValidClassName(name);
         ClassName = name;
+    }
+
+    public object Clone()
+    {
+        return new Class(this);
     }
 }

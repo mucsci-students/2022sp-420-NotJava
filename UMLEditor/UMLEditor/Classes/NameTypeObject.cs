@@ -1,11 +1,12 @@
 ﻿namespace UMLEditor.Classes;
 
+using System;
 using Newtonsoft.Json;
 
 /// <summary>
 /// A generic type that contains two string fields, a name, and a type.
 /// </summary>
-public class NameTypeObject : AttributeObject
+public class NameTypeObject : AttributeObject, ICloneable
 {
     
     [JsonProperty("type")]
@@ -25,16 +26,24 @@ public class NameTypeObject : AttributeObject
     /// <summary>
     /// Constructs a parameter with the provided name and type
     /// </summary>
-    /// <param name="withName">The name of the parameter</param>
     /// <param name="withType">The name of the type of the parameter</param>
-    public NameTypeObject(string withName, string withType)
+    /// <param name="withName">The name of the parameter</param>
+    public NameTypeObject(string withType, string withName)
     {
         
         CheckValidAttributeName(withName);
+        CheckValidAttributeName(withType);
         AttributeName = withName;
         Type = withType;
 
     }
+
+    /// <summary>
+    /// Copy constructor
+    /// </summary>
+    /// <param name="n">NameTypeObject to copy</param>
+    public NameTypeObject(NameTypeObject n) : this(n.Type, n.AttributeName)
+    { }
 
 
     public static bool operator ==(NameTypeObject a, NameTypeObject b)
@@ -47,7 +56,7 @@ public class NameTypeObject : AttributeObject
         {
             return false;
         }
-        return ((a.Type == b.Type) && (a.AttributeName == b.AttributeName));
+        return ((a!.Type == b!.Type) && (a.AttributeName == b.AttributeName));
     }
     
     public static bool operator !=(NameTypeObject a, NameTypeObject b)
@@ -59,5 +68,10 @@ public class NameTypeObject : AttributeObject
     {
         return $"{Type} {AttributeName}";
     }
-    
+
+    public object Clone()
+    {
+        return new NameTypeObject(this);
+    }
+
 }
