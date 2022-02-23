@@ -1,10 +1,11 @@
 ﻿namespace UMLEditor.Classes;
 
+using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using Exceptions;
 
-public class Relationship
+public class Relationship : ICloneable
 {
     // Valid relationship types
     private readonly List<string> _validTypes = new List<string>{"aggregation", "composition", "inheritance", "realization"};
@@ -37,7 +38,7 @@ public class Relationship
     /// <param name="source">The source class in the relationship</param>
     /// <param name="destination">The destination class in the relationship</param>
     /// <param name="type">The type of relationship</param>
-    public Relationship(string source, string destination, string type)
+    public Relationship(string source, string destination, string type) : this()
     {
         SourceClass = source;
         DestinationClass = destination;
@@ -108,5 +109,10 @@ public class Relationship
     public override string ToString()
     {
         return $"{RelationshipType}: {SourceClass} => {DestinationClass}";
+    }
+
+    public object Clone()
+    {
+        return new Relationship(this);
     }
 }

@@ -1,5 +1,7 @@
 ﻿namespace UMLEditor.Classes;
 
+using UMLEditor.Utility;
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Exceptions;
@@ -13,16 +15,7 @@ public class Diagram
     // Creates copies to ensure data integrity
     public List<Class> Classes
     {
-        get
-        {
-            List<Class> localClasses = new List<Class>();
-            foreach (Class c in _classes)
-            {
-                localClasses.Add(new Class(c));
-            }
-
-            return localClasses;
-        }
+        get => Utilities.CloneContainer(_classes);
     }
 
     [JsonProperty("relationships", Required = Required.Always)]
@@ -32,16 +25,7 @@ public class Diagram
     // Creates copies to ensure data integrity
     public List<Relationship> Relationships
     {
-        get
-        {
-            List<Relationship> localRelationships = new List<Relationship>();
-            foreach (Relationship r in _relationships)
-            {
-                localRelationships.Add(new Relationship(r));
-            }
-
-            return localRelationships;
-        }
+        get => Utilities.CloneContainer(_relationships);
     }
     
     /// <summary>
@@ -61,7 +45,7 @@ public class Diagram
     private bool ClassExists (string name)
     {
 
-        return GetClassByName(name) != null;
+        return GetClassByName(name) is not null;
 
     }
 
@@ -91,7 +75,7 @@ public class Diagram
     private bool RelationshipExists (string sourceName, string destName)
     {
 
-        return GetRelationshipByName(sourceName, destName) != null;
+        return GetRelationshipByName(sourceName, destName) is not null;
 
     }
     
@@ -221,7 +205,7 @@ public class Diagram
         
         // Rename class
         Class? foundClass = GetClassByName(oldName); 
-        foundClass.Rename(newName);
+        foundClass!.Rename(newName);
 
         foreach (Relationship currentRel in GetInvolvedRelationships(oldName))
         {
@@ -315,5 +299,5 @@ public class Diagram
         return result;
 
     }
-    
+
 }
