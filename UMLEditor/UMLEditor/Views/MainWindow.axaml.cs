@@ -219,8 +219,8 @@ namespace UMLEditor.Views
                     // Creating the variables that we will be snagging from the 'AddRelationshipPanel'
                     string sourceName = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().SourceClass;
                     string destinationName = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
-                    string relationshipType = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().RelationshipType;
-                    
+                    string relationshipType = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().SelectedType;
+                  
                     // Verification to check if no input was added
                     if (sourceName is null || sourceName.Trim().Length == 0)
                     {

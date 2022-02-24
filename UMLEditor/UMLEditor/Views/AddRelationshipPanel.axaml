@@ -30,13 +30,10 @@
         
         <Label
             Margin="0 10 0 5"
-            Content = "Enter relationship type (Aggregation, Composition, Inheritance, Realization):">
+            Content = "Enter relationship type:">
         </Label>
         
-        <TextBox
-            Watermark="Relationship type goes here"
-            Name="RelationshipType">
-        </TextBox>
+        <ComboBox SelectedIndex="0" Name="TypeSelection" HorizontalAlignment="Stretch" />
         
     </StackPanel>
 </UserControl>
