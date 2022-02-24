@@ -20,9 +20,9 @@ Cross-platform, GUI-based UML editor written for Millersville University CSCI 42
 
 
 ## Testing Instructions
-### Build And Run Tests:
+### Build And Run Unit Tests:
 _This will run all available unit tests for the code and does nothing else._
-- To build and execute unit tests, run the following from the base of the build directory: <br />``dotnet test``
+- To build and execute unit tests, run the following from the root of the repo directory (where the .sln is): <br />``dotnet test``
 
 ### Team Members
 
