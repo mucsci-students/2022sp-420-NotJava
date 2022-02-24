@@ -115,11 +115,14 @@ namespace UMLEditor.Views
                     Rectangle rect = new Rectangle();
                     rect.Height = 40;
                     rect.Width = 40;
-                    rect.Stroke = Brushes.White;
+                    rect.Stroke = Brushes.Blue;
                     rect.StrokeThickness = 2;
                     RotateTransform rotation = new RotateTransform(45);
-                    rect.RenderTransform = rotation;
-                    rect.HorizontalAlignment = HorizontalAlignment.Right;
+                    TranslateTransform translate = new TranslateTransform(end.X,end.Y);
+                    TransformGroup transforms = new TransformGroup();
+                    transforms.Children.Add(translate);
+                    transforms.Children.Add(rotation);
+                    rect.RenderTransform = transforms;
                     canvas.Children.Add(rect);
                     break;
                 case "composition": 
