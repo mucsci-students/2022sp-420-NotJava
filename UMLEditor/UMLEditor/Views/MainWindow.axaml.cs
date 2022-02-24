@@ -201,24 +201,27 @@ namespace UMLEditor.Views
 
         private void AddRelationship_OnClick(object sender, RoutedEventArgs e)
         {
+            // Create a new modal dialogue and wire it up to the 'AddRelationshipPanel'
             ModalDialog AddRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Add New Relationship", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = AddRelationshipModal.ShowDialog<DialogButtons>(this);
             
+            // Spin up the result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
-
+                //Case where user does not select OKAY button.
                 if (result.Result != DialogButtons.OKAY)
                 {
                     return;
                 }
-
+                // Dispatching a UIThread to ensure the body is executed in thread-safe manor.
                 Dispatcher.UIThread.Post(() =>
                 {
-                    
+                    // Creating the variables that we will be snagging from the 'AddRelationshipPanel'
                     string sourceName = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().SourceClass;
                     string destinationName = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
                     string relationshipType = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().RelationshipType;
                     
+                    // Verification to check if no input was added
                     if (sourceName is null || sourceName.Trim().Length == 0)
                     {
 
@@ -231,7 +234,7 @@ namespace UMLEditor.Views
                         return;
 
                     }
-                    
+                    // Verification to check if # of arguments is correct
                     if (!isCorrectNumArguments(sourceName, 1))
                     {
                         RaiseAlert(
@@ -242,7 +245,7 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    
+                    // Verification to check if no input was added
                     if (destinationName is null || destinationName.Trim().Length == 0)
                     {
 
@@ -255,7 +258,7 @@ namespace UMLEditor.Views
                         return;
 
                     }
-                    
+                    // Verification to check if # of arguments is correct
                     if (!isCorrectNumArguments(destinationName, 1))
                     {
                         RaiseAlert(
@@ -266,7 +269,7 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    
+                    // Verification to check if no input was added
                     if (relationshipType is null || relationshipType.Trim().Length == 0)
                     {
                         RaiseAlert(
@@ -277,7 +280,7 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    
+                    // Verification to check if # of arguments is correct
                     if (!isCorrectNumArguments(relationshipType, 1))
                     {
                         RaiseAlert(
@@ -291,10 +294,12 @@ namespace UMLEditor.Views
 
                     switch (result.Result)
                     {
+                        // If OKAY was selected...
                         case DialogButtons.OKAY:
 
                             try
                             {
+                                // Attempt to create a new relationship with the information given.  If succeeds raise an alert.
                                 _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
                                 RaiseAlert(
                                     "Relationship Added",
@@ -302,7 +307,7 @@ namespace UMLEditor.Views
                                     "",
                                     AlertIcon.INFO);
                             }
-
+                            // Alert if the add fails.
                             catch (Exception e)
                             {
                                 RaiseAlert(
@@ -423,25 +428,30 @@ namespace UMLEditor.Views
 
         private void Add_Field_OnClick(object sender, RoutedEventArgs e)
         {
+            // Create a new modal dialogue and wire it up to 'AddFieldPanel'
             ModalDialog AddFieldModal = ModalDialog.CreateDialog<AddFieldPanel>("Add New Field", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = AddFieldModal.ShowDialog<DialogButtons>(this);
             
+            // Spin up a result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
-
+                // Case where 'OKAY' was not selected, return.
                 if (result.Result != DialogButtons.OKAY)
                 {
                     return;
                 }
-
+                // Dispatch a UIThread to execute in a thread-safe manor
                 Dispatcher.UIThread.Post(() =>
                 {
+                    // Variables that we need to snag from the 'AddFieldPanel'
                     string targetClass = AddFieldModal.GetPrompt<AddFieldPanel>().ClassName;
                     string targetField = AddFieldModal.GetPrompt<AddFieldPanel>().FieldName;
                     string fieldType = AddFieldModal.GetPrompt<AddFieldPanel>().FieldType;
                     
+                    // Taking the targetClass string and finding a corresponding class in diagram.
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
                     
+                    // If class does not exist...
                     if (currentClass is null)
                     {
                         RaiseAlert(
@@ -452,7 +462,8 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-
+                    
+                    // If input is empty...
                     if (targetClass is null || targetClass.Trim().Length == 0)
                     {
                         RaiseAlert(
@@ -463,6 +474,7 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
+                    // If invalid number of arguments...
                     if (!isCorrectNumArguments(targetClass, 1))
                     {
                         RaiseAlert(
@@ -474,6 +486,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If input is left empty...
                     if (targetField is null || targetField.Trim().Length == 0)
                     {
                         RaiseAlert(
@@ -485,6 +498,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If invalid number of arguments...
                     if (!isCorrectNumArguments(targetField, 1))
                     {
                         RaiseAlert(
@@ -496,6 +510,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If input is left empty...
                     if (fieldType is null || fieldType.Trim().Length == 0)
                     {
                         RaiseAlert(
@@ -507,6 +522,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If invalid number of arguments...
                     if (!isCorrectNumArguments(fieldType, 1))
                     {
                         RaiseAlert(
@@ -520,10 +536,12 @@ namespace UMLEditor.Views
 
                     switch (result.Result)
                     {
+                        // In the case of clicking 'OKAY'
                         case DialogButtons.OKAY:
 
                             try
                             {
+                                // Try to create a new field with the information given.  Raise an alert on succeed.
                                 currentClass.AddField(fieldType,targetField);
                                 RaiseAlert(
                                     "Field Added",
@@ -532,6 +550,7 @@ namespace UMLEditor.Views
                                     AlertIcon.INFO);
                             }
 
+                            // On failure, raise an alert.
                             catch (Exception e)
                             {
                                 RaiseAlert(
@@ -614,19 +633,27 @@ namespace UMLEditor.Views
 
         private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
         {
+            // Create and wire up a new modal dialogue to the 'AddClassPanel'
             ModalDialog AddClassModal = ModalDialog.CreateDialog<AddClassPanel>("Add New Class", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = AddClassModal.ShowDialog<DialogButtons>(this);
+            
+            // Spin up a result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
-
+                
+                // Case in which 'OKAY' is not selected.
                 if (result.Result != DialogButtons.OKAY)
                 {
                     return;
                 }
 
+                // Dispatch a UIThread to execute body in a thread-safe manor
                 Dispatcher.UIThread.Post(() =>
                 {
+                    // Variables used in the creation of a new class
                     string enteredName = AddClassModal.GetPrompt<AddClassPanel>().ClassName;
+                    
+                    // If the input is left empty...
                     if (enteredName is null || enteredName.Trim().Length == 0)
                     {
 
@@ -640,6 +667,7 @@ namespace UMLEditor.Views
 
                     }
                     
+                    // If an incorrect number of arguments is entered...
                     if (!isCorrectNumArguments(enteredName, 1))
                     {
                         RaiseAlert(
@@ -653,10 +681,12 @@ namespace UMLEditor.Views
                     
                     switch (result.Result)
                     {
+                        // If the user selects 'OKAY'
                         case DialogButtons.OKAY:
 
                             try
                             {
+                                // Attempt to create a new class with the given information.  Alert if succeeds
                                 _activeDiagram.AddClass(enteredName);
                                 RaiseAlert(
                                     "Class Added",
@@ -665,6 +695,7 @@ namespace UMLEditor.Views
                                     AlertIcon.INFO);
                             }
 
+                            // If fails, raise an alert.
                             catch (Exception e)
                             {
                                 RaiseAlert(
@@ -744,22 +775,29 @@ namespace UMLEditor.Views
 
         private void Class_RenameClass_OnClick(object sender, RoutedEventArgs e)
         {
+            // Create and wire up a new modal dialog to the 'RenameClassPanel'
             ModalDialog RenameClassModal = ModalDialog.CreateDialog<RenameClassPanel>("Rename Class", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = RenameClassModal.ShowDialog<DialogButtons>(this);
+            
+            // Spin up a new dialog
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
 
+                // Case in which user does not select 'OKAY'
                 if (result.Result != DialogButtons.OKAY)
                 {
                     return;
                 }
 
+                // Dispatch UIThread to execute in a thread-safe manor
                 Dispatcher.UIThread.Post(() =>
                 {
                     
+                    // Variables that we will be using from the modal input
                     string oldName = RenameClassModal.GetPrompt<RenameClassPanel>().OldName;
                     string newName = RenameClassModal.GetPrompt<RenameClassPanel>().NewName;
                     
+                    // If input is left empty...
                     if (oldName is null || oldName.Trim().Length == 0)
                     {
 
@@ -772,6 +810,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If # arguments is invalid...
                     if (!isCorrectNumArguments(oldName, 1))
                     {
                         RaiseAlert(
@@ -783,6 +822,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If input is left empty...
                     if (newName is null || newName.Trim().Length == 0)
                     {
 
@@ -795,6 +835,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If # arguments is invalid...
                     if (!isCorrectNumArguments(newName, 1))
                     {
                         RaiseAlert(
@@ -808,12 +849,14 @@ namespace UMLEditor.Views
                 
                     switch (result.Result)
                     {
-
+    
+                        // Case in which 'OKAY' is entered
                         case DialogButtons.OKAY:
 
                             try
                             {
 
+                                // Attempt to rename class with given information.  If succeeds raise alert.
                                 _activeDiagram.RenameClass(oldName,newName);
                                 RaiseAlert(
                                     "Class Renamed",
@@ -823,6 +866,7 @@ namespace UMLEditor.Views
 
                             }
 
+                            // If fails raise alert...
                             catch (Exception e)
                             {
                             
@@ -895,23 +939,20 @@ namespace UMLEditor.Views
             _outputBox.Text = string.Format("Relationship Deleted ({0} => {1})", sourceClassName, destClassName);
         }
 
-        private void TestModal_OnClick(object sender, RoutedEventArgs e)
-        {
-            var window = ModalDialog.CreateDialog<AlertPanel>("Oh No!", DialogButtons.OKAY);
-            window.GetPrompt<AlertPanel>().AlertTitle = "Could not create class";
-            window.GetPrompt<AlertPanel>().AlertMessage = "Class \"1234\" is not a valid class name";
-            window.GetPrompt<AlertPanel>().DialogIcon = AlertIcon.QUESTION;
-            window.ShowDialog(this);
-
-            // var window = new GenericModal();
-            // window.Show();
-        }
-
+        /// <summary>
+        ///  Raises and alert with the given parameters
+        /// </summary>
+        /// <param name="windowTitle">The desired title for the raised alert</param>
+        /// <param name="messageTitle">The desired message title for the raised alert</param>
+        /// <param name="messageBody">The message body for the raise alert</param>
+        /// <param name="alertIcon">The icon you would like present within the alert</param>
         private void RaiseAlert(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon)
         {
+            // Create and wire up a new modal dialogue to 'AlertPanel' with the parameters being a title and the visible buttons.
             ModalDialog AlertDialog = ModalDialog.CreateDialog<AlertPanel>(messageTitle, DialogButtons.OKAY);
             AlertPanel content = AlertDialog.GetPrompt<AlertPanel>();
             
+            // Fill the content, alert message, and icon depending on the situation in which the alert is being raised.
             content.AlertTitle = messageTitle;
             content.AlertMessage = messageBody;
             content.DialogIcon = alertIcon;
@@ -921,25 +962,44 @@ namespace UMLEditor.Views
 
         private void Add_Method_OnCLick(object sender, RoutedEventArgs e)
         {
+            // Create a new modal dialog and wire it up to the 'AddMethodPanel'
             ModalDialog AddMethodModal = ModalDialog.CreateDialog<AddMethodPanel>("Add New Method", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = AddMethodModal.ShowDialog<DialogButtons>(this);
             
+            // Spin up a new result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
 
+                // Case in which 'OKAY' is not selected
                 if (result.Result != DialogButtons.OKAY)
                 {
                     return;
                 }
 
+                // Dispatch a UIThread to execute in a thread-safe manor
                 Dispatcher.UIThread.Post(() =>
                 {
+                    // Variables we would like to obtain from the 'AddMethodPanel' modal
                     string className = AddMethodModal.GetPrompt<AddMethodPanel>().ClassName;
                     string methodName = AddMethodModal.GetPrompt<AddMethodPanel>().MethodName;
                     string returnType = AddMethodModal.GetPrompt<AddMethodPanel>().ReturnType;
                     
+                    // Taking the className string and accessing a corresponding class in active diagram
                     Class currentClass = _activeDiagram.GetClassByName(className);
                     
+                    // If the class does not exist...
+                    if (currentClass is null)
+                    {
+                        RaiseAlert(
+                            "Method Creation Failed",
+                            "Could Not Create Method",
+                            "class does not exist",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    
+                    // If the input is left empty...
                     if (className is null || className.Trim().Length == 0)
                     {
 
@@ -952,6 +1012,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If the # of arguments is incorrect...
                     if (!isCorrectNumArguments(className, 1))
                     {
                         RaiseAlert(
@@ -963,6 +1024,9 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // TODO insert validation of specified class...
+                    
+                    // if input is left empty....
                     if (methodName is null || methodName.Trim().Length == 0)
                     {
 
@@ -975,6 +1039,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If # args is invalid
                     if (!isCorrectNumArguments(methodName, 1))
                     {
                         RaiseAlert(
@@ -986,6 +1051,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If input is left empty...
                     if (returnType is null || returnType.Trim().Length == 0)
                     {
 
@@ -998,6 +1064,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If incorrect number of arguments...
                     if (!isCorrectNumArguments(returnType, 1))
                     {
                         RaiseAlert(
@@ -1011,11 +1078,13 @@ namespace UMLEditor.Views
 
                     switch (result.Result)
                     {
+                        // In the case of selecting 'OKAY'
                         case DialogButtons.OKAY:
 
                             try
                             {
 
+                                    // Attempt to enter a new method using given information.  Raise alert if succeed.
                                     currentClass.AddMethod(returnType,methodName);
                                     RaiseAlert(
                                     "Relationship Added",
@@ -1025,6 +1094,7 @@ namespace UMLEditor.Views
 
                             }
 
+                            // Raise an exception if fail.
                             catch (Exception e)
                             {
                             
@@ -1044,24 +1114,32 @@ namespace UMLEditor.Views
 
         private void Rename_Field_OnClick(object sender, RoutedEventArgs e)
         {
+            // Create a new modal dialogue and wire up to 'RenameFieldPanel'
             ModalDialog RenameFieldModal = ModalDialog.CreateDialog<RenameFieldPanel>("Rename Field", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = RenameFieldModal.ShowDialog<DialogButtons>(this);
+            
+            // Spin up a new result.
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
 
+                // Case in which 'OKAY' is not selected.
                 if (result.Result != DialogButtons.OKAY)
                 {
                     return;
                 }
 
+                // Dispatch a new UIThread to execute in a thread-safe manor
                 Dispatcher.UIThread.Post(() =>
                 {
+                    // Variables we would like to get from the modal dialogue
                     string targetClass = RenameFieldModal.GetPrompt<RenameFieldPanel>().TargetClass;
                     string oldName = RenameFieldModal.GetPrompt<RenameFieldPanel>().OldName;
                     string newName = RenameFieldModal.GetPrompt<RenameFieldPanel>().NewName;
                     
+                    // Using the string targetClass to get a corresponding class in diagram
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
                     
+                    // If currentClass does not exist...
                     if (currentClass is null)
                     {
                         RaiseAlert(
@@ -1073,6 +1151,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If input is left empty...
                     if (oldName is null || oldName.Trim().Length == 0)
                     {
 
@@ -1085,6 +1164,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If incorrect # of arguments...
                     if (!isCorrectNumArguments(oldName, 1))
                     {
                         RaiseAlert(
@@ -1096,6 +1176,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If input is left empty...
                     if (newName is null || newName.Trim().Length == 0)
                     {
 
@@ -1108,6 +1189,7 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    // If incorrect # arguments...
                     if (!isCorrectNumArguments(newName, 1))
                     {
                         RaiseAlert(
@@ -1122,10 +1204,12 @@ namespace UMLEditor.Views
                     switch (result.Result)
                     {
 
+                        // If user selects 'OKAY'
                         case DialogButtons.OKAY:
 
                             try
                             {
+                                // Try to rename field using the given information.  Raise alert if succeeds.
                                 currentClass.RenameField(oldName,newName);
                                 RaiseAlert(
                                     "Field Renamed",
@@ -1134,6 +1218,7 @@ namespace UMLEditor.Views
                                     AlertIcon.INFO);
                             }
 
+                            // Throw an exception if fails...
                             catch (Exception e)
                             {
                             
@@ -1152,11 +1237,13 @@ namespace UMLEditor.Views
 
         private void Rename_Method_OnClick(object sender, RoutedEventArgs e)
         {
+            // Create a new modal dialogue and wire up to 'RenameMethodPanel'
             ModalDialog RenameMethodModal =
                 ModalDialog.CreateDialog<RenameMethodPanel>("Rename Method", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult =
                 RenameMethodModal.ShowDialog<DialogButtons>(this);
 
+            // Spin up a new result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
                 // If user presses cancel, then leave the window
@@ -1164,15 +1251,19 @@ namespace UMLEditor.Views
                 {
                     return;
                 }
-
+                
+                // Dispatch UIThread to execute in a thread-safe manor
                 Dispatcher.UIThread.Post(() =>
                 {
+                    // Information we'd like from the modal dialogue
                     string targetClass = RenameMethodModal.GetPrompt<RenameMethodPanel>().TargetClass;
                     string oldName = RenameMethodModal.GetPrompt<RenameMethodPanel>().OldName;
                     string newName = RenameMethodModal.GetPrompt<RenameMethodPanel>().NewName;
 
+                    // Use targetClass to acquire a corresponding string in diagram
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
 
+                    // If the class does not exist...
                     if (currentClass is null)
                     {
                         RaiseAlert(
@@ -1184,6 +1275,7 @@ namespace UMLEditor.Views
                         return;
                     }
 
+                    // If the input is left empty...
                     if (oldName is null || oldName.Trim().Length == 0)
                     {
 
@@ -1196,6 +1288,7 @@ namespace UMLEditor.Views
                         return;
                     }
 
+                    // If incorrect # of arguments...
                     if (!isCorrectNumArguments(oldName, 1))
                     {
                         RaiseAlert(
@@ -1207,6 +1300,7 @@ namespace UMLEditor.Views
                         return;
                     }
 
+                    // If input is left empty...
                     if (newName is null || newName.Trim().Length == 0)
                     {
 
@@ -1219,6 +1313,7 @@ namespace UMLEditor.Views
                         return;
                     }
 
+                    // If incorrect # arguments...
                     if (!isCorrectNumArguments(newName, 1))
                     {
                         RaiseAlert(
@@ -1232,9 +1327,11 @@ namespace UMLEditor.Views
 
                     switch (result.Result)
                     {
+                        // If the users selects 'OKAY'
                         case DialogButtons.OKAY:
                             try
                             {
+                                // Try to rename method with given information.  Raise alert if succeeds.
                                 currentClass.RenameMethod(oldName, newName);
                                 RaiseAlert(
                                     "Method Renamed",
@@ -1242,6 +1339,7 @@ namespace UMLEditor.Views
                                     "",
                                     AlertIcon.INFO);
                             }
+                            // If fails, raise an alert.
                             catch (Exception e)
                             {
                                 RaiseAlert(
@@ -1259,8 +1357,15 @@ namespace UMLEditor.Views
 
         }
 
+        /// <summary>
+        /// Simple function to check if the given input has the correct # arguments for changing needs.
+        /// </summary>
+        /// <param name="arguments">String of arguments that we would like to verify</param>
+        /// <param name="numArgsExpected">Number of arguments that we would like 'arguments' to contain</param>
+        /// <returns></returns>
         private bool isCorrectNumArguments(string arguments, int numArgsExpected)
         {
+            // Split the arguments string into an array of args, then compare the size of args to the # of arguments we'd like...
             string[] args = arguments.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             return args.Length == numArgsExpected;
         }
