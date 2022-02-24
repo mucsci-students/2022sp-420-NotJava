@@ -30,7 +30,6 @@ namespace UMLEditor.Views
         
         public MainWindow()
         {
-            
             InitializeComponent();
             
             _activeDiagram = new Diagram();
@@ -42,7 +41,6 @@ namespace UMLEditor.Views
             SaveDiagramButton = this.FindControl<Button>("SaveDiagramButton");
             LoadDiagramButton = this.FindControl<Button>("LoadDiagramButton");
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
-            
         }
 
         private void InitializeComponent()
@@ -59,7 +57,6 @@ namespace UMLEditor.Views
         /// No need for the "." in the extension.</param>
         private void InitFileDialogs(out OpenFileDialog openFD, out SaveFileDialog saveFD, params string[] filteredExtensions)
         {
-
             string workingDir = Directory.GetCurrentDirectory();
             
             /* - Construct the open file dialog
@@ -79,7 +76,6 @@ namespace UMLEditor.Views
 
             foreach (string extension in filteredExtensions)
             {
-                
                 // Establish a filter for the current file extension
                 FileDialogFilter filter = new FileDialogFilter();
                 filter.Name = string.Format(".{0} Diagram Files", extension);
@@ -89,7 +85,6 @@ namespace UMLEditor.Views
                 saveFD.Filters.Add(filter);
                 
             }
-            
         }
         
         /// <summary>
@@ -97,15 +92,12 @@ namespace UMLEditor.Views
         /// </summary>
         private void ClearInputBox()
         {
-
             // Ask the UI thread to clear the input box
             Dispatcher.UIThread.Post(() =>
             {
                 
-                _inputBox.Text = "";                
-                
+                _inputBox.Text = "";
             });
-            
         }
 
         /// <summary>
@@ -116,7 +108,6 @@ namespace UMLEditor.Views
         /// Otherwise, the output box's text is set to text</param>
         private void WriteToOutput(string text, bool append = false)
         {
-
             if (append)
             {
 
@@ -147,7 +138,6 @@ namespace UMLEditor.Views
 
         private void HelpB_OnClick(object sender, RoutedEventArgs e)
         {
-            
             ClearInputBox();            
             
             // Output list of possible commands.
@@ -165,7 +155,6 @@ namespace UMLEditor.Views
                 "\nList Classes: List all existing classes" +
                 "\nList Attributes: List all attributes of a class" +
                 "\nList Relationships: List all relationships of a class";
-            
         }
         
         private void List_Classes_OnClick(object sender, RoutedEventArgs e)
@@ -212,7 +201,6 @@ namespace UMLEditor.Views
 
         private void AddRelationship_OnClick(object sender, RoutedEventArgs e)
         {
-            
             ModalDialog AddRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Add New Relationship", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = AddRelationshipModal.ShowDialog<DialogButtons>(this);
             
@@ -235,8 +223,8 @@ namespace UMLEditor.Views
                     {
 
                         RaiseAlert(
-                            "Class Creation Failed", 
-                            "Could Not Create Class",
+                            "Relationship Creation Failed", 
+                            "Could Not Create Relationship",
                             "The source name cannot be empty",
                             AlertIcon.ERROR
                         );
@@ -244,62 +232,94 @@ namespace UMLEditor.Views
 
                     }
                     
+                    if (!isCorrectNumArguments(sourceName, 1))
+                    {
+                        RaiseAlert(
+                            "Relationship Creation Failed", 
+                            "Could Not Create Relationship",
+                            "Only one argument expected for source name",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    
                     if (destinationName is null || destinationName.Trim().Length == 0)
                     {
 
                         RaiseAlert(
-                            "Class Creation Failed", 
-                            "Could Not Create Class",
+                            "Relationship Creation Failed", 
+                            "Could Not Create Relationship",
                             "The destination name cannot be empty",
                             AlertIcon.ERROR
                         );
                         return;
 
                     }
+                    
+                    if (!isCorrectNumArguments(destinationName, 1))
+                    {
+                        RaiseAlert(
+                            "Relationship Creation Failed", 
+                            "Could Not Create Relationship",
+                            "Only one argument expected for destination name",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    
+                    if (relationshipType is null || relationshipType.Trim().Length == 0)
+                    {
+                        RaiseAlert(
+                            "Relationship Creation Failed", 
+                            "Could Not Create Relationship",
+                            "The relationship type name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    
+                    if (!isCorrectNumArguments(relationshipType, 1))
+                    {
+                        RaiseAlert(
+                            "Relationship Creation Failed", 
+                            "Could Not Create Relationship",
+                            "Only one argument expected for relationship type",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
 
                     switch (result.Result)
                     {
-
                         case DialogButtons.OKAY:
 
                             try
                             {
-
                                 _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
                                 RaiseAlert(
                                     "Relationship Added",
                                     $"Relationship {sourceName} => {destinationName} of type {relationshipType} created",
                                     "",
                                     AlertIcon.INFO);
-
                             }
 
                             catch (Exception e)
                             {
-                            
                                 RaiseAlert(
                                     "Class Creation Failed",
                                     $"Could not create relationship {sourceName} => {destinationName}",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
-                            
                             }
-                        
                             break;
-                    
                     }
-
                 });
-                
             });
-            
-
         }
 
         private void Save_Button_OnClick(object sender, RoutedEventArgs e)
         {
-
             // Disable the save diagram button to disallow opening selector multiple times
             SaveDiagramButton.IsEnabled = false;
             
@@ -308,7 +328,6 @@ namespace UMLEditor.Views
             Task<string?> saveTask = _saveFileDialog.ShowAsync(this);
             saveTask.ContinueWith((Task<string?> finishedTask) =>
             {
-
                 // Grab the selected output file
                 string? selectedFile = finishedTask.Result;
 
@@ -331,7 +350,6 @@ namespace UMLEditor.Views
                         WriteToOutput(exception.Message);
 
                     }
-                    
                 }
 
                 else
@@ -346,16 +364,12 @@ namespace UMLEditor.Views
                 {
 
                     SaveDiagramButton.IsEnabled = true;
-
                 });
-                
             });
-            
         }
 
         private void LoadButton_OnClick(object sender, RoutedEventArgs e)
         {
-
             // Disable the loading diagram button to disallow opening selector multiple times
             LoadDiagramButton.IsEnabled = false;
 
@@ -364,7 +378,6 @@ namespace UMLEditor.Views
             Task<string[]?> loadTask = _openFileDialog.ShowAsync(this);
             loadTask.ContinueWith((Task<string[]?> taskResult) =>
             {
-
                 // Called when the future is resolved
                 
                 /* Get the files the user selected
@@ -380,11 +393,9 @@ namespace UMLEditor.Views
                     
                     try
                     {
-
                         _activeDiagram = _activeFile.LoadDiagram(chosenFile);
                         ClearInputBox();
                         WriteToOutput(string.Format("Diagram loaded from {0}", chosenFile));
-
                     }
             
                     catch (Exception exception)
@@ -393,7 +404,6 @@ namespace UMLEditor.Views
                         WriteToOutput(exception.Message);
 
                     }
-
                 }
 
                 else
@@ -406,18 +416,13 @@ namespace UMLEditor.Views
                 // Regardless of the outcome, ask the UI thread to re-enable the load button
                 Dispatcher.UIThread.Post(() =>
                 {
-
                     LoadDiagramButton.IsEnabled = true;
-
                 });
-                
             });
-            
         }
 
         private void Add_Field_OnClick(object sender, RoutedEventArgs e)
         {
-            
             ModalDialog AddFieldModal = ModalDialog.CreateDialog<AddFieldPanel>("Add New Field", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = AddFieldModal.ShowDialog<DialogButtons>(this);
             
@@ -431,16 +436,25 @@ namespace UMLEditor.Views
 
                 Dispatcher.UIThread.Post(() =>
                 {
-                    
                     string targetClass = AddFieldModal.GetPrompt<AddFieldPanel>().ClassName;
                     string targetField = AddFieldModal.GetPrompt<AddFieldPanel>().FieldName;
                     string fieldType = AddFieldModal.GetPrompt<AddFieldPanel>().FieldType;
                     
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
+                    
+                    if (currentClass is null)
+                    {
+                        RaiseAlert(
+                            "Field Creation Failed",
+                            "Could Not Creation Field",
+                            "class does not exist",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
 
                     if (targetClass is null || targetClass.Trim().Length == 0)
                     {
-
                         RaiseAlert(
                             "Field Creation Failed", 
                             "Could Not Create Field",
@@ -449,10 +463,19 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
+                    if (!isCorrectNumArguments(targetClass, 1))
+                    {
+                        RaiseAlert(
+                            "Field Creation Failed", 
+                            "Could Not Create Field",
+                            "Only one argument expected for target class",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
                     
                     if (targetField is null || targetField.Trim().Length == 0)
                     {
-
                         RaiseAlert(
                             "Field Creation Failed", 
                             "Could Not Create Field",
@@ -462,9 +485,19 @@ namespace UMLEditor.Views
                         return;
                     }
                     
+                    if (!isCorrectNumArguments(targetField, 1))
+                    {
+                        RaiseAlert(
+                            "Field Creation Failed", 
+                            "Could Not Create Field",
+                            "Only one argument expected for target field",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    
                     if (fieldType is null || fieldType.Trim().Length == 0)
                     {
-
                         RaiseAlert(
                             "Field Creation Failed", 
                             "Could Not Create Field",
@@ -473,48 +506,48 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
+                    
+                    if (!isCorrectNumArguments(fieldType, 1))
+                    {
+                        RaiseAlert(
+                            "Field Creation Failed", 
+                            "Could Not Create Field",
+                            "Only one argument expected for target type",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
 
                     switch (result.Result)
                     {
-
                         case DialogButtons.OKAY:
 
                             try
                             {
-                                
                                 currentClass.AddField(fieldType,targetField);
                                 RaiseAlert(
                                     "Field Added",
                                     $"Field {targetField} created",
                                     "",
                                     AlertIcon.INFO);
-
                             }
 
                             catch (Exception e)
                             {
-                            
                                 RaiseAlert(
                                     "Class Creation Failed",
                                     $"Could not create field {targetField}",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
-                            
                             }
-                        
                             break;
-                    
                     }
-
                 });
-                
             });
-            
         }
         private void Delete_Attribute_OnClick(object sender, RoutedEventArgs e)
         {
-            
             //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, delete attribute if is.
             string input = _inputBox.Text;
             
@@ -523,7 +556,6 @@ namespace UMLEditor.Views
 
             if (words.Length == 0)
             {
-                
                 // No input arguments
                 _outputBox.Text = 
                     "To delete an existing attribute enter source class and attribute in the format " +
@@ -531,12 +563,10 @@ namespace UMLEditor.Views
                 
                 _inputBox.Focus();
                 return;
-
             }
             
             else if (words.Length != 2)
             {
-                
                 // Invalid input arguments
                 _outputBox.Text = 
                     "Input must be in the form 'Class Attribute' with only one class and one attribute.  " +
@@ -544,7 +574,6 @@ namespace UMLEditor.Views
                 
                 _inputBox.Focus();
                 return;
-                
             }
             
             string targetClassName = words[0];
@@ -581,12 +610,10 @@ namespace UMLEditor.Views
             
             ClearInputBox();
             _outputBox.Text = string.Format("Attribute Deleted ({0} => {1})", targetClassName, targetAttributeName);
-
         }
 
         private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
         {
-
             ModalDialog AddClassModal = ModalDialog.CreateDialog<AddClassPanel>("Add New Class", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = AddClassModal.ShowDialog<DialogButtons>(this);
             modalResult.ContinueWith((Task<DialogButtons> result) =>
@@ -599,7 +626,6 @@ namespace UMLEditor.Views
 
                 Dispatcher.UIThread.Post(() =>
                 {
-                    
                     string enteredName = AddClassModal.GetPrompt<AddClassPanel>().ClassName;
                     if (enteredName is null || enteredName.Trim().Length == 0)
                     {
@@ -613,42 +639,44 @@ namespace UMLEditor.Views
                         return;
 
                     }
-                
+                    
+                    if (!isCorrectNumArguments(enteredName, 1))
+                    {
+                        RaiseAlert(
+                            "Class Creation Failed", 
+                            "Could Not Create Class",
+                            "Only one argument expected",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    
                     switch (result.Result)
                     {
-
                         case DialogButtons.OKAY:
 
                             try
                             {
-
                                 _activeDiagram.AddClass(enteredName);
                                 RaiseAlert(
                                     "Class Added",
                                     $"Class {enteredName} created",
                                     "",
                                     AlertIcon.INFO);
-
                             }
 
                             catch (Exception e)
                             {
-                            
                                 RaiseAlert(
                                     "Class Creation Failed",
                                     $"Could not create class {enteredName}",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
-                            
                             }
-                        
                             break;
-                    
                     }
-
                 });
-                
             });
         }
 
@@ -662,7 +690,6 @@ namespace UMLEditor.Views
 
             if (words.Length == 0)
             {
-                
                 // No input arguments
                 _outputBox.Text = 
                     "To delete an existing class enter the name of class" +
@@ -671,12 +698,10 @@ namespace UMLEditor.Views
                 
                 _inputBox.Focus();
                 return;
-
             }
             
             else if (words.Length != 1 || (!Char.IsLetter(words[0][0]) && words[0][0] != '_'))
             {
-                
                 // Invalid input arguments
                 _outputBox.Text = 
                     "Class must be a single word that starts with an alphabetic character or an underscore. " +
@@ -684,7 +709,6 @@ namespace UMLEditor.Views
                 
                 _inputBox.Focus();
                 return;
-                
             }
             
             string targetClassName = words[0];
@@ -716,7 +740,6 @@ namespace UMLEditor.Views
 
             ClearInputBox();
             _outputBox.Text = string.Format("Class Deleted {0}", words[0]);
-
         }
 
         private void Class_RenameClass_OnClick(object sender, RoutedEventArgs e)
@@ -747,8 +770,19 @@ namespace UMLEditor.Views
                             AlertIcon.ERROR
                         );
                         return;
-
                     }
+                    
+                    if (!isCorrectNumArguments(oldName, 1))
+                    {
+                        RaiseAlert(
+                            "Class Rename Failed", 
+                            "Could Not Rename Class",
+                            "Only one argument expected for old name",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    
                     if (newName is null || newName.Trim().Length == 0)
                     {
 
@@ -759,7 +793,17 @@ namespace UMLEditor.Views
                             AlertIcon.ERROR
                         );
                         return;
-
+                    }
+                    
+                    if (!isCorrectNumArguments(newName, 1))
+                    {
+                        RaiseAlert(
+                            "Class Rename Failed", 
+                            "Could Not Rename Class",
+                            "Only one argument expected for new name",
+                            AlertIcon.ERROR
+                        );
+                        return;
                     }
                 
                     switch (result.Result)
@@ -792,17 +836,13 @@ namespace UMLEditor.Views
                             }
                         
                             break;
-                    
                     }
-
                 });
-                
             });
         }
         
         private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
         {
-
             // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
             string input = _inputBox.Text;
             
@@ -853,7 +893,6 @@ namespace UMLEditor.Views
             
             ClearInputBox();
             _outputBox.Text = string.Format("Relationship Deleted ({0} => {1})", sourceClassName, destClassName);
-
         }
 
         private void TestModal_OnClick(object sender, RoutedEventArgs e)
@@ -870,7 +909,6 @@ namespace UMLEditor.Views
 
         private void RaiseAlert(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon)
         {
-
             ModalDialog AlertDialog = ModalDialog.CreateDialog<AlertPanel>(messageTitle, DialogButtons.OKAY);
             AlertPanel content = AlertDialog.GetPrompt<AlertPanel>();
             
@@ -879,7 +917,6 @@ namespace UMLEditor.Views
             content.DialogIcon = alertIcon;
 
             AlertDialog.ShowDialog(this);
-
         }
 
         private void Add_Method_OnCLick(object sender, RoutedEventArgs e)
@@ -897,7 +934,6 @@ namespace UMLEditor.Views
 
                 Dispatcher.UIThread.Post(() =>
                 {
-                    
                     string className = AddMethodModal.GetPrompt<AddMethodPanel>().ClassName;
                     string methodName = AddMethodModal.GetPrompt<AddMethodPanel>().MethodName;
                     string returnType = AddMethodModal.GetPrompt<AddMethodPanel>().ReturnType;
@@ -914,7 +950,17 @@ namespace UMLEditor.Views
                             AlertIcon.ERROR
                         );
                         return;
-
+                    }
+                    
+                    if (!isCorrectNumArguments(className, 1))
+                    {
+                        RaiseAlert(
+                            "Method Creation Failed", 
+                            "Could Not Creation Method",
+                            "Only one argument expected for class name",
+                            AlertIcon.ERROR
+                        );
+                        return;
                     }
                     
                     if (methodName is null || methodName.Trim().Length == 0)
@@ -927,7 +973,17 @@ namespace UMLEditor.Views
                             AlertIcon.ERROR
                         );
                         return;
-
+                    }
+                    
+                    if (!isCorrectNumArguments(methodName, 1))
+                    {
+                        RaiseAlert(
+                            "Method Creation Failed", 
+                            "Could Not Creation Method",
+                            "Only one argument expected for method name",
+                            AlertIcon.ERROR
+                        );
+                        return;
                     }
                     
                     if (returnType is null || returnType.Trim().Length == 0)
@@ -940,12 +996,21 @@ namespace UMLEditor.Views
                             AlertIcon.ERROR
                         );
                         return;
-
+                    }
+                    
+                    if (!isCorrectNumArguments(returnType, 1))
+                    {
+                        RaiseAlert(
+                            "Method Creation Failed", 
+                            "Could Not Creation Method",
+                            "Only one argument expected for return type",
+                            AlertIcon.ERROR
+                        );
+                        return;
                     }
 
                     switch (result.Result)
                     {
-
                         case DialogButtons.OKAY:
 
                             try
@@ -971,19 +1036,15 @@ namespace UMLEditor.Views
                                 );
                             
                             }
-                        
                             break;
-                    
                     }
-
                 });
-                
             });
         }
 
         private void Rename_Field_OnClick(object sender, RoutedEventArgs e)
         {
-             ModalDialog RenameFieldModal = ModalDialog.CreateDialog<RenameFieldPanel>("Rename Field", DialogButtons.OK_CANCEL);
+            ModalDialog RenameFieldModal = ModalDialog.CreateDialog<RenameFieldPanel>("Rename Field", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = RenameFieldModal.ShowDialog<DialogButtons>(this);
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
@@ -995,12 +1056,22 @@ namespace UMLEditor.Views
 
                 Dispatcher.UIThread.Post(() =>
                 {
-                    
                     string targetClass = RenameFieldModal.GetPrompt<RenameFieldPanel>().TargetClass;
                     string oldName = RenameFieldModal.GetPrompt<RenameFieldPanel>().OldName;
                     string newName = RenameFieldModal.GetPrompt<RenameFieldPanel>().NewName;
                     
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
+                    
+                    if (currentClass is null)
+                    {
+                        RaiseAlert(
+                            "Field Rename Failed",
+                            "Could Not Rename Field",
+                            "class does not exist",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
                     
                     if (oldName is null || oldName.Trim().Length == 0)
                     {
@@ -1012,8 +1083,19 @@ namespace UMLEditor.Views
                             AlertIcon.ERROR
                         );
                         return;
-
                     }
+                    
+                    if (!isCorrectNumArguments(oldName, 1))
+                    {
+                        RaiseAlert(
+                            "Field Rename Failed", 
+                            "Could Not Rename Field",
+                            "Only one argument expected for old name",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    
                     if (newName is null || newName.Trim().Length == 0)
                     {
 
@@ -1024,7 +1106,17 @@ namespace UMLEditor.Views
                             AlertIcon.ERROR
                         );
                         return;
-
+                    }
+                    
+                    if (!isCorrectNumArguments(newName, 1))
+                    {
+                        RaiseAlert(
+                            "Field Rename Failed", 
+                            "Could Not Rename Field",
+                            "Only one argument expected for new name",
+                            AlertIcon.ERROR
+                        );
+                        return;
                     }
                 
                     switch (result.Result)
@@ -1034,14 +1126,12 @@ namespace UMLEditor.Views
 
                             try
                             {
-
                                 currentClass.RenameField(oldName,newName);
                                 RaiseAlert(
                                     "Field Renamed",
                                     $"Field {oldName} renamed to {newName}",
                                     "",
                                     AlertIcon.INFO);
-
                             }
 
                             catch (Exception e)
@@ -1053,21 +1143,126 @@ namespace UMLEditor.Views
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
-                            
                             }
-                        
                             break;
-                    
                     }
-
                 });
-                
             });
         }
 
         private void Rename_Method_OnClick(object sender, RoutedEventArgs e)
         {
-            
+            ModalDialog RenameMethodModal =
+                ModalDialog.CreateDialog<RenameMethodPanel>("Rename Method", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult =
+                RenameMethodModal.ShowDialog<DialogButtons>(this);
+
+            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            {
+                // If user presses cancel, then leave the window
+                if (result.Result != DialogButtons.OKAY)
+                {
+                    return;
+                }
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    string targetClass = RenameMethodModal.GetPrompt<RenameMethodPanel>().TargetClass;
+                    string oldName = RenameMethodModal.GetPrompt<RenameMethodPanel>().OldName;
+                    string newName = RenameMethodModal.GetPrompt<RenameMethodPanel>().NewName;
+
+                    Class currentClass = _activeDiagram.GetClassByName(targetClass);
+
+                    if (currentClass is null)
+                    {
+                        RaiseAlert(
+                            "Method Rename Failed",
+                            "Could Not Rename Method",
+                            "class does not exist",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+
+                    if (oldName is null || oldName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Method Rename Failed",
+                            "Could Not Rename Method",
+                            "The old name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+
+                    if (!isCorrectNumArguments(oldName, 1))
+                    {
+                        RaiseAlert(
+                            "Method Rename Failed",
+                            "Could Not Rename Method",
+                            "Only one argument expected for old name",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+
+                    if (newName is null || newName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Method Rename Failed",
+                            "Could Not Rename Method",
+                            "The new name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+
+                    if (!isCorrectNumArguments(newName, 1))
+                    {
+                        RaiseAlert(
+                            "Method Rename Failed",
+                            "Could Not Rename Method",
+                            "Only one argument expected for new name",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+
+                    switch (result.Result)
+                    {
+                        case DialogButtons.OKAY:
+                            try
+                            {
+                                currentClass.RenameMethod(oldName, newName);
+                                RaiseAlert(
+                                    "Method Renamed",
+                                    $"Method {oldName} renamed to {newName}",
+                                    "",
+                                    AlertIcon.INFO);
+                            }
+                            catch (Exception e)
+                            {
+                                RaiseAlert(
+                                    "Field Rename Failed",
+                                    $"Could not rename Field {oldName}",
+                                    e.Message,
+                                    AlertIcon.ERROR
+                                );
+                            }
+
+                            break;
+                    }
+                });
+            });
+
+        }
+
+        private bool isCorrectNumArguments(string arguments, int numArgsExpected)
+        {
+            string[] args = arguments.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            return args.Length == numArgsExpected;
         }
     }
 }
