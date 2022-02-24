@@ -208,7 +208,7 @@ namespace UMLEditor.Views
             // Spin up the result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
-                //Case where user does not select OKAY button.
+                // Case where user does not select OKAY button.
                 if (result.Result != DialogButtons.OKAY)
                 {
                     return;
@@ -456,7 +456,7 @@ namespace UMLEditor.Views
                     {
                         RaiseAlert(
                             "Field Creation Failed",
-                            "Could Not Creation Field",
+                            "Could Not Create Field",
                             "class does not exist",
                             AlertIcon.ERROR
                         );
@@ -1017,7 +1017,7 @@ namespace UMLEditor.Views
                     {
                         RaiseAlert(
                             "Method Creation Failed", 
-                            "Could Not Creation Method",
+                            "Could Not Create Method",
                             "Only one argument expected for class name",
                             AlertIcon.ERROR
                         );
@@ -1044,7 +1044,7 @@ namespace UMLEditor.Views
                     {
                         RaiseAlert(
                             "Method Creation Failed", 
-                            "Could Not Creation Method",
+                            "Could Not Create Method",
                             "Only one argument expected for method name",
                             AlertIcon.ERROR
                         );
@@ -1069,7 +1069,7 @@ namespace UMLEditor.Views
                     {
                         RaiseAlert(
                             "Method Creation Failed", 
-                            "Could Not Creation Method",
+                            "Could Not Create Method",
                             "Only one argument expected for return type",
                             AlertIcon.ERROR
                         );
