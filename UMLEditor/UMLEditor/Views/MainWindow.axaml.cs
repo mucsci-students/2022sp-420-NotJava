@@ -1,10 +1,22 @@
 using System;
 using System.Threading.Tasks;
 using System.IO;
+using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using Avalonia.Media;
+using Avalonia.Diagnostics;
+using Avalonia.Layout;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Rendering;
+using Avalonia.Styling;
+using Avalonia.VisualTree;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
 using UMLEditor.Interfaces;
@@ -31,6 +43,10 @@ namespace UMLEditor.Views
         {
             
             InitializeComponent();
+
+#if DEBUG
+            this.AttachDevTools();   
+#endif
             
             _activeDiagram = new Diagram();
             _activeFile = new JSONDiagramFile();
@@ -41,6 +57,94 @@ namespace UMLEditor.Views
             SaveDiagramButton = this.FindControl<Button>("SaveDiagramButton");
             LoadDiagramButton = this.FindControl<Button>("LoadDiagramButton");
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
+
+            // Get size of StackPanel
+            StackPanel mainPanel = this.FindControl<StackPanel>("MainPanel");
+
+            //DrawingContext context = new DrawingContext(IDrawingContextImpl);
+            Canvas canv = this.FindControl<Canvas>("MyCanvas");
+            
+            // Start class coordinates:
+            Point start = new Point(100, 100);
+            // End class coordinates:
+            Point end = new Point(500, 400);
+            
+            DrawRelationship(canv, start, end, "aggregation");
+            
+        }
+
+        private void DrawRelationship(Canvas canvas, Point start, Point end, string relationshipType)
+        {
+            double midX = Math.Abs(start.X + end.X) / 2;
+            double midY = Math.Abs(start.Y + end.Y) / 2;
+            Line line1 = GetLine(start, new Point(midX, start.Y));
+            Line line2 = GetLine(new Point(midX, start.Y), new Point(midX, end.Y));
+            Line line3 = GetLine(new Point(midX, end.Y), end);
+            
+            canvas.Children.Add(line1);
+            canvas.Children.Add(line2);
+            canvas.Children.Add(line3);
+
+            switch (relationshipType)
+            {
+                case "aggregation":
+                    line1.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    line2.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    line3.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    PathGeometry symbol = new PathGeometry();
+                    PathFigure figure = new PathFigure();
+                    figure.StartPoint = end;
+                    LineSegment seg1 = new LineSegment();
+                    seg1.Point = end;
+                    figure.Segments.Add(seg1);
+                    LineSegment seg2 = new LineSegment();
+                    seg2.Point = new Point(end.X + 5, end.Y - 5);
+                    figure.Segments.Add(seg2);
+                    LineSegment seg3 = new LineSegment();
+                    seg3.Point = new Point(end.X + 10, end.Y);
+                    figure.Segments.Add(seg3);
+                    LineSegment seg4 = new LineSegment();
+                    seg4.Point = new Point(end.X + 5, end.Y + 5);
+                    figure.Segments.Add(seg4);
+                    LineSegment seg5 = new LineSegment();
+                    seg5.Point = end;
+                    figure.Segments.Add(seg5);
+                    
+                    symbol.Figures.Add(figure);
+
+                    Rectangle rect = new Rectangle();
+                    rect.Height = 40;
+                    rect.Width = 40;
+                    rect.Stroke = Brushes.White;
+                    rect.StrokeThickness = 2;
+                    RotateTransform rotation = new RotateTransform(45);
+                    rect.RenderTransform = rotation;
+                    rect.HorizontalAlignment = HorizontalAlignment.Right;
+                    canvas.Children.Add(rect);
+                    break;
+                case "composition": 
+                    break;
+                case "inheritance": 
+                    break;
+                case "realization": 
+                    break;
+            }
+        }
+
+        private Line GetLine(Point lineStart, Point lineEnd)
+        {
+            Line l = new Line();
+            l.Name = "Line" + lineStart + "-" + lineEnd;
+            l.StartPoint = lineStart;
+            l.EndPoint = lineEnd;
+            l.Stroke = Brushes.White;
+            l.StrokeThickness = 2;
+            l.ZIndex = 10;
+            return l;
+        }
+
+        private void Draw_LineB_OnClick(object sender, RoutedEventArgs e)
+        {
             
         }
 

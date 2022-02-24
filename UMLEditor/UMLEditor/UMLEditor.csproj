@@ -5,6 +5,9 @@
         <LangVersion>latest</LangVersion>
         <AvaloniaVersion>0.10.11</AvaloniaVersion>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\UMLEditor.xml</DocumentationFile>
+    </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
     </ItemGroup>
