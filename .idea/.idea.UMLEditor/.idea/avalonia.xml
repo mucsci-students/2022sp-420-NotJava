@@ -4,6 +4,8 @@
     <option name="projectPerEditor">
       <map>
         <entry key="UMLEditor/UMLEditor/App.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/AlertPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/GenericModal.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/MainView.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/MainWindow.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
       </map>
