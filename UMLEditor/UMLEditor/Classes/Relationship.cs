@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Classes;
+﻿using Splat.ApplicationPerformanceMonitoring;
+
+namespace UMLEditor.Classes;
 
 using System;
 using Newtonsoft.Json;
@@ -8,8 +10,13 @@ using Exceptions;
 public class Relationship : ICloneable
 {
     // Valid relationship types
-    private readonly List<string> _validTypes = new List<string>{"aggregation", "composition", "inheritance", "realization"};
-    
+    private static readonly List<string> _validTypes = new List<string>{"aggregation", "composition", "inheritance", "realization"};
+
+    public static List<string> ValidTypes
+    {
+        get => new List<string>(_validTypes);
+    }
+
     // Used for JSON serialization  and deserialization
     [JsonProperty("source")]
     public string SourceClass { get; private set; }

@@ -17,5 +17,7 @@
     </ItemGroup>
     <ItemGroup>
       <None Remove="Views\AddClassPanel.axaml~" />
+      <None Remove="Views\AddAttributePanel.axaml~" />
+      <None Remove="Views\AddMethodPanel.axaml~" />
     </ItemGroup>
 </Project>
