@@ -212,61 +212,88 @@ namespace UMLEditor.Views
 
         private void AddRelationship_OnClick(object sender, RoutedEventArgs e)
         {
-
-            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = _inputBox.Text;
             
-            //Split the input into words to use later on.
-            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
-
-            if (words.Length == 0)
-            {
-                
-                // No input arguments
-                _outputBox.Text = 
-                    "To create a new relationship, please enter source and destination in the format " +
-                    "'A B C' into the input box and then click 'Add Relationship'.";
-                
-                _inputBox.Focus();
-                return;
-
-            }
+            ModalDialog AddRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Add New Relationship", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult = AddRelationshipModal.ShowDialog<DialogButtons>(this);
             
-            else if (words.Length != 3)
-            {
-                
-                // Invalid input arguments
-                _outputBox.Text = 
-                    "Input must be in the form 'A B C' with only one source, one destination and the type." +
-                    "Please enter your relationship into the input box and click 'Add Relationship'.";
-                
-                _inputBox.Focus();
-                return;
-                
-            }
-
-            string sourceClassName = words[0];
-            string destClassName = words[1];
-            string relationshipType = words[2];
-            
-            try
-            {
-                
-                _activeDiagram.AddRelationship(sourceClassName, destClassName, relationshipType);
-                
-            }
-            
-            catch (ClassNonexistentException exception)
+            modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
 
-                _outputBox.Text = exception.Message;
-                _inputBox.Focus();
-                return;
+                if (result.Result != DialogButtons.OKAY)
+                {
+                    return;
+                }
 
-            }
+                Dispatcher.UIThread.Post(() =>
+                {
+                    
+                    string sourceName = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().SourceClass;
+                    string destinationName = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
+                    string relationshipType = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().RelationshipType;
+                    
+                    if (sourceName is null || sourceName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Class Creation Failed", 
+                            "Could Not Create Class",
+                            "The source name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+                    
+                    if (destinationName is null || destinationName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Class Creation Failed", 
+                            "Could Not Create Class",
+                            "The destination name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+
+                    switch (result.Result)
+                    {
+
+                        case DialogButtons.OKAY:
+
+                            try
+                            {
+
+                                _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
+                                RaiseAlert(
+                                    "Relationship Added",
+                                    $"Relationship {sourceName} => {destinationName} of type {relationshipType} created",
+                                    "",
+                                    AlertIcon.INFO);
+
+                            }
+
+                            catch (Exception e)
+                            {
+                            
+                                RaiseAlert(
+                                    "Class Creation Failed",
+                                    $"Could not create relationship {sourceName} => {destinationName}",
+                                    e.Message,
+                                    AlertIcon.ERROR
+                                );
+                            
+                            }
+                        
+                            break;
+                    
+                    }
+
+                });
+                
+            });
             
-            ClearInputBox();
-            _outputBox.Text = string.Format("Relationship created ({0} => {1})", sourceClassName, destClassName);
 
         }
 
@@ -388,58 +415,103 @@ namespace UMLEditor.Views
             
         }
 
-        private void Add_Attribute_OnClick(object sender, RoutedEventArgs e)
+        private void Add_Field_OnClick(object sender, RoutedEventArgs e)
         {
-            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid
-            string input = _inputBox.Text;
             
-            //Split the input into words to use later on.
-            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
+            ModalDialog AddFieldModal = ModalDialog.CreateDialog<AddFieldPanel>("Add New Field", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult = AddFieldModal.ShowDialog<DialogButtons>(this);
             
-            // Make sure at least two words were provided in the input box
-            if (words.Length != 2)
+            modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
+
+                if (result.Result != DialogButtons.OKAY)
+                {
+                    return;
+                }
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    
+                    string targetClass = AddFieldModal.GetPrompt<AddFieldPanel>().ClassName;
+                    string targetField = AddFieldModal.GetPrompt<AddFieldPanel>().FieldName;
+                    string fieldType = AddFieldModal.GetPrompt<AddFieldPanel>().FieldType;
+                    
+                    Class currentClass = _activeDiagram.GetClassByName(targetClass);
+
+                    if (targetClass is null || targetClass.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Field Creation Failed", 
+                            "Could Not Create Field",
+                            "The target class cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    
+                    if (targetField is null || targetField.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Field Creation Failed", 
+                            "Could Not Create Field",
+                            "The field name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    
+                    if (fieldType is null || fieldType.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Field Creation Failed", 
+                            "Could Not Create Field",
+                            "The field type cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+
+                    switch (result.Result)
+                    {
+
+                        case DialogButtons.OKAY:
+
+                            try
+                            {
+                                
+                                currentClass.AddField(fieldType,targetField);
+                                RaiseAlert(
+                                    "Field Added",
+                                    $"Field {targetField} created",
+                                    "",
+                                    AlertIcon.INFO);
+
+                            }
+
+                            catch (Exception e)
+                            {
+                            
+                                RaiseAlert(
+                                    "Class Creation Failed",
+                                    $"Could not create field {targetField}",
+                                    e.Message,
+                                    AlertIcon.ERROR
+                                );
+                            
+                            }
+                        
+                            break;
+                    
+                    }
+
+                });
                 
-                // Invalid input arguments
-                _outputBox.Text = 
-                    "To add an attribute enter source class and attribute in the format " +
-                    "'Class Attribute' into the input box and then click 'Add Attribute'.";
-                
-                _inputBox.Focus();
-                return;
-                
-            }
-
-            // Commented out because gui will be reworked
-            // Make sure the first word is the name of a class that exists
-            /*if (!_activeDiagram.ClassExists(words[0]))
-            {
-                string message = string.Format("Class {0} does not exist", words[0]);
-                _outputBox.Text = message;
-                _inputBox.Focus();
-                return;
-            }
-
-            try
-            {
-
-                // Add the attribute to the provided class
-                //_activeDiagram.GetClassByName(words[0]).AddAttribute(words[1]);
-
-            }
-
-            catch (Exception exception)
-            {
-                _outputBox.Text = exception.Message;
-                _inputBox.Focus();
-                return;
-            }*/
+            });
             
-            ClearInputBox();
-            _outputBox.Text = string.Format("Class {0} given Attribute {1}", words[0], words[1]);
         }
-        
-        
         private void Delete_Attribute_OnClick(object sender, RoutedEventArgs e)
         {
             
@@ -649,40 +721,83 @@ namespace UMLEditor.Views
 
         private void Class_RenameClass_OnClick(object sender, RoutedEventArgs e)
         {
-            // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = _inputBox.Text;
-            
-            // Split the input into words to use later on.
-            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
-            
-            // Assures two words were given as input for a class rename
-            if (words.Length != 2)
+            ModalDialog RenameClassModal = ModalDialog.CreateDialog<RenameClassPanel>("Rename Class", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult = RenameClassModal.ShowDialog<DialogButtons>(this);
+            modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
+
+                if (result.Result != DialogButtons.OKAY)
+                {
+                    return;
+                }
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    
+                    string oldName = RenameClassModal.GetPrompt<RenameClassPanel>().OldName;
+                    string newName = RenameClassModal.GetPrompt<RenameClassPanel>().NewName;
+                    
+                    if (oldName is null || oldName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Class Rename Failed", 
+                            "Could Not Rename Class",
+                            "The old name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+                    if (newName is null || newName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Class Rename Failed", 
+                            "Could Not Rename Class",
+                            "The new name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
                 
-                // No input arguments
-                _outputBox.Text = 
-                    "To rename a Class, please enter the class to rename followed by " +
-                    " the new name in the form 'A B' into the input box and then click 'Rename Class'.";
+                    switch (result.Result)
+                    {
+
+                        case DialogButtons.OKAY:
+
+                            try
+                            {
+
+                                _activeDiagram.RenameClass(oldName,newName);
+                                RaiseAlert(
+                                    "Class Renamed",
+                                    $"Class {oldName} renamed to {newName}",
+                                    "",
+                                    AlertIcon.INFO);
+
+                            }
+
+                            catch (Exception e)
+                            {
+                            
+                                RaiseAlert(
+                                    "Class Rename Failed",
+                                    $"Could not rename class {oldName}",
+                                    e.Message,
+                                    AlertIcon.ERROR
+                                );
+                            
+                            }
+                        
+                            break;
+                    
+                    }
+
+                });
                 
-                _inputBox.Focus();
-                return;
-
-            }
-
-            try
-            {
-                _activeDiagram.RenameClass(words[0], words[1]);
-            }
-
-            catch (Exception exception)
-            {
-                _outputBox.Text = exception.Message;
-                _inputBox.Focus();
-                return;
-            }
-            
-            ClearInputBox();
-            _outputBox.Text = string.Format("Class Renamed {0} to {1}", words[0], words[1]);
+            });
         }
         
         private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
@@ -741,68 +856,6 @@ namespace UMLEditor.Views
 
         }
 
-        private void Class_RenameAttribute_OnClick(object sender, RoutedEventArgs e)
-        {
-            // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = _inputBox.Text;
-
-            // Split the input into words to use later on.
-            string[] words = input.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            // Assures three words were given as input for a attribute rename
-            if (words.Length != 3)
-            {
-
-                // No input arguments
-                _outputBox.Text =
-                    "To rename a attribute please enter the class followed by" +
-                    " the old name and new name"+
-                    "in the form 'A B C' into the input box and then click 'Rename Attribute'.";
-
-                _inputBox.Focus();
-                return;
-
-            }
-            
-            string targetClassName = words[0];
-
-            // Commented out because gui will be reworked
-            // Get CurrentClass for use in reaching its attributes
-            /*Class currentClass = _activeDiagram.GetClassByName(targetClassName);
-            // If the TargetClass does not exist throw an error
-            if (currentClass == null)
-            {
-                _outputBox.Text = "Nonexistent class entered";
-                _inputBox.Focus();
-                return;
-            }
-            
-            // ensures user didn't change old name to new name
-            if (words[1] == words[2])
-            {
-                _outputBox.Text = "New name cannot match previous name.";
-                _inputBox.Focus();
-                return;
-            }
-
-            try
-            {
-
-                //currentClass.RenameAttribute(words[1], words[2]);
-
-            }
-
-            catch (Exception exception)
-            {
-                _outputBox.Text = exception.Message;
-                _inputBox.Focus();
-                return;
-            }*/
-            
-            ClearInputBox();
-            _outputBox.Text = string.Format("Attribute renamed {0} to {1}", words[1], words[2]);
-        }
-
         private void TestModal_OnClick(object sender, RoutedEventArgs e)
         {
             var window = ModalDialog.CreateDialog<AlertPanel>("Oh No!", DialogButtons.OKAY);
@@ -828,6 +881,193 @@ namespace UMLEditor.Views
             AlertDialog.ShowDialog(this);
 
         }
-        
+
+        private void Add_Method_OnCLick(object sender, RoutedEventArgs e)
+        {
+            ModalDialog AddMethodModal = ModalDialog.CreateDialog<AddMethodPanel>("Add New Method", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult = AddMethodModal.ShowDialog<DialogButtons>(this);
+            
+            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            {
+
+                if (result.Result != DialogButtons.OKAY)
+                {
+                    return;
+                }
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    
+                    string className = AddMethodModal.GetPrompt<AddMethodPanel>().ClassName;
+                    string methodName = AddMethodModal.GetPrompt<AddMethodPanel>().MethodName;
+                    string returnType = AddMethodModal.GetPrompt<AddMethodPanel>().ReturnType;
+                    
+                    Class currentClass = _activeDiagram.GetClassByName(className);
+                    
+                    if (className is null || className.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Method Creation Failed", 
+                            "Could Not Create Method",
+                            "The class name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+                    
+                    if (methodName is null || methodName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Method Creation Failed", 
+                            "Could Not Create Method",
+                            "The Method name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+                    
+                    if (returnType is null || returnType.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Method Creation Failed", 
+                            "Could Not Create Method",
+                            "The return type cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+
+                    switch (result.Result)
+                    {
+
+                        case DialogButtons.OKAY:
+
+                            try
+                            {
+
+                                    currentClass.AddMethod(returnType,methodName);
+                                    RaiseAlert(
+                                    "Relationship Added",
+                                    $"Method {methodName} with return type {returnType} created",
+                                    "",
+                                    AlertIcon.INFO);
+
+                            }
+
+                            catch (Exception e)
+                            {
+                            
+                                    RaiseAlert(
+                                    "Method Creation Failed",
+                                    $"Could not create Method {methodName}",
+                                    e.Message,
+                                    AlertIcon.ERROR
+                                );
+                            
+                            }
+                        
+                            break;
+                    
+                    }
+
+                });
+                
+            });
+        }
+
+        private void Rename_Field_OnClick(object sender, RoutedEventArgs e)
+        {
+             ModalDialog RenameFieldModal = ModalDialog.CreateDialog<RenameFieldPanel>("Rename Field", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult = RenameFieldModal.ShowDialog<DialogButtons>(this);
+            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            {
+
+                if (result.Result != DialogButtons.OKAY)
+                {
+                    return;
+                }
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    
+                    string targetClass = RenameFieldModal.GetPrompt<RenameFieldPanel>().TargetClass;
+                    string oldName = RenameFieldModal.GetPrompt<RenameFieldPanel>().OldName;
+                    string newName = RenameFieldModal.GetPrompt<RenameFieldPanel>().NewName;
+                    
+                    Class currentClass = _activeDiagram.GetClassByName(targetClass);
+                    
+                    if (oldName is null || oldName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Field Rename Failed", 
+                            "Could Not Rename Field",
+                            "The old name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+                    if (newName is null || newName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Field Rename Failed", 
+                            "Could Not Rename Field",
+                            "The new name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+                
+                    switch (result.Result)
+                    {
+
+                        case DialogButtons.OKAY:
+
+                            try
+                            {
+
+                                currentClass.RenameField(oldName,newName);
+                                RaiseAlert(
+                                    "Field Renamed",
+                                    $"Field {oldName} renamed to {newName}",
+                                    "",
+                                    AlertIcon.INFO);
+
+                            }
+
+                            catch (Exception e)
+                            {
+                            
+                                RaiseAlert(
+                                    "Field Rename Failed",
+                                    $"Could not rename Field {oldName}",
+                                    e.Message,
+                                    AlertIcon.ERROR
+                                );
+                            
+                            }
+                        
+                            break;
+                    
+                    }
+
+                });
+                
+            });
+        }
+
+        private void Rename_Method_OnClick(object sender, RoutedEventArgs e)
+        {
+            
+        }
     }
 }

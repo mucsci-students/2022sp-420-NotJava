@@ -102,7 +102,7 @@ public class Diagram
     /// </summary>
     /// <param name="name">Name of class you are looking for</param>
     /// <returns>Returns the class if exists, or null if it does not</returns>
-    private Class? GetClassByName(string name)
+    public Class? GetClassByName(string name)
     {
         foreach (Class currentClass in _classes)
         {
