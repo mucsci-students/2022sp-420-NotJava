@@ -24,7 +24,7 @@ namespace UMLEditor.Views
 
         private readonly OpenFileDialog _openFileDialog;
         private readonly SaveFileDialog _saveFileDialog;
-        
+
         private Button SaveDiagramButton;
         private Button LoadDiagramButton;
         
@@ -514,44 +514,70 @@ namespace UMLEditor.Views
 
         private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
         {
-            // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = _inputBox.Text;
-            
-            // Split the input into words to use later on.
-            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
-            
-            // Assures only one word was given as input for a class name
-            if (words.Length != 1)
+
+            ModalDialog AddClassModal = ModalDialog.CreateDialog<AddClassPanel>("Add New Class", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult = AddClassModal.ShowDialog<DialogButtons>(this);
+            modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
+
+                if (result.Result != DialogButtons.OKAY)
+                {
+                    return;
+                }
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    
+                    string enteredName = AddClassModal.GetPrompt<AddClassPanel>().ClassName;
+                    if (enteredName is null || enteredName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Class Creation Failed", 
+                            "Could Not Create Class",
+                            "The class name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
                 
-                // No input arguments
-                _outputBox.Text = 
-                    "To create a new Class, please enter a class name " +
-                    "into the input box and then click 'Add Class'.";
+                    switch (result.Result)
+                    {
+
+                        case DialogButtons.OKAY:
+
+                            try
+                            {
+
+                                _activeDiagram.AddClass(enteredName);
+                                RaiseAlert(
+                                    "Class Added",
+                                    $"Class {enteredName} created",
+                                    "",
+                                    AlertIcon.INFO);
+
+                            }
+
+                            catch (Exception e)
+                            {
+                            
+                                RaiseAlert(
+                                    "Class Creation Failed",
+                                    $"Could not create class {enteredName}",
+                                    e.Message,
+                                    AlertIcon.ERROR
+                                );
+                            
+                            }
+                        
+                            break;
+                    
+                    }
+
+                });
                 
-                _inputBox.Focus();
-                return;
-
-            }
-
-            try
-            {
-
-                // Try to create a class with the first provided word as its name
-                _activeDiagram.AddClass(words[0]);
-
-            }
-
-            catch (Exception exception)
-            {
-                _outputBox.Text = exception.Message;
-                _inputBox.Focus();
-                return;
-            }
-            
-            ClearInputBox();
-            _outputBox.Text = string.Format("Class Created {0}", words[0]);
-
+            });
         }
 
         private void Class_DeleteClass_OnClick(object sender, RoutedEventArgs e)
@@ -779,9 +805,29 @@ namespace UMLEditor.Views
 
         private void TestModal_OnClick(object sender, RoutedEventArgs e)
         {
-            var window = new GenericModal();
-            window.Show();
+            var window = ModalDialog.CreateDialog<AlertPanel>("Oh No!", DialogButtons.OKAY);
+            window.GetPrompt<AlertPanel>().AlertTitle = "Could not create class";
+            window.GetPrompt<AlertPanel>().AlertMessage = "Class \"1234\" is not a valid class name";
+            window.GetPrompt<AlertPanel>().DialogIcon = AlertIcon.QUESTION;
+            window.ShowDialog(this);
+
+            // var window = new GenericModal();
+            // window.Show();
         }
 
+        private void RaiseAlert(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon)
+        {
+
+            ModalDialog AlertDialog = ModalDialog.CreateDialog<AlertPanel>(messageTitle, DialogButtons.OKAY);
+            AlertPanel content = AlertDialog.GetPrompt<AlertPanel>();
+            
+            content.AlertTitle = messageTitle;
+            content.AlertMessage = messageBody;
+            content.DialogIcon = alertIcon;
+
+            AlertDialog.ShowDialog(this);
+
+        }
+        
     }
 }
