@@ -293,7 +293,7 @@ namespace UMLEditor.Views
                                 _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
                                 RaiseAlert(
                                     "Relationship Added",
-                                    $"Relationship {sourceName} => {destinationName} of type {relationshipType} created",
+                                    $"Relationship '{sourceName} => {destinationName}' of type '{relationshipType}' created",
                                     "",
                                     AlertIcon.INFO);
                             }
@@ -302,7 +302,7 @@ namespace UMLEditor.Views
                             {
                                 RaiseAlert(
                                     "Class Creation Failed",
-                                    $"Could not create relationship {sourceName} => {destinationName}",
+                                    $"Could not create relationship '{sourceName} => {destinationName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -441,18 +441,6 @@ namespace UMLEditor.Views
                     // Taking the targetClass string and finding a corresponding class in diagram.
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
                     
-                    // If class does not exist...
-                    if (currentClass is null)
-                    {
-                        RaiseAlert(
-                            "Field Creation Failed",
-                            "Could Not Create Field",
-                            "class does not exist",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
                     // If input is empty...
                     if (targetClass is null || targetClass.Trim().Length == 0)
                     {
@@ -460,6 +448,17 @@ namespace UMLEditor.Views
                             "Field Creation Failed", 
                             "Could Not Create Field",
                             "The target class cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    // If class does not exist...
+                    if (currentClass is null)
+                    {
+                        RaiseAlert(
+                            "Field Creation Failed",
+                            "Could Not Create Field",
+                            $"class '{targetClass}' does not exist",
                             AlertIcon.ERROR
                         );
                         return;
@@ -535,7 +534,7 @@ namespace UMLEditor.Views
                                 currentClass.AddField(fieldType,targetField);
                                 RaiseAlert(
                                     "Field Added",
-                                    $"Field {targetField} created",
+                                    $"Field '{targetField}' with type '{fieldType}' created",
                                     "",
                                     AlertIcon.INFO);
                             }
@@ -545,7 +544,7 @@ namespace UMLEditor.Views
                             {
                                 RaiseAlert(
                                     "Class Creation Failed",
-                                    $"Could not create field {targetField}",
+                                    $"Could not create field '{targetField}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -680,7 +679,7 @@ namespace UMLEditor.Views
                                 _activeDiagram.AddClass(enteredName);
                                 RaiseAlert(
                                     "Class Added",
-                                    $"Class {enteredName} created",
+                                    $"Class '{enteredName}' created",
                                     "",
                                     AlertIcon.INFO);
                             }
@@ -690,7 +689,7 @@ namespace UMLEditor.Views
                             {
                                 RaiseAlert(
                                     "Class Creation Failed",
-                                    $"Could not create class {enteredName}",
+                                    $"Could not create class '{enteredName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -850,7 +849,7 @@ namespace UMLEditor.Views
                                 _activeDiagram.RenameClass(oldName,newName);
                                 RaiseAlert(
                                     "Class Renamed",
-                                    $"Class {oldName} renamed to {newName}",
+                                    $"Class '{oldName}' renamed to '{newName}'",
                                     "",
                                     AlertIcon.INFO);
 
@@ -862,7 +861,7 @@ namespace UMLEditor.Views
                             
                                 RaiseAlert(
                                     "Class Rename Failed",
-                                    $"Could not rename class {oldName}",
+                                    $"Could not rename class '{oldName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -977,18 +976,6 @@ namespace UMLEditor.Views
                     // Taking the className string and accessing a corresponding class in active diagram
                     Class currentClass = _activeDiagram.GetClassByName(className);
                     
-                    // If the class does not exist...
-                    if (currentClass is null)
-                    {
-                        RaiseAlert(
-                            "Method Creation Failed",
-                            "Could Not Create Method",
-                            "class does not exist",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
                     // If the input is left empty...
                     if (className is null || className.Trim().Length == 0)
                     {
@@ -1001,7 +988,17 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    
+                    // If the class does not exist...
+                    if (currentClass is null)
+                    {
+                        RaiseAlert(
+                            "Method Creation Failed",
+                            "Could Not Create Method",
+                            $"class '{className}' does not exist",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
                     // If the # of arguments is incorrect...
                     if (!isCorrectNumArguments(className, 1))
                     {
@@ -1078,7 +1075,7 @@ namespace UMLEditor.Views
                                     currentClass.AddMethod(returnType,methodName);
                                     RaiseAlert(
                                     "Relationship Added",
-                                    $"Method {methodName} with return type {returnType} created",
+                                    $"Method '{methodName}' with return type '{returnType}' created",
                                     "",
                                     AlertIcon.INFO);
 
@@ -1090,7 +1087,7 @@ namespace UMLEditor.Views
                             
                                     RaiseAlert(
                                     "Method Creation Failed",
-                                    $"Could not create Method {methodName}",
+                                    $"Could not create Method '{methodName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -1129,13 +1126,25 @@ namespace UMLEditor.Views
                     // Using the string targetClass to get a corresponding class in diagram
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
                     
-                    // If currentClass does not exist...
+                    // If the input is left empty...
+                    if (targetClass is null || targetClass.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Field Rename Failed", 
+                            "Could Not Rename Field",
+                            "The class name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    // If the class does not exist...
                     if (currentClass is null)
                     {
                         RaiseAlert(
                             "Field Rename Failed",
                             "Could Not Rename Field",
-                            "class does not exist",
+                            $"class '{targetClass}' does not exist",
                             AlertIcon.ERROR
                         );
                         return;
@@ -1203,7 +1212,7 @@ namespace UMLEditor.Views
                                 currentClass.RenameField(oldName,newName);
                                 RaiseAlert(
                                     "Field Renamed",
-                                    $"Field {oldName} renamed to {newName}",
+                                    $"Field '{oldName}' renamed to '{newName}'",
                                     "",
                                     AlertIcon.INFO);
                             }
@@ -1214,7 +1223,7 @@ namespace UMLEditor.Views
                             
                                 RaiseAlert(
                                     "Field Rename Failed",
-                                    $"Could not rename Field {oldName}",
+                                    $"Could not rename Field '{oldName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -1253,13 +1262,25 @@ namespace UMLEditor.Views
                     // Use targetClass to acquire a corresponding string in diagram
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
 
+                    // If the input is left empty...
+                    if (targetClass is null || targetClass.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Method Rename Failed", 
+                            "Could Not Rename Method",
+                            "The class name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
                     // If the class does not exist...
                     if (currentClass is null)
                     {
                         RaiseAlert(
                             "Method Rename Failed",
                             "Could Not Rename Method",
-                            "class does not exist",
+                            $"class '{targetClass}' does not exist",
                             AlertIcon.ERROR
                         );
                         return;
@@ -1325,7 +1346,7 @@ namespace UMLEditor.Views
                                 currentClass.RenameMethod(oldName, newName);
                                 RaiseAlert(
                                     "Method Renamed",
-                                    $"Method {oldName} renamed to {newName}",
+                                    $"Method '{oldName}' renamed to '{newName}'",
                                     "",
                                     AlertIcon.INFO);
                             }
@@ -1334,7 +1355,7 @@ namespace UMLEditor.Views
                             {
                                 RaiseAlert(
                                     "Field Rename Failed",
-                                    $"Could not rename Field {oldName}",
+                                    $"Could not rename Field '{oldName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
