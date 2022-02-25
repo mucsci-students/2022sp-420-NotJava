@@ -43,7 +43,7 @@
                                                   Click="Add_Field_OnClick"
                                                   />
                                         <MenuItem Header="_Add Method"
-                                                  Click="Add_Method_OnCLick"
+                                                  Click="Add_Method_OnClick"
                                         />
                                         <MenuItem Header="_Delete"
                                                   Click="Delete_Attribute_OnClick"

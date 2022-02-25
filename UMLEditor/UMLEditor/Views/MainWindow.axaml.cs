@@ -192,8 +192,8 @@ namespace UMLEditor.Views
         private void AddRelationship_OnClick(object sender, RoutedEventArgs e)
         {
             // Create a new modal dialogue and wire it up to the 'AddRelationshipPanel'
-            ModalDialog AddRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Add New Relationship", DialogButtons.OK_CANCEL);
-            Task<DialogButtons> modalResult = AddRelationshipModal.ShowDialog<DialogButtons>(this);
+            ModalDialog addRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Add New Relationship", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult = addRelationshipModal.ShowDialog<DialogButtons>(this);
             
             // Spin up the result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
@@ -207,30 +207,17 @@ namespace UMLEditor.Views
                 Dispatcher.UIThread.Post(() =>
                 {
                     // Creating the variables that we will be snagging from the 'AddRelationshipPanel'
-                    string sourceName = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().SourceClass;
-                    string destinationName = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
-                    string relationshipType = AddRelationshipModal.GetPrompt<AddRelationshipPanel>().SelectedType;
+                    string sourceName = addRelationshipModal.GetPrompt<AddRelationshipPanel>().SourceClass;
+                    string destinationName = addRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
+                    string relationshipType = addRelationshipModal.GetPrompt<AddRelationshipPanel>().SelectedType;
                   
                     // Verification to check if no input was added
                     if (sourceName is null || sourceName.Trim().Length == 0)
                     {
-
                         RaiseAlert(
                             "Relationship Creation Failed", 
                             "Could Not Create Relationship",
                             "The source name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-
-                    }
-                    // Verification to check if # of arguments is correct
-                    if (!isCorrectNumArguments(sourceName, 1))
-                    {
-                        RaiseAlert(
-                            "Relationship Creation Failed", 
-                            "Could Not Create Relationship",
-                            "Only one argument expected for source name",
                             AlertIcon.ERROR
                         );
                         return;
@@ -248,17 +235,6 @@ namespace UMLEditor.Views
                         return;
 
                     }
-                    // Verification to check if # of arguments is correct
-                    if (!isCorrectNumArguments(destinationName, 1))
-                    {
-                        RaiseAlert(
-                            "Relationship Creation Failed", 
-                            "Could Not Create Relationship",
-                            "Only one argument expected for destination name",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
                     // Verification to check if no input was added
                     if (relationshipType is null || relationshipType.Trim().Length == 0)
                     {
@@ -270,18 +246,6 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    // Verification to check if # of arguments is correct
-                    if (!isCorrectNumArguments(relationshipType, 1))
-                    {
-                        RaiseAlert(
-                            "Relationship Creation Failed", 
-                            "Could Not Create Relationship",
-                            "Only one argument expected for relationship type",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-
                     switch (result.Result)
                     {
                         // If OKAY was selected...
@@ -293,7 +257,7 @@ namespace UMLEditor.Views
                                 _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
                                 RaiseAlert(
                                     "Relationship Added",
-                                    $"Relationship {sourceName} => {destinationName} of type {relationshipType} created",
+                                    $"Relationship '{sourceName} => {destinationName}' of type '{relationshipType}' created",
                                     "",
                                     AlertIcon.INFO);
                             }
@@ -302,7 +266,7 @@ namespace UMLEditor.Views
                             {
                                 RaiseAlert(
                                     "Class Creation Failed",
-                                    $"Could not create relationship {sourceName} => {destinationName}",
+                                    $"Could not create relationship '{sourceName} => {destinationName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -329,14 +293,12 @@ namespace UMLEditor.Views
                 // Make sure a file was selected
                 if (selectedFile != null)
                 {
-
                     try
                     {
 
                         _activeFile.SaveDiagram(ref _activeDiagram, selectedFile);
                         WriteToOutput(string.Format("Current diagram saved to {0}", selectedFile));
                         ClearInputBox();
-
                     }
 
                     catch (Exception exception)
@@ -346,14 +308,12 @@ namespace UMLEditor.Views
 
                     }
                 }
-
                 else
                 {
                     
                     WriteToOutput("Diagram not saved");
                     
                 }
-
                 // Regardless of the outcome, ask the UI thread to re-enable the save button
                 Dispatcher.UIThread.Post(() =>
                 {
@@ -382,7 +342,6 @@ namespace UMLEditor.Views
 
                 if (hasSelectedFile)
                 {
-
                     // Pull only the first selected file (AllowMultiple should be turned off on the dialog)
                     string chosenFile = selectedFiles![0];
                     
@@ -400,14 +359,12 @@ namespace UMLEditor.Views
 
                     }
                 }
-
                 else
                 {
                     
                     WriteToOutput("No diagram file selected");
                     
                 }
-                
                 // Regardless of the outcome, ask the UI thread to re-enable the load button
                 Dispatcher.UIThread.Post(() =>
                 {
@@ -441,18 +398,6 @@ namespace UMLEditor.Views
                     // Taking the targetClass string and finding a corresponding class in diagram.
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
                     
-                    // If class does not exist...
-                    if (currentClass is null)
-                    {
-                        RaiseAlert(
-                            "Field Creation Failed",
-                            "Could Not Create Field",
-                            "class does not exist",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
                     // If input is empty...
                     if (targetClass is null || targetClass.Trim().Length == 0)
                     {
@@ -464,18 +409,18 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    // If invalid number of arguments...
-                    if (!isCorrectNumArguments(targetClass, 1))
+                    // If class does not exist...
+                    if (currentClass is null)
                     {
                         RaiseAlert(
-                            "Field Creation Failed", 
+                            "Field Creation Failed",
                             "Could Not Create Field",
-                            "Only one argument expected for target class",
+                            $"class '{targetClass}' does not exist",
                             AlertIcon.ERROR
                         );
                         return;
                     }
-                    
+
                     // If input is left empty...
                     if (targetField is null || targetField.Trim().Length == 0)
                     {
@@ -487,19 +432,7 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    
-                    // If invalid number of arguments...
-                    if (!isCorrectNumArguments(targetField, 1))
-                    {
-                        RaiseAlert(
-                            "Field Creation Failed", 
-                            "Could Not Create Field",
-                            "Only one argument expected for target field",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
+
                     // If input is left empty...
                     if (fieldType is null || fieldType.Trim().Length == 0)
                     {
@@ -507,18 +440,6 @@ namespace UMLEditor.Views
                             "Field Creation Failed", 
                             "Could Not Create Field",
                             "The field type cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
-                    // If invalid number of arguments...
-                    if (!isCorrectNumArguments(fieldType, 1))
-                    {
-                        RaiseAlert(
-                            "Field Creation Failed", 
-                            "Could Not Create Field",
-                            "Only one argument expected for target type",
                             AlertIcon.ERROR
                         );
                         return;
@@ -535,7 +456,7 @@ namespace UMLEditor.Views
                                 currentClass.AddField(fieldType,targetField);
                                 RaiseAlert(
                                     "Field Added",
-                                    $"Field {targetField} created",
+                                    $"Field '{targetField}' with type '{fieldType}' created",
                                     "",
                                     AlertIcon.INFO);
                             }
@@ -544,8 +465,8 @@ namespace UMLEditor.Views
                             catch (Exception e)
                             {
                                 RaiseAlert(
-                                    "Class Creation Failed",
-                                    $"Could not create field {targetField}",
+                                    "Field Creation Failed",
+                                    $"Could not create field '{targetField}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -636,7 +557,6 @@ namespace UMLEditor.Views
                 {
                     return;
                 }
-
                 // Dispatch a UIThread to execute body in a thread-safe manor
                 Dispatcher.UIThread.Post(() =>
                 {
@@ -656,41 +576,26 @@ namespace UMLEditor.Views
                         return;
 
                     }
-                    
-                    // If an incorrect number of arguments is entered...
-                    if (!isCorrectNumArguments(enteredName, 1))
-                    {
-                        RaiseAlert(
-                            "Class Creation Failed", 
-                            "Could Not Create Class",
-                            "Only one argument expected",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
                     switch (result.Result)
                     {
                         // If the user selects 'OKAY'
                         case DialogButtons.OKAY:
-
                             try
                             {
                                 // Attempt to create a new class with the given information.  Alert if succeeds
                                 _activeDiagram.AddClass(enteredName);
                                 RaiseAlert(
                                     "Class Added",
-                                    $"Class {enteredName} created",
+                                    $"Class '{enteredName}' created",
                                     "",
                                     AlertIcon.INFO);
                             }
-
                             // If fails, raise an alert.
                             catch (Exception e)
                             {
                                 RaiseAlert(
                                     "Class Creation Failed",
-                                    $"Could not create class {enteredName}",
+                                    $"Could not create class '{enteredName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -800,18 +705,6 @@ namespace UMLEditor.Views
                         return;
                     }
                     
-                    // If # arguments is invalid...
-                    if (!isCorrectNumArguments(oldName, 1))
-                    {
-                        RaiseAlert(
-                            "Class Rename Failed", 
-                            "Could Not Rename Class",
-                            "Only one argument expected for old name",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
                     // If input is left empty...
                     if (newName is null || newName.Trim().Length == 0)
                     {
@@ -824,19 +717,7 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    
-                    // If # arguments is invalid...
-                    if (!isCorrectNumArguments(newName, 1))
-                    {
-                        RaiseAlert(
-                            "Class Rename Failed", 
-                            "Could Not Rename Class",
-                            "Only one argument expected for new name",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                
+
                     switch (result.Result)
                     {
     
@@ -850,7 +731,7 @@ namespace UMLEditor.Views
                                 _activeDiagram.RenameClass(oldName,newName);
                                 RaiseAlert(
                                     "Class Renamed",
-                                    $"Class {oldName} renamed to {newName}",
+                                    $"Class '{oldName}' renamed to '{newName}'",
                                     "",
                                     AlertIcon.INFO);
 
@@ -862,13 +743,11 @@ namespace UMLEditor.Views
                             
                                 RaiseAlert(
                                     "Class Rename Failed",
-                                    $"Could not rename class {oldName}",
+                                    $"Could not rename class '{oldName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
-                            
                             }
-                        
                             break;
                     }
                 });
@@ -885,7 +764,6 @@ namespace UMLEditor.Views
 
             if (words.Length == 0)
             {
-                
                 // No input arguments
                 _outputBox.Text = 
                     "To delete a relationship, please enter source and destination in the format " +
@@ -893,7 +771,6 @@ namespace UMLEditor.Views
                 
                 _inputBox.Focus();
                 return;
-
             }
             
             //Ensures two classes entered
@@ -918,39 +795,16 @@ namespace UMLEditor.Views
             
             catch (RelationshipNonexistentException exception)
             {
-
                 _outputBox.Text = exception.Message;
                 _inputBox.Focus();
                 return;
-
             }
             
             ClearInputBox();
             _outputBox.Text = string.Format("Relationship Deleted ({0} => {1})", sourceClassName, destClassName);
         }
 
-        /// <summary>
-        ///  Raises and alert with the given parameters
-        /// </summary>
-        /// <param name="windowTitle">The desired title for the raised alert</param>
-        /// <param name="messageTitle">The desired message title for the raised alert</param>
-        /// <param name="messageBody">The message body for the raise alert</param>
-        /// <param name="alertIcon">The icon you would like present within the alert</param>
-        private void RaiseAlert(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon)
-        {
-            // Create and wire up a new modal dialogue to 'AlertPanel' with the parameters being a title and the visible buttons.
-            ModalDialog AlertDialog = ModalDialog.CreateDialog<AlertPanel>(messageTitle, DialogButtons.OKAY);
-            AlertPanel content = AlertDialog.GetPrompt<AlertPanel>();
-            
-            // Fill the content, alert message, and icon depending on the situation in which the alert is being raised.
-            content.AlertTitle = messageTitle;
-            content.AlertMessage = messageBody;
-            content.DialogIcon = alertIcon;
-
-            AlertDialog.ShowDialog(this);
-        }
-
-        private void Add_Method_OnCLick(object sender, RoutedEventArgs e)
+        private void Add_Method_OnClick(object sender, RoutedEventArgs e)
         {
             // Create a new modal dialog and wire it up to the 'AddMethodPanel'
             ModalDialog AddMethodModal = ModalDialog.CreateDialog<AddMethodPanel>("Add New Method", DialogButtons.OK_CANCEL);
@@ -977,18 +831,6 @@ namespace UMLEditor.Views
                     // Taking the className string and accessing a corresponding class in active diagram
                     Class currentClass = _activeDiagram.GetClassByName(className);
                     
-                    // If the class does not exist...
-                    if (currentClass is null)
-                    {
-                        RaiseAlert(
-                            "Method Creation Failed",
-                            "Could Not Create Method",
-                            "class does not exist",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
                     // If the input is left empty...
                     if (className is null || className.Trim().Length == 0)
                     {
@@ -1001,25 +843,21 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    
-                    // If the # of arguments is incorrect...
-                    if (!isCorrectNumArguments(className, 1))
+                    // If the class does not exist...
+                    if (currentClass is null)
                     {
                         RaiseAlert(
-                            "Method Creation Failed", 
+                            "Method Creation Failed",
                             "Could Not Create Method",
-                            "Only one argument expected for class name",
+                            $"class '{className}' does not exist",
                             AlertIcon.ERROR
                         );
                         return;
                     }
-                    
-                    // TODO insert validation of specified class...
-                    
+
                     // if input is left empty....
                     if (methodName is null || methodName.Trim().Length == 0)
                     {
-
                         RaiseAlert(
                             "Method Creation Failed", 
                             "Could Not Create Method",
@@ -1028,19 +866,7 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    
-                    // If # args is invalid
-                    if (!isCorrectNumArguments(methodName, 1))
-                    {
-                        RaiseAlert(
-                            "Method Creation Failed", 
-                            "Could Not Create Method",
-                            "Only one argument expected for method name",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
+
                     // If input is left empty...
                     if (returnType is null || returnType.Trim().Length == 0)
                     {
@@ -1049,18 +875,6 @@ namespace UMLEditor.Views
                             "Method Creation Failed", 
                             "Could Not Create Method",
                             "The return type cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
-                    // If incorrect number of arguments...
-                    if (!isCorrectNumArguments(returnType, 1))
-                    {
-                        RaiseAlert(
-                            "Method Creation Failed", 
-                            "Could Not Create Method",
-                            "Only one argument expected for return type",
                             AlertIcon.ERROR
                         );
                         return;
@@ -1078,7 +892,7 @@ namespace UMLEditor.Views
                                     currentClass.AddMethod(returnType,methodName);
                                     RaiseAlert(
                                     "Relationship Added",
-                                    $"Method {methodName} with return type {returnType} created",
+                                    $"Method '{methodName}' with return type '{returnType}' created",
                                     "",
                                     AlertIcon.INFO);
 
@@ -1090,7 +904,7 @@ namespace UMLEditor.Views
                             
                                     RaiseAlert(
                                     "Method Creation Failed",
-                                    $"Could not create Method {methodName}",
+                                    $"Could not create Method '{methodName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -1129,13 +943,25 @@ namespace UMLEditor.Views
                     // Using the string targetClass to get a corresponding class in diagram
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
                     
-                    // If currentClass does not exist...
+                    // If the input is left empty...
+                    if (targetClass is null || targetClass.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Field Rename Failed", 
+                            "Could Not Rename Field",
+                            "The class name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    // If the class does not exist...
                     if (currentClass is null)
                     {
                         RaiseAlert(
                             "Field Rename Failed",
                             "Could Not Rename Field",
-                            "class does not exist",
+                            $"class '{targetClass}' does not exist",
                             AlertIcon.ERROR
                         );
                         return;
@@ -1153,19 +979,7 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    
-                    // If incorrect # of arguments...
-                    if (!isCorrectNumArguments(oldName, 1))
-                    {
-                        RaiseAlert(
-                            "Field Rename Failed", 
-                            "Could Not Rename Field",
-                            "Only one argument expected for old name",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    
+
                     // If input is left empty...
                     if (newName is null || newName.Trim().Length == 0)
                     {
@@ -1178,19 +992,7 @@ namespace UMLEditor.Views
                         );
                         return;
                     }
-                    
-                    // If incorrect # arguments...
-                    if (!isCorrectNumArguments(newName, 1))
-                    {
-                        RaiseAlert(
-                            "Field Rename Failed", 
-                            "Could Not Rename Field",
-                            "Only one argument expected for new name",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                
+
                     switch (result.Result)
                     {
 
@@ -1203,7 +1005,7 @@ namespace UMLEditor.Views
                                 currentClass.RenameField(oldName,newName);
                                 RaiseAlert(
                                     "Field Renamed",
-                                    $"Field {oldName} renamed to {newName}",
+                                    $"Field '{oldName}' renamed to '{newName}'",
                                     "",
                                     AlertIcon.INFO);
                             }
@@ -1214,7 +1016,7 @@ namespace UMLEditor.Views
                             
                                 RaiseAlert(
                                     "Field Rename Failed",
-                                    $"Could not rename Field {oldName}",
+                                    $"Could not rename Field '{oldName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -1253,13 +1055,25 @@ namespace UMLEditor.Views
                     // Use targetClass to acquire a corresponding string in diagram
                     Class currentClass = _activeDiagram.GetClassByName(targetClass);
 
+                    // If the input is left empty...
+                    if (targetClass is null || targetClass.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Method Rename Failed", 
+                            "Could Not Rename Method",
+                            "The class name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
                     // If the class does not exist...
                     if (currentClass is null)
                     {
                         RaiseAlert(
                             "Method Rename Failed",
                             "Could Not Rename Method",
-                            "class does not exist",
+                            $"class '{targetClass}' does not exist",
                             AlertIcon.ERROR
                         );
                         return;
@@ -1278,18 +1092,6 @@ namespace UMLEditor.Views
                         return;
                     }
 
-                    // If incorrect # of arguments...
-                    if (!isCorrectNumArguments(oldName, 1))
-                    {
-                        RaiseAlert(
-                            "Method Rename Failed",
-                            "Could Not Rename Method",
-                            "Only one argument expected for old name",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-
                     // If input is left empty...
                     if (newName is null || newName.Trim().Length == 0)
                     {
@@ -1298,18 +1100,6 @@ namespace UMLEditor.Views
                             "Method Rename Failed",
                             "Could Not Rename Method",
                             "The new name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-
-                    // If incorrect # arguments...
-                    if (!isCorrectNumArguments(newName, 1))
-                    {
-                        RaiseAlert(
-                            "Method Rename Failed",
-                            "Could Not Rename Method",
-                            "Only one argument expected for new name",
                             AlertIcon.ERROR
                         );
                         return;
@@ -1325,7 +1115,7 @@ namespace UMLEditor.Views
                                 currentClass.RenameMethod(oldName, newName);
                                 RaiseAlert(
                                     "Method Renamed",
-                                    $"Method {oldName} renamed to {newName}",
+                                    $"Method '{oldName}' renamed to '{newName}'",
                                     "",
                                     AlertIcon.INFO);
                             }
@@ -1334,7 +1124,7 @@ namespace UMLEditor.Views
                             {
                                 RaiseAlert(
                                     "Field Rename Failed",
-                                    $"Could not rename Field {oldName}",
+                                    $"Could not rename Field '{oldName}'",
                                     e.Message,
                                     AlertIcon.ERROR
                                 );
@@ -1348,16 +1138,26 @@ namespace UMLEditor.Views
         }
 
         /// <summary>
-        /// Simple function to check if the given input has the correct # arguments for changing needs.
+        ///  Raises and alert with the given parameters
         /// </summary>
-        /// <param name="arguments">String of arguments that we would like to verify</param>
-        /// <param name="numArgsExpected">Number of arguments that we would like 'arguments' to contain</param>
-        /// <returns></returns>
-        private bool isCorrectNumArguments(string arguments, int numArgsExpected)
+        /// <param name="windowTitle">The desired title for the raised alert</param>
+        /// <param name="messageTitle">The desired message title for the raised alert</param>
+        /// <param name="messageBody">The message body for the raise alert</param>
+        /// <param name="alertIcon">The icon you would like present within the alert</param>
+        private void RaiseAlert(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon)
         {
-            // Split the arguments string into an array of args, then compare the size of args to the # of arguments we'd like...
-            string[] args = arguments.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            return args.Length == numArgsExpected;
+            // Create and wire up a new modal dialogue to 'AlertPanel' with the parameters being a title and the visible buttons.
+            ModalDialog AlertDialog = ModalDialog.CreateDialog<AlertPanel>(windowTitle, DialogButtons.OKAY);
+            AlertPanel content = AlertDialog.GetPrompt<AlertPanel>();
+            
+            // Fill the content, alert message, and icon depending on the situation in which the alert is being raised.
+            content.AlertTitle = messageTitle;
+            content.AlertMessage = messageBody;
+            content.DialogIcon = alertIcon;
+
+            AlertDialog.ShowDialog(this);
         }
     }
+    
+    
 }
