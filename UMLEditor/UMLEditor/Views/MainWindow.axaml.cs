@@ -543,7 +543,7 @@ namespace UMLEditor.Views
                             catch (Exception e)
                             {
                                 RaiseAlert(
-                                    "Class Creation Failed",
+                                    "Field Creation Failed",
                                     $"Could not create field '{targetField}'",
                                     e.Message,
                                     AlertIcon.ERROR
