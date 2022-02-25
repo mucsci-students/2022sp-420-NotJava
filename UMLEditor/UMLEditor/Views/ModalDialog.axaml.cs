@@ -7,6 +7,9 @@ using Avalonia.Markup.Xaml;
 
 namespace UMLEditor.Views;
 
+/// <summary>
+/// Enum for the various button combinations that could be passed into a modal dialogue
+/// </summary>
 public enum DialogButtons
 {
     
@@ -19,7 +22,9 @@ public enum DialogButtons
     YES_NO_CANCEL = 14
     
 }
-
+/// <summary>
+/// Default ctor for a ModalDialog
+/// </summary>
 public class ModalDialog: Window
 {
 
@@ -55,9 +60,15 @@ public class ModalDialog: Window
 
     }
 
+    /// <summary>
+    /// Ctor for a modal dialog given params windowTitle and enabledButtons
+    /// </summary>
+    /// <param name="windowTitle">The desired title for the new window</param>
+    /// <param name="enabledButtons">The combination of buttons to be enabled for the new window</param>
     private ModalDialog(string windowTitle, params DialogButtons[] enabledButtons) : this()
     {
 
+        // For each of the buttons within enabledButtons, use a compound assignment to toggle visibility
         int buttonsState = 0;
         foreach (var currentBtn in enabledButtons)
         {
@@ -73,6 +84,13 @@ public class ModalDialog: Window
 
     }
 
+    /// <summary>
+    /// Creating a new modal dialog
+    /// </summary>
+    /// <param name="windowTitle">Desired title for new window</param>
+    /// <param name="withButtons">Buttons that should be visible on new window</param>
+    /// <typeparam name="Content_T">Controller that should have all the specific axaml and c# for each task</typeparam>
+    /// <returns></returns>
     public static ModalDialog CreateDialog<Content_T>(string windowTitle, params DialogButtons[] withButtons)
         where Content_T : UserControl, new()
     {
@@ -84,6 +102,11 @@ public class ModalDialog: Window
 
     }
 
+    /// <summary>
+    /// Getting the content as a UserControl for use in new window dialogue
+    /// </summary>
+    /// <typeparam name="Content_T">Content that will be used in dialogue</typeparam>
+    /// <returns></returns>
     public Content_T GetPrompt<Content_T>() where Content_T : UserControl, new()
     {
         return (Content_T) Prompt;
@@ -95,24 +118,31 @@ public class ModalDialog: Window
         
     }
     
+    /// <summary>
+    /// The various 'resolutions' for a modal dialog based on which button was selected.
+    /// </summary>
     private void OnModalResolved(object sender, RoutedEventArgs e)
     {
 
+        // If _yesButton...
         if (sender == _yesButton)
         {
             Close((int)DialogButtons.YES);
         }
         
+        // If _noButton...
         else if (sender == _noButton)
         {
             Close((int)DialogButtons.NO);
         }
         
+        // If _okayButton...
         else if (sender == _okayButton)
         {
             Close((int)DialogButtons.OKAY);
         }
 
+        // if cancel was selected...
         else
         {
             Close((int)DialogButtons.CANCEL);
