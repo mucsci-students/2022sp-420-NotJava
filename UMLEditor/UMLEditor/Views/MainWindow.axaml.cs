@@ -81,13 +81,6 @@ namespace UMLEditor.Views
             ClassBox c1 = this.FindControl<ClassBox>("Class1");
             ClassBox c2 = this.FindControl<ClassBox>("Class2");
 
-            Dispatcher.UIThread.Post(() =>
-            {
-                
-                DrawRelationship(c1, c2, "composition");                
-                
-            });
-            
         }
         
         /// <summary>

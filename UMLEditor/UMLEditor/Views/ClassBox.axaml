@@ -18,7 +18,7 @@
             -->
         </Style>
         <Style Selector="Button.ControlButton">
-            <Setter Property="Padding" Value="0" />
+            <Setter Property="Padding" Value="2" />
             <Setter Property="MinHeight" Value="30" />
             <Setter Property="MaxHeight" Value="30" />
             <Setter Property="MinWidth" Value="30" />
@@ -29,6 +29,7 @@
     <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5">
         <!-- CLASS TITLE SECTION -->
         <Grid 
+            Name="TitleBar"
             RowDefinitions="*" 
             ColumnDefinitions="* * * * * * * *" 
             HorizontalAlignment="Stretch"
@@ -41,13 +42,13 @@
                     VerticalAlignment="Center"
                     FontWeight="Bold"/>
             </ScrollViewer>
-            <Button Grid.Column="5" Classes="ControlButton" ToolTip.Tip="Rename This Class">
+            <Button Grid.Column="5" Classes="ControlButton">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
             </Button>
-            <Button Grid.Column="6" Classes="ControlButton" ToolTip.Tip="Add A Relationship">
+            <Button Grid.Column="6" Classes="ControlButton">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/DoubleArrowButton.png"></Image>
             </Button>
-            <Button Grid.Column="7" Classes="ControlButton" ToolTip.Tip="Delete This Class">
+            <Button Grid.Column="7" Classes="ControlButton">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
             </Button>
         </Grid>
@@ -65,7 +66,7 @@
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
             </ScrollViewer>
-            <Button Grid.Column="7" Classes="ControlButton" ToolTip.Tip="Create New Field">
+            <Button Grid.Column="7" Classes="ControlButton">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>
@@ -89,7 +90,7 @@
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
             </ScrollViewer>
-            <Button Grid.Column="7" Classes="ControlButton" ToolTip.Tip="Create New Method">
+            <Button Grid.Column="7" Classes="ControlButton">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>

@@ -19,10 +19,10 @@
                 VerticalAlignment="Center"
                 Margin="5 5 0 5 "/>
         </ScrollViewer>
-        <Button Grid.Column="6" Classes="ControlButton" ToolTip.Tip="Edit This">
+        <Button Grid.Column="6" Classes="ControlButton">
             <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
         </Button>
-        <Button Grid.Column="7" Classes="ControlButton" ToolTip.Tip="Delete This">
+        <Button Grid.Column="7" Classes="ControlButton">
             <Image Classes="ControlIcon" Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
         </Button>
     </Grid>
