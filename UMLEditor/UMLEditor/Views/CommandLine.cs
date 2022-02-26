@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UMLEditor.Classes;
+using UMLEditor.Exceptions;
 using UMLEditor.Interfaces;
 
 namespace UMLEditor.Views;
@@ -61,20 +62,82 @@ public class CommandLine
 
                 break;
 
+            
             case ("delete_class"):
-                //TODO 
-                break;
+                if (arguments.Count == 1)
+                {
+                    // Try to Delete a Class with the first provided word as its name
+                    _activeDiagram!.DeleteClass(arguments[0]);
 
+                    PrintColoredLine($"Class {arguments[0]} deleted.", SUCCESS_COLOR);
+                }
+
+                else
+                {
+                    PrintColoredLine("To delete an existing Class, please enter \"delete_class\" " +
+                                     "followed by a class name into the console and then press enter.", ERROR_COLOR);
+                }
+                break;
+                
             case ("rename_class"):
-                //TODO 
+                if (arguments.Count == 2)
+                {
+                    // Try to Rename a Class with the first provided word as its name
+                    _activeDiagram!.RenameClass(arguments[0],  arguments[1]);
+
+                    PrintColoredLine($"Class {arguments[0]} renamed to {arguments[1]}", SUCCESS_COLOR);
+                }
+
+                else
+                {
+                    PrintColoredLine("To rename a Class, please enter \"rename_class\" " +
+                                     "followed by a class NewName and class OldName into the console and then press enter.", ERROR_COLOR);
+                }
                 break;
 
             case ("add_field"):
-                //TODO 
+                if (arguments.Count == 3)
+                {
+                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
+                    if (currentClass is null)
+                    {
+                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
+                    }
+                    
+                    currentClass.AddField(arguments[1],  arguments[2]);
+                    
+                    PrintColoredLine($"Field {arguments[2]} of type {arguments[1]} " +
+                                     $"created in Class {arguments[0]}", SUCCESS_COLOR);
+                }
+
+                else
+                {
+                    PrintColoredLine("To create a new Field, please enter \"add_field\" " +
+                                     "followed by class name, field type and field name into the" +
+                                     " console and then press enter.", ERROR_COLOR);
+                }
                 break;
 
             case ("delete_field"):
-                //TODO 
+                if (arguments.Count == 2)
+                {
+                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
+                    if (currentClass is null)
+                    {
+                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
+                    }
+                    
+                    currentClass.DeleteField(arguments[1]);
+                    
+                    PrintColoredLine($"Field {arguments[1]} deleted in Class {arguments[0]}", SUCCESS_COLOR);
+                }
+
+                else
+                {
+                    PrintColoredLine("To delete an existing Field, please enter \"delete_field\" " +
+                                     "followed by a class name and field name " +
+                                     "into the console and then press enter.", ERROR_COLOR);
+                }
                 break;
             
             case ("add_method"):
@@ -82,32 +145,153 @@ public class CommandLine
                 break;
 
             case ("delete_method"):
-                //TODO 
+                if (arguments.Count() == 2)
+                {
+                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
+                    
+                    if (currentClass is null)
+                    {
+                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
+                    }
+                    currentClass.DeleteMethod(arguments[1]);
+                    
+                    PrintColoredLine($"Method {arguments[1]} deleted in Class {arguments[0]}", SUCCESS_COLOR);
+                }
+
+                else
+                {
+                    PrintColoredLine("To delete an existing Method, please enter \"delete_method\" " +
+                                     "followed by a class name and method name into the console and then press enter.", ERROR_COLOR);
+
+                }
                 break;
 
-            case ("rename_attribute"):
-                //TODO 
+            case ("rename_typenameobject"):
+                if (arguments.Count == 3)
+                {
+                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
+                    
+                    if (currentClass is null)
+                    {
+                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
+                    }
+                    currentClass.RenameField(arguments[1], arguments[2]);
+                    
+                    PrintColoredLine($"Field {arguments[1]} renamed to {arguments[2]} in Class {arguments[0]}", SUCCESS_COLOR);
+                }
+
+                else
+                {
+                    PrintColoredLine("To rename an existing Field, please enter \"rename_typeNameObject\" " +
+                                     "followed by a class name, field oldName, and newName,  into " +
+                                     "the console and then press enter.", ERROR_COLOR);
+                }    
+                
+                break;
+            
+            case ("rename_method"):
+                if (arguments.Count == 3)
+                {
+                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
+                    
+                    if (currentClass is null)
+                    {
+                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
+                    }
+                    currentClass.RenameMethod(arguments[1], arguments[2]);
+                    
+                    PrintColoredLine($"Method {arguments[1]} renamed to {arguments[2]} in Class {arguments[0]}", SUCCESS_COLOR);
+                }
+
+                else
+                {
+                    PrintColoredLine("To rename an existing Method, please enter \"rename_method\" " +
+                                     "followed by a class name, method oldName, and method newName into " +
+                                     "the console and then press enter.", ERROR_COLOR);
+                }    
+
                 break;
 
             case ("list_classes"):
-                //TODO 
+                if (arguments.Count == 0)
+                {
+                    PrintColoredLine(_activeDiagram!.ListClasses());
+                }
+
+                else
+                {
+                    PrintColoredLine("Invalid command: list relationship does not take any arguments", ERROR_COLOR);
+                }    
+
                 break;
 
             case ("list_attributes"):
-                //TODO 
+                if (arguments.Count == 1)
+                {
+                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
+                    if (currentClass is null)
+                    {
+                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
+                    }
+                    PrintColoredLine(currentClass.ListAttributes());
+                    
+                }
+
+                else
+                {
+                    PrintColoredLine("To list Relationships, please enter \"list_relationship\" " +
+                                     "followed by a class name into the console and then press enter.", ERROR_COLOR);
+                }
                 break;
 
             case ("add_relationship"):
-                //TODO 
+                if (arguments.Count == 3)
+                {
+                    // Try to add relationship with the first provided word as its name
+                    _activeDiagram!.AddRelationship(arguments[0], arguments[1], 
+                        arguments[2]);
+
+                    PrintColoredLine($"Relationship {arguments[0]} => {arguments[1]} with type {arguments[2]}"+
+                        "successfully created.", SUCCESS_COLOR);
+                }
+
+                else
+                {
+                    PrintColoredLine("To create a new Relationship, please enter \"add_relationship\" " +
+                                     "followed by a two class names and the type relationship"+
+                                     "into the console and then press enter.", ERROR_COLOR);
+                } 
                 break;
 
             case ("delete_relationship"):
-                //TODO 
+                if (arguments.Count == 2)
+                {
+                    // Try to add relationship with the first provided word as its name
+                    _activeDiagram!.DeleteRelationship(arguments[0], arguments[1]);
+
+                    PrintColoredLine($"Relationship {arguments[0]} => {arguments[1]} deleted", SUCCESS_COLOR);
+                }
+
+                else
+                {
+                    PrintColoredLine("To delete an existing Relationship, please enter \"delete_relationship\" " +
+                                     "followed by a two class names into the console and then press enter.", ERROR_COLOR);
+                } 
                 break;
 
             case ("list_relationships"):
-                //TODO 
+                if (arguments.Count == 0)
+                {
+                    // Try to add relationship with the first provided word as its name
+                    PrintColoredLine(_activeDiagram!.ListRelationships());
+                }
+
+                else
+                {
+                    PrintColoredLine("Invalid command: list relationship does not take any arguments", ERROR_COLOR);
+                } 
                 break;
+
 
             case ("help"):
                 if (arguments.Count > 0)

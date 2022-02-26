@@ -47,7 +47,21 @@ public class Method : AttributeObject, ICloneable
         ReturnType = returnType; 
 
     }
-
+    
+    /// <summary>
+    /// Constructs a new method with the provided name, type, and a list of parameters.
+    /// </summary>
+    /// <param name="returnType"></param>
+    /// <param name="withName"></param>
+    /// <param name="parameters"></param>
+    public Method(string returnType, string withName, List<string> parameters) : this(returnType, withName)
+    {
+        for(int i = 0; i < parameters.Count - 2; i += 2)
+        {
+            _parameters.Add(new NameTypeObject(parameters[i], parameters[i + 1]));
+        }
+    }
+    
     /// <summary>
     /// Copy constructor
     /// </summary>
