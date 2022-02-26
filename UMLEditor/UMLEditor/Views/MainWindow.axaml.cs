@@ -100,37 +100,6 @@ namespace UMLEditor.Views
             });
         }
 
-        /// <summary>
-        /// Allows writing text to the output box in a thread safe manner
-        /// </summary>
-        /// <param name="text">The text to write to the output box</param>
-        /// <param name="append">If true, then text will be appended.
-        /// Otherwise, the output box's text is set to text</param>
-        private void WriteToOutput(string text, bool append = false)
-        {
-            if (append)
-            {
-
-                Dispatcher.UIThread.Post(() =>
-                {
-
-                    _outputBox.Text += text;
-
-                });
-                
-                return;
-
-            }
-            
-            Dispatcher.UIThread.Post((() =>
-            {
-
-                _outputBox.Text = text;
-
-            }));
-            
-        }
-        
         private void ExitB_OnClick(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);
@@ -279,9 +248,6 @@ namespace UMLEditor.Views
 
         private void Save_Button_OnClick(object sender, RoutedEventArgs e)
         {
-            // Disable the save diagram button to disallow opening selector multiple times
-            SaveDiagramButton.IsEnabled = false;
-            
             /* Open the file save dialog on its own thread
              * Obtain a future from this action */
             Task<string?> saveTask = _saveFileDialog.ShowAsync(this);
@@ -295,39 +261,39 @@ namespace UMLEditor.Views
                 {
                     try
                     {
-
                         _activeFile.SaveDiagram(ref _activeDiagram, selectedFile);
-                        WriteToOutput(string.Format("Current diagram saved to {0}", selectedFile));
-                        ClearInputBox();
+                        RaiseAlert(
+                            "Save Successful",
+                            $"Save Successful",
+                            $"Current diagram saved to {selectedFile}",
+                            AlertIcon.INFO
+                        );
                     }
 
                     catch (Exception exception)
                     {
-
-                        WriteToOutput(exception.Message);
-
+                        RaiseAlert(
+                            "Save Failed",
+                            $"Save Failed",
+                            exception.Message,
+                            AlertIcon.ERROR
+                        );
                     }
                 }
                 else
                 {
-                    
-                    WriteToOutput("Diagram not saved");
-                    
+                    RaiseAlert(
+                        "Save Failed",
+                        $"Save Unsuccessful",
+                        "Save could not be accomplished",
+                        AlertIcon.ERROR
+                    );
                 }
-                // Regardless of the outcome, ask the UI thread to re-enable the save button
-                Dispatcher.UIThread.Post(() =>
-                {
-
-                    SaveDiagramButton.IsEnabled = true;
-                });
             });
         }
 
         private void LoadButton_OnClick(object sender, RoutedEventArgs e)
         {
-            // Disable the loading diagram button to disallow opening selector multiple times
-            LoadDiagramButton.IsEnabled = false;
-
             /* Open the file selection dialog on its own thread
              * Obtain a future from this action */
             Task<string[]?> loadTask = _openFileDialog.ShowAsync(this);
@@ -348,28 +314,35 @@ namespace UMLEditor.Views
                     try
                     {
                         _activeDiagram = _activeFile.LoadDiagram(chosenFile);
-                        ClearInputBox();
-                        WriteToOutput(string.Format("Diagram loaded from {0}", chosenFile));
+                        RaiseAlert(
+                            "Load Successful",
+                            $"Load Successful",
+                            $"Diagram loaded from {chosenFile}",
+                            AlertIcon.INFO
+                        );
                     }
             
                     catch (Exception exception)
                     {
 
-                        WriteToOutput(exception.Message);
+                        RaiseAlert(
+                            "Load Failed",
+                            $"Load Failed",
+                            exception.Message,
+                            AlertIcon.ERROR
+                        );
 
                     }
                 }
                 else
                 {
-                    
-                    WriteToOutput("No diagram file selected");
-                    
+                    RaiseAlert(
+                        "Load failed Failed",
+                        $"Load failed Failed",
+                        "No diagram file selected",
+                        AlertIcon.ERROR
+                    );
                 }
-                // Regardless of the outcome, ask the UI thread to re-enable the load button
-                Dispatcher.UIThread.Post(() =>
-                {
-                    LoadDiagramButton.IsEnabled = true;
-                });
             });
         }
 
