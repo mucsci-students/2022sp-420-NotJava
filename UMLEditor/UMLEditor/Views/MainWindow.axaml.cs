@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IO;
 using Avalonia;
@@ -17,9 +18,11 @@ using Avalonia.Platform;
 using Avalonia.Rendering;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
+using Microsoft.CodeAnalysis.Scripting.Hosting;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
 using UMLEditor.Interfaces;
+using Path = System.IO.Path;
 
 namespace UMLEditor.Views
 {
@@ -31,6 +34,9 @@ namespace UMLEditor.Views
         private readonly TextBox _outputBox;
         private readonly TextBox _inputBox;
 
+        private readonly StackPanel _mainPanel;
+        private readonly Canvas _canvas;
+
         private IDiagramFile _activeFile;
 
         private readonly OpenFileDialog _openFileDialog;
@@ -39,6 +45,9 @@ namespace UMLEditor.Views
         private Button SaveDiagramButton;
         private Button LoadDiagramButton;
         
+        /// <summary>
+        /// Main method to create the window
+        /// </summary>
         public MainWindow()
         {
             
@@ -59,85 +68,191 @@ namespace UMLEditor.Views
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
 
             // Get size of StackPanel
-            StackPanel mainPanel = this.FindControl<StackPanel>("MainPanel");
+            _mainPanel = this.FindControl<StackPanel>("MainPanel");
 
-            //DrawingContext context = new DrawingContext(IDrawingContextImpl);
-            Canvas canv = this.FindControl<Canvas>("MyCanvas");
-            
-            // Start class coordinates:
-            Point start = new Point(100, 100);
-            // End class coordinates:
-            Point end = new Point(500, 400);
-            
-            DrawRelationship(canv, start, end, "aggregation");
-            
+            _canvas = this.FindControl<Canvas>("MyCanvas");
+            _canvas.Height = _mainPanel.Height;
+            _canvas.Width = _mainPanel.Width;
+
+        }
+        
+        /// <summary>
+        /// Initialize the program with the xaml specifications
+        /// </summary>
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
         }
 
-        private void DrawRelationship(Canvas canvas, Point start, Point end, string relationshipType)
+        private const double SymbolWidth = 15;
+        private const double SymbolHeight = 10;
+        /// <summary>
+        /// Draws the relationship arrow between two classes
+        /// </summary>
+        /// <param name="startCtrl">The source class to start drawing from</param>
+        /// <param name="endCtrl">The destination class to draw to</param>
+        /// <param name="relationshipType">The type of relationship to draw</param>
+        private void DrawRelationship(Control startCtrl, Control endCtrl, string relationshipType)
         {
-            double midX = Math.Abs(start.X + end.X) / 2;
-            double midY = Math.Abs(start.Y + end.Y) / 2;
-            Line line1 = GetLine(start, new Point(midX, start.Y));
-            Line line2 = GetLine(new Point(midX, start.Y), new Point(midX, end.Y));
-            Line line3 = GetLine(new Point(midX, end.Y), end);
-            
-            canvas.Children.Add(line1);
-            canvas.Children.Add(line2);
-            canvas.Children.Add(line3);
+            // Calculate lengths of controls
+            double startHalfWidth = startCtrl.Bounds.Width / 2;
+            double startHalfHeight = startCtrl.Bounds.Height / 2;
+            double endHalfWidth = endCtrl.Bounds.Width / 2;
+            double endHalfHeight = endCtrl.Bounds.Height / 2;
+            // Initialize points to middle of controls
+            Point start = new Point(
+                startCtrl.Bounds.X + startHalfWidth,
+                startCtrl.Bounds.Y + startHalfHeight);
+            Point end = new Point(
+                endCtrl.Bounds.X + endHalfWidth,
+                endCtrl.Bounds.Y + endHalfHeight);
 
+            // Set points to draw lines
+            Point midStart;
+            Point midEnd;
+            List<Point> diamondPoints;
+            List<Point> trianglePoints;
+            if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
+            {
+                // Arrow is horizontal
+                midStart = new Point(Math.Abs(start.X + end.X) / 2, start.Y);
+                midEnd = new Point(Math.Abs(start.X + end.X) / 2, end.Y);
+                if (start.X < end.X)
+                {
+                    // Goes from left to right
+                    start = new Point(start.X + startHalfWidth, start.Y);
+                    end = new Point(end.X - endHalfWidth - (2 * SymbolWidth), end.Y);
+                    diamondPoints = new List<Point> { 
+                        end,
+                        new(end.X + SymbolWidth,end.Y - SymbolHeight),
+                        new(end.X + (2 * SymbolWidth),end.Y),
+                        new(end.X + SymbolWidth,end.Y + SymbolHeight),
+                        end };
+                    trianglePoints = new List<Point> { 
+                        new(end.X,end.Y - SymbolHeight),
+                        new(end.X + (2 * SymbolWidth),end.Y),
+                        new(end.X,end.Y + SymbolHeight),
+                        new(end.X,end.Y - SymbolHeight)
+                    };
+                }
+                else
+                {
+                    // Goes from right to left
+                    start = new Point(start.X - startHalfWidth, start.Y);
+                    end = new Point(end.X + endHalfWidth + (2 * SymbolWidth), end.Y);
+                    diamondPoints = new List<Point> { 
+                        end,
+                        new(end.X - SymbolWidth,end.Y - SymbolHeight),
+                        new(end.X - (2 * SymbolWidth),end.Y),
+                        new(end.X - SymbolWidth,end.Y + SymbolHeight),
+                        end };
+                    trianglePoints = new List<Point> { 
+                        new(end.X,end.Y - SymbolHeight),
+                        new(end.X - (2 * SymbolWidth),end.Y),
+                        new(end.X,end.Y + SymbolHeight),
+                        new(end.X,end.Y - SymbolHeight)
+                    };
+                }
+            }
+            else
+            {
+                // Arrow is vertical
+                midStart = new Point(start.X, Math.Abs(start.Y + end.Y) / 2);
+                midEnd = new Point(end.X, Math.Abs(start.Y + end.Y) / 2);
+                if (start.Y < end.Y)
+                {
+                    // Goes top to bottom
+                    start = new Point(start.X, start.Y + startHalfHeight);
+                    end = new Point(end.X, end.Y - endHalfHeight - (2 * SymbolWidth));
+                    diamondPoints = new List<Point> { 
+                        end,
+                        new(end.X + SymbolHeight,end.Y + SymbolWidth),
+                        new(end.X,end.Y + (2 * SymbolWidth)),
+                        new(end.X - SymbolHeight,end.Y + SymbolWidth),
+                        end };
+                    trianglePoints = new List<Point> { 
+                        new(end.X + SymbolHeight,end.Y),
+                        new(end.X,end.Y + (2 * SymbolWidth)),
+                        new(end.X - SymbolHeight,end.Y),
+                        new(end.X + SymbolHeight,end.Y)
+                    };
+                }
+                else
+                {
+                    // Goes bottom to top
+                    start = new Point(start.X, start.Y - startHalfHeight);
+                    end = new Point(end.X, end.Y + endHalfHeight + (2 * SymbolWidth));
+                    diamondPoints = new List<Point> { 
+                        end,
+                        new(end.X + SymbolHeight,end.Y - SymbolWidth),
+                        new(end.X,end.Y - (2 * SymbolWidth)),
+                        new(end.X - SymbolHeight,end.Y - SymbolWidth),
+                        end };
+                    trianglePoints = new List<Point> { 
+                        new(end.X + SymbolHeight,end.Y),
+                        new(end.X,end.Y - (2 * SymbolWidth)),
+                        new(end.X - SymbolHeight,end.Y),
+                        new(end.X + SymbolHeight,end.Y)
+                    };
+                }
+            }
+            Line line1 = GetLine(start,midStart);
+            Line line2 = GetLine(midStart, midEnd);
+            Line line3 = GetLine(midEnd, end);
+            
+            // Add lines to the canvas
+            _canvas.Children.Add(line1);
+            _canvas.Children.Add(line2);
+            _canvas.Children.Add(line3);
+
+            // Draw the relationship symbol based on provided type
             switch (relationshipType)
             {
                 case "aggregation":
+                    _canvas.Children.Add(GetSymbol(diamondPoints));
+                    break;
+                case "composition":
+                    Polyline polyline = GetSymbol(diamondPoints);
+                    polyline.Fill = Brushes.White;
+                    _canvas.Children.Add(polyline);
+                    break;
+                case "inheritance": 
+                    _canvas.Children.Add(GetSymbol(trianglePoints));
+                    break;
+                case "realization": 
                     line1.StrokeDashArray = new AvaloniaList<double>(5, 3);
                     line2.StrokeDashArray = new AvaloniaList<double>(5, 3);
                     line3.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    PathGeometry symbol = new PathGeometry();
-                    PathFigure figure = new PathFigure();
-                    figure.StartPoint = end;
-                    LineSegment seg1 = new LineSegment();
-                    seg1.Point = end;
-                    figure.Segments.Add(seg1);
-                    LineSegment seg2 = new LineSegment();
-                    seg2.Point = new Point(end.X + 5, end.Y - 5);
-                    figure.Segments.Add(seg2);
-                    LineSegment seg3 = new LineSegment();
-                    seg3.Point = new Point(end.X + 10, end.Y);
-                    figure.Segments.Add(seg3);
-                    LineSegment seg4 = new LineSegment();
-                    seg4.Point = new Point(end.X + 5, end.Y + 5);
-                    figure.Segments.Add(seg4);
-                    LineSegment seg5 = new LineSegment();
-                    seg5.Point = end;
-                    figure.Segments.Add(seg5);
-                    
-                    symbol.Figures.Add(figure);
-
-                    Rectangle rect = new Rectangle();
-                    rect.Height = 40;
-                    rect.Width = 40;
-                    rect.Stroke = Brushes.Blue;
-                    rect.StrokeThickness = 2;
-                    RotateTransform rotation = new RotateTransform(45);
-                    TranslateTransform translate = new TranslateTransform(end.X,end.Y);
-                    TransformGroup transforms = new TransformGroup();
-                    transforms.Children.Add(translate);
-                    transforms.Children.Add(rotation);
-                    rect.RenderTransform = transforms;
-                    canvas.Children.Add(rect);
-                    break;
-                case "composition": 
-                    break;
-                case "inheritance": 
-                    break;
-                case "realization": 
+                    _canvas.Children.Add(GetSymbol(trianglePoints));
                     break;
             }
         }
 
+        /// <summary>
+        /// Draws the relationship symbol from the given list of points
+        /// </summary>
+        /// <param name="points">A list of points for the vertices to draw</param>
+        /// <returns>The new relationship symbol</returns>
+        private Polyline GetSymbol(List<Point> points)
+        {
+            Polyline polyline = new Polyline();
+            polyline.Name = "Polyline";
+            polyline.Points = points;
+            polyline.Stroke = Brushes.White;
+            polyline.StrokeThickness = 2;
+            return polyline;
+        }
+
+        /// <summary>
+        /// Creates a line from the given start to end points
+        /// </summary>
+        /// <param name="lineStart">Point to start at</param>
+        /// <param name="lineEnd">Point to end at</param>
+        /// <returns>The new line</returns>
         private Line GetLine(Point lineStart, Point lineEnd)
         {
             Line l = new Line();
-            l.Name = "Line" + lineStart + "-" + lineEnd;
+            l.Name = "Line";
             l.StartPoint = lineStart;
             l.EndPoint = lineEnd;
             l.Stroke = Brushes.White;
@@ -146,14 +261,24 @@ namespace UMLEditor.Views
             return l;
         }
 
-        private void Draw_LineB_OnClick(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Removes all drawn lines from the canvas
+        /// </summary>
+        private void ClearLines()
         {
-            
-        }
+            List<IControl> children = new List<IControl>();
+            foreach (IControl child in _canvas.Children)
+            {
+                children.Add(child);
+            }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
+            foreach (IControl child in children)
+            {
+                if (child.Name == "Line" || child.Name == "Polyline")
+                {
+                    _canvas.Children.Remove(child);
+                }
+            }
         }
 
         /// <summary>

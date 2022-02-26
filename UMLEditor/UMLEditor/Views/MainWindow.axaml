@@ -77,10 +77,7 @@
                 
                 <Canvas Name="MyCanvas" Width="800" Height="400" ZIndex="0">
                         
-                        <Button Content="Create Line"
-                                Width="150"
-                                Click="Draw_LineB_OnClick"
-                                ZIndex="10"/>
+                       
                 </Canvas>
                 
         </StackPanel>
