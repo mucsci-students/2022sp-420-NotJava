@@ -310,7 +310,7 @@ public class Class: ICloneable
     /// <exception cref="InvalidNameException">Thrown if the name is not valid</exception>
     private void CheckValidClassName(string name)
     {
-        if (!Char.IsLetter(name[0]) && name[0] != '_')
+        if (!Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
         {
             throw new InvalidNameException(String.Format("{0} is an invalid class name.  " +
                                                                 "Class name must be a single word that starts with an alphabetic " +

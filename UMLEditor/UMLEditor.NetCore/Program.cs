@@ -38,7 +38,7 @@ namespace UMLEditor.NetCore
                     // CLI mode
                     case("-cli"):
                         CommandLine c = new CommandLine();
-                        c.runCLI();
+                        c.RunCli();
                         break;
                     
                     default:

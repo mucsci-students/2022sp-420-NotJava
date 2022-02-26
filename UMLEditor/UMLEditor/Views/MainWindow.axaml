@@ -38,16 +38,22 @@
                                                   Click="List_Classes_OnClick"
                                                   />
                                 </MenuItem>
-                                <MenuItem Header="_Attribute">
-                                        <MenuItem Header="_Add"
-                                                  Click="Add_Attribute_OnClick"
+                                <MenuItem Header="_Attributes">
+                                        <MenuItem Header="_Add Field"
+                                                  Click="Add_Field_OnClick"
                                                   />
+                                        <MenuItem Header="_Add Method"
+                                                  Click="Add_Method_OnClick"
+                                        />
                                         <MenuItem Header="_Delete"
                                                   Click="Delete_Attribute_OnClick"
                                                   />
-                                        <MenuItem Header="_Rename"
-                                                  Click="Class_RenameAttribute_OnClick"
+                                        <MenuItem Header="_Rename Field"
+                                                  Click="Rename_Field_OnClick"
                                                   />
+                                        <MenuItem Header="_Rename Method"
+                                                  Click="Rename_Method_OnClick"
+                                        />
                                         <MenuItem Header="_List"
                                                   Click="List_Attributes_OnClick"
                                                   />

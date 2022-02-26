@@ -18,4 +18,9 @@
         <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
+    <ItemGroup>
+      <None Remove="Views\AddClassPanel.axaml~" />
+      <None Remove="Views\AddAttributePanel.axaml~" />
+      <None Remove="Views\AddMethodPanel.axaml~" />
+    </ItemGroup>
 </Project>
