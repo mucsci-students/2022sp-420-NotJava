@@ -25,8 +25,8 @@ namespace UMLEditor.Views
         private readonly OpenFileDialog _openFileDialog;
         private readonly SaveFileDialog _saveFileDialog;
 
-        private Button SaveDiagramButton;
-        private Button LoadDiagramButton;
+        private MenuItem SaveDiagramButton;
+        private MenuItem LoadDiagramButton;
         
         public MainWindow()
         {
@@ -38,8 +38,8 @@ namespace UMLEditor.Views
             _outputBox = this.FindControl<TextBox>("OutputBox");
             _inputBox = this.FindControl<TextBox>("InputBox");
 
-            SaveDiagramButton = this.FindControl<Button>("SaveDiagramButton");
-            LoadDiagramButton = this.FindControl<Button>("LoadDiagramButton");
+            SaveDiagramButton = this.FindControl<MenuItem>("SaveDiagramButton");
+            LoadDiagramButton = this.FindControl<MenuItem>("LoadDiagramButton");
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
         }
 
