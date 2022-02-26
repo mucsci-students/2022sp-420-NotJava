@@ -123,26 +123,22 @@ public class ModalDialog: Window
     /// </summary>
     private void OnModalResolved(object sender, RoutedEventArgs e)
     {
-
-        // If _yesButton...
-        if (sender == _yesButton)
+        
+        if (sender.Equals(_yesButton))
         {
             Close((int)DialogButtons.YES);
         }
         
-        // If _noButton...
-        else if (sender == _noButton)
+        else if (sender.Equals(_noButton))
         {
             Close((int)DialogButtons.NO);
         }
         
-        // If _okayButton...
-        else if (sender == _okayButton)
+        else if (sender.Equals(_okayButton))
         {
             Close((int)DialogButtons.OKAY);
         }
-
-        // if cancel was selected...
+        
         else
         {
             Close((int)DialogButtons.CANCEL);
