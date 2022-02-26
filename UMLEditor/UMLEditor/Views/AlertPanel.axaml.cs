@@ -8,6 +8,9 @@ using Avalonia.Platform;
 
 namespace UMLEditor.Views;
 
+/// <summary>
+/// Enum to differentiate between the different icons that can be used within an 'AlertPanel'
+/// </summary>
 public enum AlertIcon
 {
     
@@ -19,6 +22,9 @@ public enum AlertIcon
     
 }
 
+/// <summary>
+/// The required images for use in an 'AlertPanel'
+/// </summary>
 public class AlertPanel : UserControl
 {
 
@@ -27,7 +33,9 @@ public class AlertPanel : UserControl
     private Image _questionIcon;
     private Image _infoIcon;
     
-    
+    /// <summary>
+    /// The title given to the panel upon creation
+    /// </summary>
     public string AlertTitle
     {
 
@@ -37,6 +45,9 @@ public class AlertPanel : UserControl
 
     }
 
+    /// <summary>
+    /// The message given to the panel upon creation
+    /// </summary>
     public string AlertMessage
     {
 
@@ -48,6 +59,9 @@ public class AlertPanel : UserControl
 
     private AlertIcon _currrentIcon;
 
+    /// <summary>
+    /// Setter for the icon
+    /// </summary>
     public AlertIcon DialogIcon
     {
 
@@ -59,6 +73,9 @@ public class AlertPanel : UserControl
 
     }
 
+    /// <summary>
+    /// Initializes with icon from specified name
+    /// </summary>
     public AlertPanel()
     {
         InitializeComponent();
@@ -75,6 +92,10 @@ public class AlertPanel : UserControl
         AvaloniaXamlLoader.Load(this);
     }
 
+    /// <summary>
+    /// Allows for the swapping in and out of the various icon types
+    /// </summary>
+    /// <param name="toIcon">The panel we are defining an icon for</param>
     private void ChangeIcon(AlertIcon toIcon)
     {
 
@@ -84,21 +105,25 @@ public class AlertPanel : UserControl
         _questionIcon.IsVisible = false;
         _infoIcon.IsVisible = false;
         
+        // Switch statement for each icon scenario...
         switch (toIcon)
         {
-           
+            // If 'ERROR'...
             case AlertIcon.ERROR:
                 _errorIcon.IsVisible = true;
                 break;
             
+            // If 'WARNING'...
             case AlertIcon.WARNING:
                 _warningIcon.IsVisible = true;
                 break;
             
+            // If 'QUESTION'...
             case AlertIcon.QUESTION:
                 _questionIcon.IsVisible = true;
                 break;
             
+            // If 'INFO'...
             case AlertIcon.INFO:
                 _infoIcon.IsVisible = true;
                 break;
