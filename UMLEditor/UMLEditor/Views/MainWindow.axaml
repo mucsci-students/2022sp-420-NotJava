@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterScreen"
         >
         
-        <StackPanel Name="MainPanel">
+        <StackPanel Name="MainPanel" Orientation="Vertical">
                 <DockPanel
                         ZIndex="10"
                         Background="Gray">
@@ -80,12 +80,24 @@
                                 </MenuItem>
                         </Menu>
                 </DockPanel>
-                
-                <Canvas Name="MyCanvas" Width="800" Height="400" ZIndex="0">
-                        
-                       
+            
+                <Canvas Name="MyCanvas" ZIndex="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                               
+                    <views:ClassBox Name="Class1"></views:ClassBox>
+                    <views:ClassBox Name="Class2" Canvas.Left="800" Canvas.Top="400"></views:ClassBox>
+                    <views:ClassBox Canvas.Left="400" Canvas.Top="200"></views:ClassBox>
+                                               
                 </Canvas>
-                
+            
+                <!--
+                <Canvas Name="MyCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ZIndex="0">
+                                   
+                    <views:ClassBox Name="Class1"></views:ClassBox>
+                    <views:ClassBox Name="Class2" Canvas.Left="800" Canvas.Top="400"></views:ClassBox>
+                    <views:ClassBox Canvas.Left="400" Canvas.Top="200"></views:ClassBox>
+                                   
+                </Canvas>
+                -->
+            
         </StackPanel>
-        
 </Window>

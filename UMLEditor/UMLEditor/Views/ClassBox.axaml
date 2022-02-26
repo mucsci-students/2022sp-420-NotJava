@@ -5,9 +5,10 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UMLEditor.Views.ClassBox"
              MinWidth="300" MaxWidth="300"
-             MaxHeight="300"
+             MaxHeight="600"
              Background="#963E00"
-             CornerRadius="5">
+             CornerRadius="5"
+             ZIndex="99999">
     
     <UserControl.Styles>
         <Style Selector="Image.ControlIcon">
@@ -69,7 +70,7 @@
             </Button>
         </Grid>
         <!-- FIELDS LISTING AREA -->
-        <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <ScrollViewer HorizontalAlignment="Stretch" MaxHeight="70" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto">
             <StackPanel Name="FieldsArea">
                 
             </StackPanel>
@@ -92,5 +93,11 @@
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>
+        <!-- METHODS LISTING AREA -->
+        <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  MaxHeight="140"  VerticalScrollBarVisibility="Auto">
+            <StackPanel Name="MethodsArea">
+                
+            </StackPanel>
+        </ScrollViewer>
     </StackPanel>
 </UserControl>

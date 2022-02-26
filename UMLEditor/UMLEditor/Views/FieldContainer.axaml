@@ -5,12 +5,14 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UMLEditor.Views.FieldContainer">
     <Grid 
+        Name="Backing"
         RowDefinitions="*" 
         ColumnDefinitions="* * * * * * * *" 
         HorizontalAlignment="Stretch" 
         Background="#FF6A00">
         <ScrollViewer Grid.ColumnSpan="6" HorizontalScrollBarVisibility="Auto">
             <Label
+                Name="ParamDisplay"
                 Content="int fieldOne" 
                 FontStyle="Italic"
                 FontSize="16" 

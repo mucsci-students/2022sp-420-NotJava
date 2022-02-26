@@ -25,6 +25,8 @@ using UMLEditor.Exceptions;
 using UMLEditor.Interfaces;
 using Path = System.IO.Path;
 
+using System.Threading;
+
 namespace UMLEditor.Views
 {
     public partial class MainWindow : Window
@@ -51,6 +53,7 @@ namespace UMLEditor.Views
         /// </summary>
         public MainWindow()
         {
+            
             InitializeComponent();
 
 #if DEBUG
@@ -70,10 +73,21 @@ namespace UMLEditor.Views
             // Get size of StackPanel
             _mainPanel = this.FindControl<StackPanel>("MainPanel");
 
+            // return;
             _canvas = this.FindControl<Canvas>("MyCanvas");
             _canvas.Height = _mainPanel.Height;
             _canvas.Width = _mainPanel.Width;
 
+            ClassBox c1 = this.FindControl<ClassBox>("Class1");
+            ClassBox c2 = this.FindControl<ClassBox>("Class2");
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                
+                DrawRelationship(c1, c2, "composition");                
+                
+            });
+            
         }
         
         /// <summary>

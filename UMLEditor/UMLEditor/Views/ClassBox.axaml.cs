@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using System.Collections.Generic;
+using Avalonia.Media;
 
 namespace UMLEditor.Views;
 
@@ -11,11 +12,22 @@ public class ClassBox : UserControl
     {
         InitializeComponent();
 
-        StackPanel vs = this.FindControl<StackPanel>("FieldsArea");
-        vs.Children.Add(new FieldContainer());
-        vs.Children.Add(new FieldContainer());
-        vs.Children.Add(new FieldContainer());
-        
+        StackPanel fieldsArea = this.FindControl<StackPanel>("FieldsArea");
+        fieldsArea.Children.Add(new FieldContainer());
+        fieldsArea.Children.Add(new FieldContainer());
+        fieldsArea.Children.Add(new FieldContainer());
+        fieldsArea.Children.Add(new FieldContainer());
+        fieldsArea.Children.Add(new FieldContainer());
+        fieldsArea.Children.Add(new FieldContainer());
+        fieldsArea.Children.Add(new FieldContainer());
+
+        StackPanel methodsArea = this.FindControl<StackPanel>("MethodsArea");
+        methodsArea.Children.Add(new MethodContainer());
+        methodsArea.Children.Add(new MethodContainer());
+        methodsArea.Children.Add(new MethodContainer());
+        methodsArea.Children.Add(new MethodContainer());
+        methodsArea.Children.Add(new MethodContainer());
+
         /*
         vs.Content = new FieldContainer[]
         {
