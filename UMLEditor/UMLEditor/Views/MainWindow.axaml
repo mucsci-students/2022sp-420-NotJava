@@ -41,6 +41,9 @@
                                 </MenuItem>
                         </Menu>
                 </DockPanel>
+                <Canvas Name="MyCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ZIndex="0">
+                       
+                </Canvas>
         </StackPanel>
         
 </Window>

@@ -75,12 +75,20 @@ namespace UMLEditor.Views
 
             // return;
             _canvas = this.FindControl<Canvas>("MyCanvas");
-            _canvas.Height = _mainPanel.Height;
-            _canvas.Width = _mainPanel.Width;
 
-            ClassBox c1 = this.FindControl<ClassBox>("Class1");
-            ClassBox c2 = this.FindControl<ClassBox>("Class2");
+            ClassBox c1 = new ClassBox();
+            ClassBox c2 = new ClassBox();
 
+            _canvas.Children.Add(c1);
+            _canvas.Children.Add(c2);
+            
+            Dispatcher.UIThread.Post(() =>
+            {
+                
+                DrawRelationship(c1, c2, "inheritance");
+                
+            });
+            
         }
         
         /// <summary>
@@ -480,42 +488,39 @@ namespace UMLEditor.Views
             Task<string?> saveTask = _saveFileDialog.ShowAsync(this);
             saveTask.ContinueWith((Task<string?> finishedTask) =>
             {
-                // Grab the selected output file
-                string? selectedFile = finishedTask.Result;
+                
+                Dispatcher.UIThread.Post(() => { 
+                
+                    // Grab the selected output file
+                    string? selectedFile = finishedTask.Result;
 
-                // Make sure a file was selected
-                if (selectedFile != null)
-                {
-                    try
+                    // Make sure a file was selected
+                    if (selectedFile != null)
                     {
-                        _activeFile.SaveDiagram(ref _activeDiagram, selectedFile);
-                        RaiseAlert(
-                            "Save Successful",
-                            $"Save Successful",
-                            $"Current diagram saved to {selectedFile}",
-                            AlertIcon.INFO
-                        );
-                    }
+                        try
+                        {
+                            _activeFile.SaveDiagram(ref _activeDiagram, selectedFile);
+                            RaiseAlert(
+                                "Save Successful",
+                                $"Save Successful",
+                                $"Current diagram saved to {selectedFile}",
+                                AlertIcon.INFO
+                            );
+                        }
 
-                    catch (Exception exception)
-                    {
-                        RaiseAlert(
-                            "Save Failed",
-                            $"Save Failed",
-                            exception.Message,
-                            AlertIcon.ERROR
-                        );
+                        catch (Exception exception)
+                        {
+                            RaiseAlert(
+                                "Save Failed",
+                                $"Save Failed",
+                                exception.Message,
+                                AlertIcon.ERROR
+                            );
+                        }
                     }
-                }
-                else
-                {
-                    RaiseAlert(
-                        "Save Failed",
-                        $"Save Unsuccessful",
-                        "Save could not be accomplished",
-                        AlertIcon.ERROR
-                    );
-                }
+                
+                });
+                
             });
         }
 
@@ -527,49 +532,45 @@ namespace UMLEditor.Views
             loadTask.ContinueWith((Task<string[]?> taskResult) =>
             {
                 // Called when the future is resolved
-                
-                /* Get the files the user selected
-                 * This will be null if the user canceled the operation or closed the window */
-                string[]? selectedFiles = taskResult.Result;
-                bool hasSelectedFile = selectedFiles != null && selectedFiles.Length >= 1;
-
-                if (hasSelectedFile)
+                Dispatcher.UIThread.Post(() =>
                 {
-                    // Pull only the first selected file (AllowMultiple should be turned off on the dialog)
-                    string chosenFile = selectedFiles![0];
                     
-                    try
+                    /* Get the files the user selected
+                     * This will be null if the user canceled the operation or closed the window */
+                    string[]? selectedFiles = taskResult.Result;
+                    bool hasSelectedFile = selectedFiles != null && selectedFiles.Length >= 1;
+
+                    if (hasSelectedFile)
                     {
-                        _activeDiagram = _activeFile.LoadDiagram(chosenFile);
-                        RaiseAlert(
-                            "Load Successful",
-                            $"Load Successful",
-                            $"Diagram loaded from {chosenFile}",
-                            AlertIcon.INFO
-                        );
-                    }
+                        // Pull only the first selected file (AllowMultiple should be turned off on the dialog)
+                        string chosenFile = selectedFiles![0];
+                    
+                        try
+                        {
+                            _activeDiagram = _activeFile.LoadDiagram(chosenFile);
+                            RaiseAlert(
+                                "Load Successful",
+                                $"Load Successful",
+                                $"Diagram loaded from {chosenFile}",
+                                AlertIcon.INFO
+                            );
+                        }
             
-                    catch (Exception exception)
-                    {
+                        catch (Exception exception)
+                        {
 
-                        RaiseAlert(
-                            "Load Failed",
-                            $"Load Failed",
-                            exception.Message,
-                            AlertIcon.ERROR
-                        );
+                            RaiseAlert(
+                                "Load Failed",
+                                $"Load Failed",
+                                exception.Message,
+                                AlertIcon.ERROR
+                            );
 
+                        }
                     }
-                }
-                else
-                {
-                    RaiseAlert(
-                        "Load failed Failed",
-                        $"Load failed Failed",
-                        "No diagram file selected",
-                        AlertIcon.ERROR
-                    );
-                }
+                    
+                });
+                
             });
         }
 
