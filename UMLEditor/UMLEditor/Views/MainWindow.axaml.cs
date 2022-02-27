@@ -76,18 +76,13 @@ namespace UMLEditor.Views
             // return;
             _canvas = this.FindControl<Canvas>("MyCanvas");
 
-            ClassBox c1 = new ClassBox();
-            ClassBox c2 = new ClassBox();
+            /*
+            ClassBox c1 = new ClassBox("c1");
+            ClassBox c2 = new ClassBox("c2");
 
             _canvas.Children.Add(c1);
             _canvas.Children.Add(c2);
-            
-            Dispatcher.UIThread.Post(() =>
-            {
-                
-                DrawRelationship(c1, c2, "inheritance");
-                
-            });
+            */
             
         }
         
@@ -554,6 +549,8 @@ namespace UMLEditor.Views
                                 $"Diagram loaded from {chosenFile}",
                                 AlertIcon.INFO
                             );
+                            ClearCanvas();
+                            RenderClasses(_activeDiagram.Classes);
                         }
             
                         catch (Exception exception)
@@ -756,6 +753,7 @@ namespace UMLEditor.Views
                             {
                                 // Attempt to create a new class with the given information.  Alert if succeeds
                                 _activeDiagram.AddClass(enteredName);
+                                RenderClasses(enteredName);
                                 RaiseAlert(
                                     "Class Added",
                                     $"Class '{enteredName}' created",
@@ -1291,19 +1289,92 @@ namespace UMLEditor.Views
         /// <param name="messageTitle">The desired message title for the raised alert</param>
         /// <param name="messageBody">The message body for the raise alert</param>
         /// <param name="alertIcon">The icon you would like present within the alert</param>
-        private void RaiseAlert(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon)
+        public void RaiseAlert(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon)
         {
             // Create and wire up a new modal dialogue to 'AlertPanel' with the parameters being a title and the visible buttons.
-            ModalDialog AlertDialog = ModalDialog.CreateDialog<AlertPanel>(windowTitle, DialogButtons.OKAY);
-            AlertPanel content = AlertDialog.GetPrompt<AlertPanel>();
+            ModalDialog alertDialog = ModalDialog.CreateDialog<AlertPanel>(windowTitle, DialogButtons.OKAY);
+            AlertPanel content = alertDialog.GetPrompt<AlertPanel>();
             
             // Fill the content, alert message, and icon depending on the situation in which the alert is being raised.
             content.AlertTitle = messageTitle;
             content.AlertMessage = messageBody;
             content.DialogIcon = alertIcon;
 
-            AlertDialog.ShowDialog(this);
+            alertDialog.ShowDialog(this);
         }
+
+        /// <summary>
+        /// Raises a yes/ no confirmation
+        /// </summary>
+        /// <param name="windowTitle">The title of the window</param>
+        /// <param name="messageTitle">The title of the message</param>
+        /// <param name="messageBody">The body of the message</param>
+        /// <param name="alertIcon">The icon to use for the alert</param>
+        /// <param name="callback">A callback function to use when the dialog is resolved</param>
+        public void RaiseConfirmation(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon, Action<Task<DialogButtons>> callback)
+        {
+            
+            // Create and wire up a new modal dialogue to 'AlertPanel' with the parameters being a title and the visible buttons.
+            ModalDialog alertDialog = ModalDialog.CreateDialog<AlertPanel>(windowTitle, DialogButtons.YES_NO);
+            AlertPanel content = alertDialog.GetPrompt<AlertPanel>();
+            
+            // Fill the content, alert message, and icon depending on the situation in which the alert is being raised.
+            content.AlertTitle = messageTitle;
+            content.AlertMessage = messageBody;
+            content.DialogIcon = alertIcon;
+
+            alertDialog.ShowDialog<DialogButtons>(this).ContinueWith(callback);
+
+        }
+        
+        /// <summary>
+        /// Renders a list of classes, by provided name
+        /// </summary>
+        /// <param name="withName">The names of classes to be rendered.
+        /// The rendered classes will be default boxes with only the name being different.</param>
+        private void RenderClasses(params string[] withName)
+        {
+
+            foreach (string currentClassName in withName)
+            {
+                ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this);
+                _canvas.Children.Add(newClass);
+            }            
+            
+        }
+        
+        /// <summary>
+        /// Renders a list of classes
+        /// </summary>
+        /// <param name="withClasses">The list of classes to be added to the rendered area</param>
+        private void RenderClasses(List<Class> withClasses)
+        {
+
+            foreach (Class currentClass in withClasses)
+            {
+                ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this);
+                _canvas.Children.Add(newClass);;
+            }
+            
+        }
+
+        /// <summary>
+        /// Removes the provided ClassBox from the rendered area
+        /// </summary>
+        /// <param name="toUnrender">The class to remove from the rendered area</param>
+        public void UnrenderClass(ClassBox toUnrender)
+        {
+            _canvas.Children.Remove(toUnrender);
+        }
+        
+        /// <summary>
+        /// Wipes everything off of the canvas
+        /// </summary>
+        private void ClearCanvas()
+        {
+            _canvas.Children.Clear();
+        }
+
     }
     
     

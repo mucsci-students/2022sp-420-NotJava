@@ -64,14 +64,25 @@ public class Method : AttributeObject, ICloneable
     /// <returns>True if the given parameter is in the list, false otherwise</returns>
     public bool IsParamInList(NameTypeObject param)
     {
+        return FindParamInList(param) is not null;
+    }
+
+    /// <summary>
+    /// Locates the provided parameter contained in this method
+    /// and returns the reference to the paramter in the list 
+    /// </summary>
+    /// <param name="param">The parameter to locate</param>
+    /// <returns>The reference of the parameter in the list, if it exists at all</returns>
+    public NameTypeObject? FindParamInList(NameTypeObject param)
+    {
         foreach (NameTypeObject p in _parameters)
         {
             if (p.AttributeName == param.AttributeName)
             {
-                return true;
+                return p;
             }
         }
-        return false;
+        return null;
     }
     
     /// <summary>
@@ -144,11 +155,7 @@ public class Method : AttributeObject, ICloneable
     /// <exception cref="AttributeNonexistentException">If the provided parameter is not in the list</exception>
     public void RemoveParam(NameTypeObject param)
     {
-        if (_parameters.Contains(param))
-        {
-            _parameters.Remove(param);
-        }
-        else
+        if (!(_parameters.Remove(FindParamInList(param)!)))
         {
             throw new AttributeNonexistentException($"{param} does not exist in the method");
         }

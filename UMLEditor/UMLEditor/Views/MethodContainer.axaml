@@ -23,6 +23,7 @@
             Background="#FF6A00">
             <ScrollViewer Grid.ColumnSpan="5" HorizontalScrollBarVisibility="Auto">
                 <Label
+                    Name="MethodSignature"
                     Content="double getArea()" 
                     FontStyle="Italic"
                     FontSize="16" 
