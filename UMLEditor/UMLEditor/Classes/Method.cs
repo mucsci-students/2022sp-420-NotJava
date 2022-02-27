@@ -54,12 +54,9 @@ public class Method : AttributeObject, ICloneable
     /// <param name="returnType"></param>
     /// <param name="withName"></param>
     /// <param name="parameters"></param>
-    public Method(string returnType, string withName, List<string> parameters) : this(returnType, withName)
+    public Method(string returnType, string withName, List<NameTypeObject> parameters) : this(returnType, withName)
     {
-        for(int i = 0; i < parameters.Count - 2; i += 2)
-        {
-            _parameters.Add(new NameTypeObject(parameters[i], parameters[i + 1]));
-        }
+        _parameters = parameters;
     }
     
     /// <summary>

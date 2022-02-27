@@ -95,6 +95,22 @@ public class Class: ICloneable
     }
 
     /// <summary>
+    /// Adds method to class.
+    /// Pre-condition: name of method is valid
+    /// </summary>
+    /// <param name="returnType">Valid returnType of new method</param>
+    /// <param name="name">Valid name of new method</param>
+    /// <param name="paramList">List of parameters</param>
+    public void AddMethod(string returnType, string name, List<NameTypeObject> paramList)
+    {
+        if (MethodExists(name))
+        {
+            throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", name));
+        }
+        _methods.Add(new Method(returnType, name, paramList));
+    }
+
+    /// <summary>
     /// Check if specified Field exists.
     /// </summary>
     /// <param name="name">Name of the Field you are checking</param>

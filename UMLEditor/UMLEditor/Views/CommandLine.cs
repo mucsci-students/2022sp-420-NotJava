@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using DynamicData;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
 using UMLEditor.Interfaces;
@@ -143,8 +144,8 @@ public class CommandLine
                 break;
             
             case ("add_method"):
-                // Regex nonParamList = new Regex(@"[a-z|A-Z|_]");
-                Regex nonParamList = new Regex(@"[^{\(]");
+                //Regular expression for a character that is not the beginning of a parameter list.
+                Regex nonParamList = new Regex(@"[^{\s*\(]");
                 
                 //Checks if there are less than two arguments
                 //or if either of the first two arguments are the parameter list
@@ -153,9 +154,15 @@ public class CommandLine
                     || nonParamList.Matches((arguments[1][0]).ToString()).Count == 0
                     || nonParamList.Matches((arguments[2][0]).ToString()).Count == 0)
                 {
-                    PrintColoredLine("Error: expected \"className, methodType, methodName, {(type, name) (type, name)...}\" as arguments", ERROR_COLOR);
+                    PrintColoredLine("Error: expected \"className, methodType, methodName, {(type, name) (type, name)...}\" " +
+                                     "or \"className, methodType, methodName\" as arguments", ERROR_COLOR);
                     break;
                 }
+                
+                //Grab necessary information from arguments
+                string className = arguments[0];
+                string methodType = arguments[1];
+                string methodName = arguments[2];
 
                 //Checks if there are more than 3 arguments, is the third
                 //argument another word (when it should be a  param list)
@@ -165,11 +172,16 @@ public class CommandLine
                     break;
                 }
 
-                string className = arguments[0];
-                string methodType = arguments[1];
-                string methodName = arguments[2];
+                if (arguments.Count() == 3)
+                {
+                    _activeDiagram!.AddMethod(className, methodType, methodName);
+                    break;
+                }
+
+                //Remove everything except for potential parameter list
                 arguments.RemoveRange(0, 3);
-                //combines all of the arguments into one string
+                
+                //combines all of the potential parameters into one string
                 string methodList = String.Join(" ", arguments.ToArray());
 
                 //Checks if parameter list is formatted correctly
@@ -177,30 +189,37 @@ public class CommandLine
                 MatchCollection paramListMatches = paramListExpression.Matches(methodList);
                 if (paramListMatches.Count == 0)
                 {
-                    //TODO error: expected { (type, name), (name, type) ...(name, type)}
                     PrintColoredLine("Error: expected { (type, name) " +
                                      "(name, type) ...(name, type)} for parameter list", ERROR_COLOR);
                     break;
                 }
                 
-                //Regular expression per parameter
+                //Regular expression per parameter (paramter consists of "(word, word)"
                 Regex paramExpression = new Regex(@"\(\w+,\s\w+\)");
                 MatchCollection paramMatches = paramExpression.Matches(methodList);
 
+                //Add each parameter into a paramList
                 List<NameTypeObject> paramList = new List<NameTypeObject>();
+                
+                //ensures that the layout of the parameter list is correct (checks that there is two strings per parameter,
+                //and that there is not just a single space or no words
+                //(the contains "" check is for a word that contains only spaces (a word of only spaces splits to a bunch of "")
+                if ((Regex.Replace(methodList, @"[{}\(\)]", "").Split(' ')).Length % 2 != 0 
+                    || ((Regex.Replace(methodList, @"[{}\(\)]", "").Split(' ')).ToList().Contains(""))
+                    || Regex.Replace(methodList, @"[{}\(\)]", "").Length == 1
+                    || Regex.Replace(methodList, @"[{}\(\)]", "").Length == 0)
+                {
+                    PrintColoredLine("Error: expected { (type, name) " +
+                                     "(name, type) ...(name, type)} for parameter list", ERROR_COLOR);
+                    break;
+                }
                 foreach (Match match in paramMatches)
                 {
                     string[] paramArray = (Regex.Replace(match.Value, @"[\(,\)]", "")).Split(' ');
                     paramList.Add(new NameTypeObject(paramArray[0], paramArray[1]));
                 }
                 
-                // Class classToChange = _activeDiagram.GetClassByName(className);
-                // if (classToChange is null)
-                // {
-                //     throw new ClassNonexistentException($"Class{className} does not exist");
-                // }
-                //
-                // classToChange.AddMethod();
+                _activeDiagram!.AddMethod(className, methodType, methodName, paramList);
                 break;
 
             case ("delete_method"):
@@ -225,7 +244,7 @@ public class CommandLine
                 }
                 break;
 
-            case ("rename_typenameobject"):
+            case ("rename_field"):
                 if (arguments.Count == 3)
                 {
                     Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
@@ -293,12 +312,47 @@ public class CommandLine
                         throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
                     }
                     PrintColoredLine(currentClass.ListAttributes());
-                    
                 }
 
                 else
                 {
-                    PrintColoredLine("To list Relationships, please enter \"list_relationship\" " +
+                    PrintColoredLine("To list Attributes, please enter \"list_attribute\" " +
+                                     "followed by a class name into the console and then press enter.", ERROR_COLOR);
+                }
+                break;
+            
+            case ("list_methods"):
+                if (arguments.Count == 1)
+                {
+                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
+                    if (currentClass is null)
+                    {
+                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
+                    }
+                    PrintColoredLine(currentClass.ListMethods());
+                }
+
+                else
+                {
+                    PrintColoredLine("To list Methods, please enter \"list_methods\" " +
+                                     "followed by a class name into the console and then press enter.", ERROR_COLOR);
+                }
+                break;
+            
+            case ("list_fields"):
+                if (arguments.Count == 1)
+                {
+                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
+                    if (currentClass is null)
+                    {
+                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
+                    }
+                    PrintColoredLine(currentClass.ListFields());
+                }
+
+                else
+                {
+                    PrintColoredLine("To list Fields, please enter \"list_fields\" " +
                                      "followed by a class name into the console and then press enter.", ERROR_COLOR);
                 }
                 break;

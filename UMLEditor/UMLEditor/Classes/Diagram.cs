@@ -147,6 +147,37 @@ public class Diagram
     }
 
     /// <summary>
+    /// Adds a method to a class
+    /// </summary>
+    /// <param name="toClass">Class to add method to</param>
+    /// <param name="returnType">Return type of method</param>
+    /// <param name="methodName">Name of method</param>
+    public void AddMethod(string toClass, string returnType, string methodName)
+    {
+        if (!ClassExists(toClass))
+        {
+            throw new ClassNonexistentException($"Class {toClass} does not exist");
+        }
+        GetClassByName(toClass).AddMethod(returnType, methodName);
+    }
+    
+    /// <summary>
+    /// Adds a method to a class
+    /// </summary>
+    /// <param name="toClass">Class to add method to</param>
+    /// <param name="returnType">Return type of method</param>
+    /// <param name="methodName">Name of method</param>
+    /// <param name="paramList">A list of parameters</param>
+    public void AddMethod(string toClass, string returnType, string methodName, List<NameTypeObject> paramList)
+    {
+        if (!ClassExists(toClass))
+        {
+            throw new ClassNonexistentException($"Class {toClass} does not exist");
+        }
+        GetClassByName(toClass).AddMethod(returnType, methodName, paramList);
+    }
+
+    /// <summary>
     /// Adds a class to the diagram.  Ensures the desired class to add does not already exist
     /// </summary>
     /// <param name="className">The name of the class to add</param>
