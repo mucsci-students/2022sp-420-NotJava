@@ -321,7 +321,7 @@ namespace UMLEditor.Views
             {
                 // Establish a filter for the current file extension
                 FileDialogFilter filter = new FileDialogFilter();
-                filter.Name = string.Format(".{0} Diagram Files", extension);
+                filter.Name = $".{extension} Diagram Files";
                 filter.Extensions.Add(extension);
 
                 openFD.Filters.Add(filter);
@@ -676,6 +676,7 @@ namespace UMLEditor.Views
         }
         private void Delete_Attribute_OnClick(object sender, RoutedEventArgs e)
         {
+            /*
             //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, delete attribute if is.
             string input = _inputBox.Text;
             
@@ -709,6 +710,7 @@ namespace UMLEditor.Views
             
             ClearInputBox();
             _outputBox.Text = string.Format("Attribute Deleted ({0} => {1})", targetClassName, targetAttributeName);
+            */
         }
 
         private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
@@ -778,6 +780,7 @@ namespace UMLEditor.Views
 
         private void Class_DeleteClass_OnClick(object sender, RoutedEventArgs e)
         {
+            /*
             // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, delete attribute if is.
             string input = _inputBox.Text;
             
@@ -811,6 +814,7 @@ namespace UMLEditor.Views
 
             ClearInputBox();
             _outputBox.Text = string.Format("Class Deleted {0}", words[0]);
+            */
         }
 
         private void Class_RenameClass_OnClick(object sender, RoutedEventArgs e)
@@ -901,6 +905,7 @@ namespace UMLEditor.Views
         
         private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
         {
+            /*
             // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
             string input = _inputBox.Text;
             
@@ -947,6 +952,7 @@ namespace UMLEditor.Views
             
             ClearInputBox();
             _outputBox.Text = string.Format("Relationship Deleted ({0} => {1})", sourceClassName, destClassName);
+            */
         }
 
         private void Add_Method_OnClick(object sender, RoutedEventArgs e)

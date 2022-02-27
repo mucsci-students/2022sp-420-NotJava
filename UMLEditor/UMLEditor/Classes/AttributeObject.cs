@@ -16,7 +16,7 @@ public abstract class AttributeObject
     /// <returns>Formatted string of attribute</returns>
     public override string ToString()
     {
-        return string.Format("Attribute: {0}", AttributeName);
+        return ($"Attribute: {AttributeName}");
     }
     
     /// <summary>
@@ -39,10 +39,10 @@ public abstract class AttributeObject
     {
         if (name is null || !Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
         {
-            throw new InvalidNameException(String.Format("{0} is an invalid attribute name or type.  " +
+            throw new InvalidNameException($"{name} is an invalid attribute name or type.  " +
                                                          "Attribute name/type must be a single word that starts with an alphabetic " +
                                                          "character or an underscore.  " +
-                                                         "Please Try again.", name));
+                                                         "Please Try again.");
         }
     }
 }

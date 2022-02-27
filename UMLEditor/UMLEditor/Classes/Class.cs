@@ -72,7 +72,7 @@ public class Class: ICloneable
     {
         if (FieldExists(name))
         {
-            throw new AttributeAlreadyExistsException(string.Format("Field {0} already exists", name));
+            throw new AttributeAlreadyExistsException($"Field {name} already exists");
         }
         _fields.Add(new NameTypeObject(type, name));
         
@@ -88,7 +88,7 @@ public class Class: ICloneable
     {
         if (MethodExists(name))
         {
-            throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", name));
+            throw new AttributeAlreadyExistsException($"Method {name} already exists");
         }
         _methods.Add(new Method(returnType, name));
         
@@ -225,7 +225,7 @@ public class Class: ICloneable
     public string ListFields()
     {
         
-        string msg = string.Format("{0} fields: \n", ClassName);
+        string msg = $"{ClassName} fields: \n";
         
         if (_fields.Count == 0)
         {
@@ -235,7 +235,7 @@ public class Class: ICloneable
         {
             foreach (NameTypeObject a in _fields)
             {
-                msg += string.Format("    {0}\n", a.ToString());
+                msg += $"    {a.ToString()}\n";
             }
         }
 
@@ -249,7 +249,7 @@ public class Class: ICloneable
     public string ListMethods()
     {
         
-        string msg = string.Format("{0} methods: \n", ClassName);
+        string msg = $"{ClassName} methods: \n";
         
         if (_methods.Count == 0)
         {
@@ -259,7 +259,7 @@ public class Class: ICloneable
         {
             foreach (Method a in _methods)
             {
-                msg += string.Format("    {0}\n", a.ToString());
+                msg += $"    {a.ToString()}\n";
             }
         }
 
@@ -279,11 +279,11 @@ public class Class: ICloneable
         
         if (!FieldExists(oldName))
         {
-            throw new AttributeNonexistentException(string.Format("Field {0} does not exist", oldName));
+            throw new AttributeNonexistentException($"Field {oldName} does not exist");
         }
         if (FieldExists(newName))
         {
-            throw new AttributeAlreadyExistsException(string.Format("Field {0} already exists", newName));
+            throw new AttributeAlreadyExistsException($"Field {newName} already exists");
         }
         
         // Rename field
@@ -304,11 +304,11 @@ public class Class: ICloneable
         
         if (!MethodExists(oldName))
         {
-            throw new AttributeNonexistentException(string.Format("Method {0} does not exist", oldName));
+            throw new AttributeNonexistentException($"Method {oldName} does not exist");
         }
         if (MethodExists(newName))
         {
-            throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", newName));
+            throw new AttributeAlreadyExistsException($"Method {newName} already exists");
         }
         
         // Rename field
@@ -325,10 +325,10 @@ public class Class: ICloneable
     {
         if (name is null || !Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
         {
-            throw new InvalidNameException(String.Format("{0} is an invalid class name.  " +
+            throw new InvalidNameException($"{name} is an invalid class name.  " +
                                                                 "Class name must be a single word that starts with an alphabetic " +
                                                                 "character or an underscore.  " +
-                                                                "Please Try again.", name));
+                                                                "Please Try again.");
         }
     }
 

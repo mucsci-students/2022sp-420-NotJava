@@ -175,13 +175,12 @@ public class Diagram
     {
         if (!ClassExists(className))
         {
-            throw new ClassNonexistentException(string.Format("Class {0} does not exist", className));
+            throw new ClassNonexistentException($"Class {className} does not exist");
         }
 
         if (IsClassInRelationship(className))
         {
-            throw new ClassInUseException(string.Format("Class {0} is in use by a relationship and cannot be deleted",
-                className));
+            throw new ClassInUseException($"Class {className} is in use by a relationship and cannot be deleted");
         }
         
         _classes.Remove(GetClassByName(className));
@@ -271,7 +270,7 @@ public class Diagram
     {
         if (!RelationshipExists(sourceName, destName))
         {
-            throw new RelationshipNonexistentException(string.Format("Relationship {0} -> {1} does not exist", sourceName, destName));
+            throw new RelationshipNonexistentException($"Relationship {sourceName} -> {destName} does not exist");
         }
         
         // Delete relationship
