@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
 using UMLEditor.Interfaces;
@@ -141,7 +143,64 @@ public class CommandLine
                 break;
             
             case ("add_method"):
-                //TODO 
+                // Regex nonParamList = new Regex(@"[a-z|A-Z|_]");
+                Regex nonParamList = new Regex(@"[^{\(]");
+                
+                //Checks if there are less than two arguments
+                //or if either of the first two arguments are the parameter list
+                if (arguments.Count() < 3
+                    || nonParamList.Matches((arguments[0][0]).ToString()).Count == 0
+                    || nonParamList.Matches((arguments[1][0]).ToString()).Count == 0
+                    || nonParamList.Matches((arguments[2][0]).ToString()).Count == 0)
+                {
+                    PrintColoredLine("Error: expected \"className, methodType, methodName, {(type, name) (type, name)...}\" as arguments", ERROR_COLOR);
+                    break;
+                }
+
+                //Checks if there are more than 3 arguments, is the third
+                //argument another word (when it should be a  param list)
+                if (arguments.Count() > 3 && nonParamList.Matches((arguments[3][0]).ToString()).Count == 1)
+                {
+                    PrintColoredLine("Error: expected \"className, methodType, methodName, {(type, name) (type, name)...}\" as arguments", ERROR_COLOR);
+                    break;
+                }
+
+                string className = arguments[0];
+                string methodType = arguments[1];
+                string methodName = arguments[2];
+                arguments.RemoveRange(0, 3);
+                //combines all of the arguments into one string
+                string methodList = String.Join(" ", arguments.ToArray());
+
+                //Checks if parameter list is formatted correctly
+                Regex paramListExpression = new Regex(@"{.*}");
+                MatchCollection paramListMatches = paramListExpression.Matches(methodList);
+                if (paramListMatches.Count == 0)
+                {
+                    //TODO error: expected { (type, name), (name, type) ...(name, type)}
+                    PrintColoredLine("Error: expected { (type, name) " +
+                                     "(name, type) ...(name, type)} for parameter list", ERROR_COLOR);
+                    break;
+                }
+                
+                //Regular expression per parameter
+                Regex paramExpression = new Regex(@"\(\w+,\s\w+\)");
+                MatchCollection paramMatches = paramExpression.Matches(methodList);
+
+                List<NameTypeObject> paramList = new List<NameTypeObject>();
+                foreach (Match match in paramMatches)
+                {
+                    string[] paramArray = (Regex.Replace(match.Value, @"[\(,\)]", "")).Split(' ');
+                    paramList.Add(new NameTypeObject(paramArray[0], paramArray[1]));
+                }
+                
+                // Class classToChange = _activeDiagram.GetClassByName(className);
+                // if (classToChange is null)
+                // {
+                //     throw new ClassNonexistentException($"Class{className} does not exist");
+                // }
+                //
+                // classToChange.AddMethod();
                 break;
 
             case ("delete_method"):
