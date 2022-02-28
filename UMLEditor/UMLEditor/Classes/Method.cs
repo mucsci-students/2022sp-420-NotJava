@@ -216,7 +216,7 @@ public class Method : AttributeObject, ICloneable
 
         if (!IsParamInList(oldParamName))
         {
-            throw new AggregateException($"Method {AttributeName} does not have a parameter named {oldParamName}");
+            throw new AggregateException($"Method '{AttributeName}' does not have a parameter named '{oldParamName}'");
         }
 
         NameTypeObject? targetParam = FindParamInList(oldParamName);
