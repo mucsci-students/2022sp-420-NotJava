@@ -234,6 +234,19 @@ public class Class: ICloneable
         }
 
     }
+
+    public void DeleteMethodParameter(NameTypeObject param, string onMethod)
+    {
+
+        if (!MethodExists(onMethod))
+        {
+            throw new AttributeNonexistentException($"Method {onMethod} does not exist");
+        }
+
+        Method targetMtd = GetMethodByName(onMethod)!;
+        targetMtd.RemoveParam(param);
+
+    }
     
     /// <summary>
     /// Lists the attributes within the class or a message that there are no attributes
@@ -349,7 +362,7 @@ public class Class: ICloneable
     /// <exception cref="InvalidNameException">Thrown if the name is not valid</exception>
     private void CheckValidClassName(string name)
     {
-        if (!Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
+        if (name is null || !Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
         {
             throw new InvalidNameException(String.Format("{0} is an invalid class name.  " +
                                                                 "Class name must be a single word that starts with an alphabetic " +

@@ -7,66 +7,28 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="UMLEditor.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="NotJava UMLEditor"
+        Title="UMLEditor"
         WindowStartupLocation="CenterScreen"
         >
         
-        <StackPanel Name="MainPanel" Orientation="Vertical">
+        <StackPanel>
+                
                 <DockPanel
-                        ZIndex="10"
                         Background="Gray">
                         <Menu DockPanel.Dock="Top">
                                 <MenuItem Header="_File">
                                         <MenuItem Header="_Save"
+                                                  Name="SaveDiagramButton"
                                                   Click="Save_Button_OnClick"
                                                   />
                                         <MenuItem Header="_Load"
+                                                  Name="LoadDiagramButton"
                                                   Click="LoadButton_OnClick"
                                                   />
                                 </MenuItem>
                                 <MenuItem Header="_Class">
                                         <MenuItem Header="_Add"
                                                   Click="Class_AddClass_OnClick"
-                                                  />
-                                        <MenuItem Header="_Delete"
-                                                  Click="Class_DeleteClass_OnClick"
-                                                  />
-                                        <MenuItem Header="_Rename"
-                                                  Click="Class_RenameClass_OnClick"
-                                                  />
-                                        <MenuItem Header="_List"
-                                                  Click="List_Classes_OnClick"
-                                                  />
-                                </MenuItem>
-                                <MenuItem Header="_Attributes">
-                                        <MenuItem Header="_Add Field"
-                                                  Click="Add_Field_OnClick"
-                                                  />
-                                        <MenuItem Header="_Add Method"
-                                                  Click="Add_Method_OnClick"
-                                        />
-                                        <MenuItem Header="_Delete"
-                                                  Click="Delete_Attribute_OnClick"
-                                                  />
-                                        <MenuItem Header="_Rename Field"
-                                                  Click="Rename_Field_OnClick"
-                                                  />
-                                        <MenuItem Header="_Rename Method"
-                                                  Click="Rename_Method_OnClick"
-                                        />
-                                        <MenuItem Header="_List"
-                                                  Click="List_Attributes_OnClick"
-                                                  />
-                                </MenuItem>
-                                <MenuItem Header="_Relationship">
-                                        <MenuItem Header="_Add"
-                                                  Click="AddRelationship_OnClick"
-                                                  />
-                                        <MenuItem Header="_Delete"
-                                                  Click="DeleteRelationship_OnClick"
-                                                  />
-                                        <MenuItem Header="_List"
-                                                  Click="List_Relationships_OnClick"
                                                   />
                                 </MenuItem>
                                 <MenuItem Header="Utility">
@@ -76,28 +38,12 @@
                                         <MenuItem Header="_Exit"
                                                   Click="ExitB_OnClick"
                                                   />
-                                                
                                 </MenuItem>
                         </Menu>
                 </DockPanel>
-            
-                <Canvas Name="MyCanvas" ZIndex="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                               
-                    <views:ClassBox Name="Class1"></views:ClassBox>
-                    <views:ClassBox Name="Class2" Canvas.Left="800" Canvas.Top="400"></views:ClassBox>
-                    <views:ClassBox Canvas.Left="400" Canvas.Top="200"></views:ClassBox>
-                                               
-                </Canvas>
-            
-                <!--
                 <Canvas Name="MyCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ZIndex="0">
-                                   
-                    <views:ClassBox Name="Class1"></views:ClassBox>
-                    <views:ClassBox Name="Class2" Canvas.Left="800" Canvas.Top="400"></views:ClassBox>
-                    <views:ClassBox Canvas.Left="400" Canvas.Top="200"></views:ClassBox>
-                                   
+                       
                 </Canvas>
-                -->
-            
         </StackPanel>
+        
 </Window>

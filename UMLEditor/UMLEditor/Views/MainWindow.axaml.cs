@@ -45,8 +45,8 @@ namespace UMLEditor.Views
         private readonly OpenFileDialog _openFileDialog;
         private readonly SaveFileDialog _saveFileDialog;
 
-        private Button SaveDiagramButton;
-        private Button LoadDiagramButton;
+        private MenuItem SaveDiagramButton;
+        private MenuItem LoadDiagramButton;
         
         /// <summary>
         /// Main method to create the window
@@ -66,8 +66,8 @@ namespace UMLEditor.Views
             _outputBox = this.FindControl<TextBox>("OutputBox");
             _inputBox = this.FindControl<TextBox>("InputBox");
 
-            SaveDiagramButton = this.FindControl<Button>("SaveDiagramButton");
-            LoadDiagramButton = this.FindControl<Button>("LoadDiagramButton");
+            SaveDiagramButton = this.FindControl<MenuItem>("SaveDiagramButton");
+            LoadDiagramButton = this.FindControl<MenuItem>("LoadDiagramButton");
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
 
             // Get size of StackPanel
@@ -75,18 +75,14 @@ namespace UMLEditor.Views
 
             // return;
             _canvas = this.FindControl<Canvas>("MyCanvas");
-            _canvas.Height = _mainPanel.Height;
-            _canvas.Width = _mainPanel.Width;
 
-            ClassBox c1 = this.FindControl<ClassBox>("Class1");
-            ClassBox c2 = this.FindControl<ClassBox>("Class2");
+            /*
+            ClassBox c1 = new ClassBox("c1");
+            ClassBox c2 = new ClassBox("c2");
 
-            Dispatcher.UIThread.Post(() =>
-            {
-                
-                DrawRelationship(c1, c2, "composition");                
-                
-            });
+            _canvas.Children.Add(c1);
+            _canvas.Children.Add(c2);
+            */
             
         }
         
@@ -347,37 +343,6 @@ namespace UMLEditor.Views
             });
         }
 
-        /// <summary>
-        /// Allows writing text to the output box in a thread safe manner
-        /// </summary>
-        /// <param name="text">The text to write to the output box</param>
-        /// <param name="append">If true, then text will be appended.
-        /// Otherwise, the output box's text is set to text</param>
-        private void WriteToOutput(string text, bool append = false)
-        {
-            if (append)
-            {
-
-                Dispatcher.UIThread.Post(() =>
-                {
-
-                    _outputBox.Text += text;
-
-                });
-                
-                return;
-
-            }
-            
-            Dispatcher.UIThread.Post((() =>
-            {
-
-                _outputBox.Text = text;
-
-            }));
-            
-        }
-        
         private void ExitB_OnClick(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);
@@ -513,97 +478,96 @@ namespace UMLEditor.Views
 
         private void Save_Button_OnClick(object sender, RoutedEventArgs e)
         {
-            // Disable the save diagram button to disallow opening selector multiple times
-            SaveDiagramButton.IsEnabled = false;
-            
             /* Open the file save dialog on its own thread
              * Obtain a future from this action */
             Task<string?> saveTask = _saveFileDialog.ShowAsync(this);
             saveTask.ContinueWith((Task<string?> finishedTask) =>
             {
-                // Grab the selected output file
-                string? selectedFile = finishedTask.Result;
+                
+                Dispatcher.UIThread.Post(() => { 
+                
+                    // Grab the selected output file
+                    string? selectedFile = finishedTask.Result;
 
-                // Make sure a file was selected
-                if (selectedFile != null)
-                {
-                    try
+                    // Make sure a file was selected
+                    if (selectedFile != null)
                     {
+                        try
+                        {
+                            _activeFile.SaveDiagram(ref _activeDiagram, selectedFile);
+                            RaiseAlert(
+                                "Save Successful",
+                                $"Save Successful",
+                                $"Current diagram saved to {selectedFile}",
+                                AlertIcon.INFO
+                            );
+                        }
 
-                        _activeFile.SaveDiagram(ref _activeDiagram, selectedFile);
-                        WriteToOutput(string.Format("Current diagram saved to {0}", selectedFile));
-                        ClearInputBox();
+                        catch (Exception exception)
+                        {
+                            RaiseAlert(
+                                "Save Failed",
+                                $"Save Failed",
+                                exception.Message,
+                                AlertIcon.ERROR
+                            );
+                        }
                     }
-
-                    catch (Exception exception)
-                    {
-
-                        WriteToOutput(exception.Message);
-
-                    }
-                }
-                else
-                {
-                    
-                    WriteToOutput("Diagram not saved");
-                    
-                }
-                // Regardless of the outcome, ask the UI thread to re-enable the save button
-                Dispatcher.UIThread.Post(() =>
-                {
-
-                    SaveDiagramButton.IsEnabled = true;
+                
                 });
+                
             });
         }
 
         private void LoadButton_OnClick(object sender, RoutedEventArgs e)
         {
-            // Disable the loading diagram button to disallow opening selector multiple times
-            LoadDiagramButton.IsEnabled = false;
-
             /* Open the file selection dialog on its own thread
              * Obtain a future from this action */
             Task<string[]?> loadTask = _openFileDialog.ShowAsync(this);
             loadTask.ContinueWith((Task<string[]?> taskResult) =>
             {
                 // Called when the future is resolved
-                
-                /* Get the files the user selected
-                 * This will be null if the user canceled the operation or closed the window */
-                string[]? selectedFiles = taskResult.Result;
-                bool hasSelectedFile = selectedFiles != null && selectedFiles.Length >= 1;
-
-                if (hasSelectedFile)
-                {
-                    // Pull only the first selected file (AllowMultiple should be turned off on the dialog)
-                    string chosenFile = selectedFiles![0];
-                    
-                    try
-                    {
-                        _activeDiagram = _activeFile.LoadDiagram(chosenFile);
-                        ClearInputBox();
-                        WriteToOutput(string.Format("Diagram loaded from {0}", chosenFile));
-                    }
-            
-                    catch (Exception exception)
-                    {
-
-                        WriteToOutput(exception.Message);
-
-                    }
-                }
-                else
-                {
-                    
-                    WriteToOutput("No diagram file selected");
-                    
-                }
-                // Regardless of the outcome, ask the UI thread to re-enable the load button
                 Dispatcher.UIThread.Post(() =>
                 {
-                    LoadDiagramButton.IsEnabled = true;
+                    
+                    /* Get the files the user selected
+                     * This will be null if the user canceled the operation or closed the window */
+                    string[]? selectedFiles = taskResult.Result;
+                    bool hasSelectedFile = selectedFiles != null && selectedFiles.Length >= 1;
+
+                    if (hasSelectedFile)
+                    {
+                        // Pull only the first selected file (AllowMultiple should be turned off on the dialog)
+                        string chosenFile = selectedFiles![0];
+                    
+                        try
+                        {
+                            _activeDiagram = _activeFile.LoadDiagram(chosenFile);
+                            RaiseAlert(
+                                "Load Successful",
+                                $"Load Successful",
+                                $"Diagram loaded from {chosenFile}",
+                                AlertIcon.INFO
+                            );
+                            ClearCanvas();
+                            RenderClasses(_activeDiagram.Classes);
+                        }
+            
+                        catch (Exception exception)
+                        {
+
+                            RaiseAlert(
+                                "Load Failed",
+                                $"Load Failed",
+                                exception.Message,
+                                AlertIcon.ERROR
+                            );
+
+                        }
+                    }
+                    
                 });
+                
             });
         }
 
@@ -789,6 +753,7 @@ namespace UMLEditor.Views
                             {
                                 // Attempt to create a new class with the given information.  Alert if succeeds
                                 _activeDiagram.AddClass(enteredName);
+                                RenderClasses(enteredName);
                                 RaiseAlert(
                                     "Class Added",
                                     $"Class '{enteredName}' created",
@@ -1325,19 +1290,92 @@ namespace UMLEditor.Views
         /// <param name="messageTitle">The desired message title for the raised alert</param>
         /// <param name="messageBody">The message body for the raise alert</param>
         /// <param name="alertIcon">The icon you would like present within the alert</param>
-        private void RaiseAlert(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon)
+        public void RaiseAlert(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon)
         {
             // Create and wire up a new modal dialogue to 'AlertPanel' with the parameters being a title and the visible buttons.
-            ModalDialog AlertDialog = ModalDialog.CreateDialog<AlertPanel>(windowTitle, DialogButtons.OKAY);
-            AlertPanel content = AlertDialog.GetPrompt<AlertPanel>();
+            ModalDialog alertDialog = ModalDialog.CreateDialog<AlertPanel>(windowTitle, DialogButtons.OKAY);
+            AlertPanel content = alertDialog.GetPrompt<AlertPanel>();
             
             // Fill the content, alert message, and icon depending on the situation in which the alert is being raised.
             content.AlertTitle = messageTitle;
             content.AlertMessage = messageBody;
             content.DialogIcon = alertIcon;
 
-            AlertDialog.ShowDialog(this);
+            alertDialog.ShowDialog(this);
         }
+
+        /// <summary>
+        /// Raises a yes/ no confirmation
+        /// </summary>
+        /// <param name="windowTitle">The title of the window</param>
+        /// <param name="messageTitle">The title of the message</param>
+        /// <param name="messageBody">The body of the message</param>
+        /// <param name="alertIcon">The icon to use for the alert</param>
+        /// <param name="callback">A callback function to use when the dialog is resolved</param>
+        public void RaiseConfirmation(string windowTitle, string messageTitle, string messageBody, AlertIcon alertIcon, Action<Task<DialogButtons>> callback)
+        {
+            
+            // Create and wire up a new modal dialogue to 'AlertPanel' with the parameters being a title and the visible buttons.
+            ModalDialog alertDialog = ModalDialog.CreateDialog<AlertPanel>(windowTitle, DialogButtons.YES_NO);
+            AlertPanel content = alertDialog.GetPrompt<AlertPanel>();
+            
+            // Fill the content, alert message, and icon depending on the situation in which the alert is being raised.
+            content.AlertTitle = messageTitle;
+            content.AlertMessage = messageBody;
+            content.DialogIcon = alertIcon;
+
+            alertDialog.ShowDialog<DialogButtons>(this).ContinueWith(callback);
+
+        }
+        
+        /// <summary>
+        /// Renders a list of classes, by provided name
+        /// </summary>
+        /// <param name="withName">The names of classes to be rendered.
+        /// The rendered classes will be default boxes with only the name being different.</param>
+        private void RenderClasses(params string[] withName)
+        {
+
+            foreach (string currentClassName in withName)
+            {
+                ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this);
+                _canvas.Children.Add(newClass);
+            }            
+            
+        }
+        
+        /// <summary>
+        /// Renders a list of classes
+        /// </summary>
+        /// <param name="withClasses">The list of classes to be added to the rendered area</param>
+        private void RenderClasses(List<Class> withClasses)
+        {
+
+            foreach (Class currentClass in withClasses)
+            {
+                ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this);
+                _canvas.Children.Add(newClass);;
+            }
+            
+        }
+
+        /// <summary>
+        /// Removes the provided ClassBox from the rendered area
+        /// </summary>
+        /// <param name="toUnrender">The class to remove from the rendered area</param>
+        public void UnrenderClass(ClassBox toUnrender)
+        {
+            _canvas.Children.Remove(toUnrender);
+        }
+        
+        /// <summary>
+        /// Wipes everything off of the canvas
+        /// </summary>
+        private void ClearCanvas()
+        {
+            _canvas.Children.Clear();
+        }
+
     }
     
     

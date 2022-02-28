@@ -18,7 +18,7 @@
             -->
         </Style>
         <Style Selector="Button.ControlButton">
-            <Setter Property="Padding" Value="0" />
+            <Setter Property="Padding" Value="2" />
             <Setter Property="MinHeight" Value="30" />
             <Setter Property="MaxHeight" Value="30" />
             <Setter Property="MinWidth" Value="30" />
@@ -29,25 +29,27 @@
     <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5">
         <!-- CLASS TITLE SECTION -->
         <Grid 
+            Name="TitleBar"
             RowDefinitions="*" 
             ColumnDefinitions="* * * * * * * *" 
             HorizontalAlignment="Stretch"
             Margin="0 0 0 10">
             <ScrollViewer Grid.ColumnSpan="5" HorizontalScrollBarVisibility="Auto">
                 <Label
+                    Name= "ClassNameLabel"
                     Content="className" 
                     FontStyle="Italic" 
                     FontSize="18" 
                     VerticalAlignment="Center"
                     FontWeight="Bold"/>
             </ScrollViewer>
-            <Button Grid.Column="5" Classes="ControlButton" ToolTip.Tip="Rename This Class">
+            <Button Grid.Column="5" Classes="ControlButton" Click="RenameClass_Button_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
             </Button>
-            <Button Grid.Column="6" Classes="ControlButton" ToolTip.Tip="Add A Relationship">
+            <Button Grid.Column="6" Classes="ControlButton">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/DoubleArrowButton.png"></Image>
             </Button>
-            <Button Grid.Column="7" Classes="ControlButton" ToolTip.Tip="Delete This Class">
+            <Button Grid.Column="7" Classes="ControlButton" Click="DeleteClass_Button_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
             </Button>
         </Grid>
@@ -65,7 +67,7 @@
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
             </ScrollViewer>
-            <Button Grid.Column="7" Classes="ControlButton" ToolTip.Tip="Create New Field">
+            <Button Grid.Column="7" Classes="ControlButton" Click="AddFieldButton_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>
@@ -89,7 +91,7 @@
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
             </ScrollViewer>
-            <Button Grid.Column="7" Classes="ControlButton" ToolTip.Tip="Create New Method">
+            <Button Grid.Column="7" Classes="ControlButton">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>

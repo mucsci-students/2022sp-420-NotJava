@@ -7,7 +7,7 @@
 
     <UserControl.Styles>
         <Style Selector="Button.ControlButton">
-            <Setter Property="Padding" Value="0" />
+            <Setter Property="Padding" Value="2" />
             <Setter Property="MinHeight" Value="30" />
             <Setter Property="MaxHeight" Value="30" />
             <Setter Property="MinWidth" Value="30" />
@@ -23,19 +23,20 @@
             Background="#FF6A00">
             <ScrollViewer Grid.ColumnSpan="5" HorizontalScrollBarVisibility="Auto">
                 <Label
+                    Name="MethodSignature"
                     Content="double getArea()" 
                     FontStyle="Italic"
                     FontSize="16" 
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
             </ScrollViewer>
-            <Button Grid.Column="5" Classes="ControlButton" ToolTip.Tip="Change Name Or Return Type">
+            <Button Grid.Column="5" Classes="ControlButton">
                 <Image Source="../Assets/CustomIcons/PencilButton.png"></Image>
             </Button>
-            <Button Grid.Column="6" Classes="ControlButton" ToolTip.Tip="Delete This Method">
+            <Button Grid.Column="6" Classes="ControlButton">
                 <Image Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
             </Button>
-            <Button Grid.Column="7" Classes="ControlButton" ToolTip.Tip="Add New Parameter">
+            <Button Grid.Column="7" Classes="ControlButton">
                 <Image Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>

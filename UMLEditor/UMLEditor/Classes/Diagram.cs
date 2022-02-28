@@ -1,7 +1,6 @@
 ﻿namespace UMLEditor.Classes;
 
 using UMLEditor.Utility;
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Exceptions;
@@ -109,6 +108,9 @@ public class Diagram
     /// <returns>Returns the class if exists, or null if it does not</returns>
     public Class? GetClassByName(string name)
     {
+        
+        // TODO: GetClassByName should be made private
+        
         foreach (Class currentClass in _classes)
         {
             if (currentClass.ClassName == name)
@@ -340,4 +342,62 @@ public class Diagram
 
     }
 
+    /// <summary>
+    /// Adds a field to a class in the diagram
+    /// </summary>
+    /// <param name="toClass">The target class to add the field to</param>
+    /// <param name="withType">The type of the field to add</param>
+    /// <param name="withName">The name of the field to add</param>
+    /// <exception cref="ClassNonexistentException">If the provided class does not exist</exception>
+    public void AddField(string toClass, string withType, string withName)
+    {
+
+        if (!ClassExists(toClass))
+        {
+            throw new ClassNonexistentException($"Class '{toClass}' does not exist");
+        }
+
+        Class targetClass = GetClassByName(toClass)!;
+        targetClass!.AddField(withType, withName);
+
+    }
+
+    /// <summary>
+    /// Deletes a field from a class in the diagram
+    /// </summary>
+    /// <param name="fromClass">The target class to remove the field from</param>
+    /// <param name="withName">The name of the field to remove</param>
+    /// <exception cref="ClassNonexistentException">If the provided class does not exist</exception>
+    public void RemoveField(string fromClass, string withName)
+    {
+
+        if (!ClassExists(fromClass))
+        {
+            throw new ClassNonexistentException($"Class '{fromClass}' does not exist");
+        }
+
+        Class targetClass = GetClassByName(fromClass)!;
+        targetClass!.DeleteField(withName);
+
+    }
+
+    /// <summary>
+    /// Deletes a parameter from a provided method on a provided class
+    /// </summary>
+    /// <param name="paramName">The parameter to delete</param>
+    /// <param name="inMethod">The method to delete from</param>
+    /// <param name="onClass">The class to delete from</param>
+    public void RemoveParameter(NameTypeObject param, string inMethod, string onClass)
+    {
+
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist"); 
+        }
+
+        Class targetClass = GetClassByName(onClass)!;
+        targetClass!.DeleteMethodParameter(param, inMethod);
+
+    }
+    
 }
