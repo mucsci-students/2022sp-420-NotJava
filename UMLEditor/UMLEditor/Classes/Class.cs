@@ -235,6 +235,12 @@ public class Class: ICloneable
 
     }
 
+    /// <summary>
+    /// Deletes a parameter on the provided method
+    /// </summary>
+    /// <param name="param">The parameter to remove</param>
+    /// <param name="onMethod">The target method the parameter is a part of</param>
+    /// <exception cref="AttributeNonexistentException">If the provided method does not exist</exception>
     public void DeleteMethodParameter(NameTypeObject param, string onMethod)
     {
 
@@ -355,6 +361,25 @@ public class Class: ICloneable
         
     }
 
+    /// <summary>
+    /// Renames a parameter on the provided method
+    /// </summary>
+    /// <param name="onMethod">The method the parameter is on</param>
+    /// <param name="oldParamName">The current (old) name of the parameter</param>
+    /// <param name="newParamName">The new name for the parameter</param>
+    public void RenameParameter(string onMethod, string oldParamName, string newParamName)
+    {
+
+        if (!MethodExists(onMethod))
+        {
+            throw new AttributeNonexistentException($"Method {onMethod} does not exist");
+        }
+
+        Method? targetMtd = GetMethodByName(onMethod);
+        targetMtd!.RenameParam(oldParamName, newParamName);
+
+    }
+    
     /// <summary>
     /// Checks if a given class name is valid.  Throws an exception if not
     /// </summary>

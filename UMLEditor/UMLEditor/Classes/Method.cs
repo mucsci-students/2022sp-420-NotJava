@@ -82,7 +82,7 @@ public class Method : AttributeObject, ICloneable
 
     /// <summary>
     /// Locates the provided parameter contained in this method
-    /// and returns the reference to the paramter in the list 
+    /// and returns the reference to the parameter in the list 
     /// </summary>
     /// <param name="param">The parameter to locate</param>
     /// <returns>The reference of the parameter in the list, if it exists at all</returns>
@@ -97,6 +97,23 @@ public class Method : AttributeObject, ICloneable
         }
         return null;
     }
+
+    /// <summary>
+    /// Locates the provided parameter in this method and returns the reference to the parameter in the list 
+    /// </summary>
+    /// <param name="paramName">The name of the parameter to search for</param>
+    /// <returns>The reference of the parameter in the list, if it exists at all</returns>
+    public NameTypeObject? FindParamInList(string paramName)
+    {
+        foreach (NameTypeObject p in _parameters)
+        {
+            if (p.AttributeName == paramName)
+            {
+                return p;
+            }
+        }
+        return null;
+    }
     
     /// <summary>
     /// Checks if given parameter is in the current parameter list using name
@@ -105,14 +122,7 @@ public class Method : AttributeObject, ICloneable
     /// <returns>True if the given parameter is in the list, false otherwise</returns>
     public bool IsParamInList(string paramName)
     {
-        foreach (NameTypeObject p in _parameters)
-        {
-            if (p.AttributeName == paramName)
-            {
-                return true;
-            }
-        }
-        return false;
+        return FindParamInList(paramName) is not null;
     }
 
     /// <summary>
@@ -196,6 +206,24 @@ public class Method : AttributeObject, ICloneable
         _parameters[_parameters.IndexOf(oldParam)] = newParam;
     }
 
+    /// <summary>
+    /// Changes the name on the provided parameter
+    /// </summary>
+    /// <param name="oldParamName">The current (old) parameter name</param>
+    /// <param name="newParamName">The new name for the parameter</param>
+    public void RenameParam(string oldParamName, string newParamName)
+    {
+
+        if (!IsParamInList(oldParamName))
+        {
+            throw new AggregateException($"Method {AttributeName} does not have a parameter named {oldParamName}");
+        }
+
+        NameTypeObject? targetParam = FindParamInList(oldParamName);
+        targetParam!.AttRename(newParamName);
+
+    }
+    
     /// <summary>
     /// Changes existing parameter list to the provided one
     /// </summary>
