@@ -7,13 +7,13 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="UMLEditor.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="UMLEditor"
+        Title="NotJava UMLEditor"
         WindowStartupLocation="CenterScreen"
         >
         
-        <StackPanel>
-                
+        <StackPanel Name="MainPanel" Orientation="Vertical">
                 <DockPanel
+                        ZIndex="10"
                         Background="Gray">
                         <Menu DockPanel.Dock="Top">
                                 <MenuItem Header="_File">
@@ -80,149 +80,24 @@
                                 </MenuItem>
                         </Menu>
                 </DockPanel>
-                
-                <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" 
-                      ColumnDefinitions="Auto,Auto,*" 
-                      Margin="5, 70" 
-                      Width="750">
-                
-                        <Grid.Styles>
-                                <Style Selector="Button">
-                                        <Setter Property="Margin" Value="3"/>
-                                </Style>
-                        </Grid.Styles>
-      
-                        <TextBox Name = "InputBox"
-                                 Grid.Row="1" 
-                                 Grid.Column="2" 
-                                 Grid.RowSpan="1" 
-                                 Margin="20,5,0,0"
-                                 Watermark="Input Goes Here"
-                                 Text=""
-                                 />
-                        
-                        <ScrollViewer Grid.Row="2" 
-                                        Grid.Column="2" 
-                                        Grid.RowSpan="5"
-                                        HorizontalScrollBarVisibility="Disabled"
-                                        Height="175">
-                                
-                                <TextBox Name = "OutputBox"
-                                         Margin="20,0,0,0"
-                                         Watermark="Output Goes Here"
-                                         IsEnabled="False"
-                                         TextWrapping="Wrap"
-                                         Text=""
-                                />
-                                
-                        </ScrollViewer>
-                
-                        <Button Grid.Row="1" 
-                                Grid.Column="0" 
-                                Click="Class_AddClass_OnClick"
-                                Width="150"
-                                Content="Add Class"/>
-                
-                        <Button Grid.Row="2" 
-                                Grid.Column="0" 
-                                Click="Class_DeleteClass_OnClick"
-                                Width="150"
-                                Content="Delete Class"/>
-                
-                        <Button Grid.Row="3" 
-                                Grid.Column="0" 
-                                Click="Class_RenameClass_OnClick"
-                                Width="150"
-                                Content="Rename Class"/>
-                
-                        <Button Grid.Row="3" 
-                                Grid.Column="1" 
-                                Width="150"
-                                Content="Rename Attribute"/>
-                
-                        <Button Grid.Row="6" 
-                                Grid.Column="0"
-                                Click="List_Relationships_OnClick"
-                                Width="150"
-                                Content="List Relationships"/>
-                
-                        <Button Grid.Row="5" 
-                                Grid.Column="1"
-                                Click="DeleteRelationship_OnClick"
-                                Width="150"
-                                Content="Delete Relationship"/>
-    
-                        <Button Grid.Row="5" 
-                                Grid.Column="0" 
-                                Click="AddRelationship_OnClick"
-                                Width="150"
-                                Content="Add Relationship"/>
-
-                        <Button Grid.Row="2" 
-                                Grid.Column="1" 
-                                Click="Delete_Attribute_OnClick"
-                                Width="150"
-                                Content="Delete Attribute"/>
-    
-                        <Button Grid.Row="1" 
-                                Grid.Column="1" 
-                                Width="150"
-                                Content="Add Attribute"/>
-    
-                        <Button Grid.Row="4" 
-                                Grid.Column="0" 
-                                Content="List Classes"
-                                Width="150"
-                                Click="List_Classes_OnClick"/>
-                
-                        <Button Grid.Row="4"
-                                Grid.Column="1" 
-                                Content="List Attributes"
-                                Width="150"
-                                Click="List_Attributes_OnClick"/>
-                                
-                </Grid>
-                
-                <Grid RowDefinitions="Auto, Auto, Auto, Auto" 
-                      HorizontalAlignment="Center"
-                      ColumnDefinitions="Auto,Auto,*" 
-                      Margin="25" 
-                      Width="750">
-                
-                        <Grid.Styles>
-                                <Style Selector="Button">
-                                        <Setter Property="Margin" Value="3"/>
-                                </Style>
-                         </Grid.Styles> 
-                        
-                        <Button Grid.Row="0" 
-                                Grid.Column="0" 
-                                Width="375"
-                                Click="HelpB_OnClick"
-                                Content="Help"/>
-                        
-                        <Button Grid.Row="0" 
-                                Grid.Column="1" 
-                                Width="375"
-                                Click="ExitB_OnClick"
-                                Content="Exit"/>
-                        
-                        <Button Name="SaveDiagramButton"
-                                Grid.Row="1" 
-                                Grid.Column="0" 
-                                Width="375"
-                                Click="Save_Button_OnClick"
-                                Content="Save Diagram"/>
-                        
-                        <Button Name="LoadDiagramButton"
-                                Grid.Row="1" 
-                                Grid.Column="1" 
-                                Width="375"
-                                Click="LoadButton_OnClick"
-                                Content="Load Diagram"/>
-                                
-                </Grid>
-                
+            
+                <Canvas Name="MyCanvas" ZIndex="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                               
+                    <views:ClassBox Name="Class1"></views:ClassBox>
+                    <views:ClassBox Name="Class2" Canvas.Left="800" Canvas.Top="400"></views:ClassBox>
+                    <views:ClassBox Canvas.Left="400" Canvas.Top="200"></views:ClassBox>
+                                               
+                </Canvas>
+            
+                <!--
+                <Canvas Name="MyCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ZIndex="0">
+                                   
+                    <views:ClassBox Name="Class1"></views:ClassBox>
+                    <views:ClassBox Name="Class2" Canvas.Left="800" Canvas.Top="400"></views:ClassBox>
+                    <views:ClassBox Canvas.Left="400" Canvas.Top="200"></views:ClassBox>
+                                   
+                </Canvas>
+                -->
+            
         </StackPanel>
-        
 </Window>

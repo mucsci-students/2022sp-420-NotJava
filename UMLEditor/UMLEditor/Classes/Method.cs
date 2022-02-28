@@ -14,6 +14,7 @@ public class Method : AttributeObject, ICloneable
 
     // Public accessor for Parameters
     // Creates copies to ensure data integrity
+    [JsonIgnore]
     public List<NameTypeObject> Parameters
     {
         get => Utilities.CloneContainer(_parameters);
@@ -43,11 +44,23 @@ public class Method : AttributeObject, ICloneable
     {
         
         CheckValidAttributeName(withName);
+        CheckValidAttributeName(returnType);
         AttributeName = withName;
         ReturnType = returnType; 
 
     }
-
+    
+    /// <summary>
+    /// Constructs a new method with the provided name, type, and a list of parameters.
+    /// </summary>
+    /// <param name="returnType"></param>
+    /// <param name="withName"></param>
+    /// <param name="parameters"></param>
+    public Method(string returnType, string withName, List<NameTypeObject> parameters) : this(returnType, withName)
+    {
+        _parameters = parameters;
+    }
+    
     /// <summary>
     /// Copy constructor
     /// </summary>

@@ -1,14 +1,31 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IO;
+using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using Avalonia.Media;
+using Avalonia.Diagnostics;
+using Avalonia.Layout;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Rendering;
+using Avalonia.Styling;
+using Avalonia.VisualTree;
+using Microsoft.CodeAnalysis.Scripting.Hosting;
 using ReactiveUI;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
 using UMLEditor.Interfaces;
+using Path = System.IO.Path;
+
+using System.Threading;
 
 namespace UMLEditor.Views
 {
@@ -20,6 +37,9 @@ namespace UMLEditor.Views
         private readonly TextBox _outputBox;
         private readonly TextBox _inputBox;
 
+        private readonly StackPanel _mainPanel;
+        private readonly Canvas _canvas;
+
         private IDiagramFile _activeFile;
 
         private readonly OpenFileDialog _openFileDialog;
@@ -28,9 +48,17 @@ namespace UMLEditor.Views
         private Button SaveDiagramButton;
         private Button LoadDiagramButton;
         
+        /// <summary>
+        /// Main method to create the window
+        /// </summary>
         public MainWindow()
         {
+            
             InitializeComponent();
+
+#if DEBUG
+            this.AttachDevTools();   
+#endif
             
             _activeDiagram = new Diagram();
             _activeFile = new JSONDiagramFile();
@@ -41,11 +69,230 @@ namespace UMLEditor.Views
             SaveDiagramButton = this.FindControl<Button>("SaveDiagramButton");
             LoadDiagramButton = this.FindControl<Button>("LoadDiagramButton");
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
-        }
 
+            // Get size of StackPanel
+            _mainPanel = this.FindControl<StackPanel>("MainPanel");
+
+            // return;
+            _canvas = this.FindControl<Canvas>("MyCanvas");
+            _canvas.Height = _mainPanel.Height;
+            _canvas.Width = _mainPanel.Width;
+
+            ClassBox c1 = this.FindControl<ClassBox>("Class1");
+            ClassBox c2 = this.FindControl<ClassBox>("Class2");
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                
+                DrawRelationship(c1, c2, "composition");                
+                
+            });
+            
+        }
+        
+        /// <summary>
+        /// Initialize the program with the xaml specifications
+        /// </summary>
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        private const double SymbolWidth = 15;
+        private const double SymbolHeight = 10;
+        /// <summary>
+        /// Draws the relationship arrow between two classes
+        /// </summary>
+        /// <param name="startCtrl">The source class to start drawing from</param>
+        /// <param name="endCtrl">The destination class to draw to</param>
+        /// <param name="relationshipType">The type of relationship to draw</param>
+        private void DrawRelationship(Control startCtrl, Control endCtrl, string relationshipType)
+        {
+            // Calculate lengths of controls
+            double startHalfWidth = startCtrl.Bounds.Width / 2;
+            double startHalfHeight = startCtrl.Bounds.Height / 2;
+            double endHalfWidth = endCtrl.Bounds.Width / 2;
+            double endHalfHeight = endCtrl.Bounds.Height / 2;
+            // Initialize points to middle of controls
+            Point start = new Point(
+                startCtrl.Bounds.X + startHalfWidth,
+                startCtrl.Bounds.Y + startHalfHeight);
+            Point end = new Point(
+                endCtrl.Bounds.X + endHalfWidth,
+                endCtrl.Bounds.Y + endHalfHeight);
+
+            // Set points to draw lines
+            Point midStart;
+            Point midEnd;
+            List<Point> diamondPoints;
+            List<Point> trianglePoints;
+            if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
+            {
+                // Arrow is horizontal
+                midStart = new Point(Math.Abs(start.X + end.X) / 2, start.Y);
+                midEnd = new Point(Math.Abs(start.X + end.X) / 2, end.Y);
+                if (start.X < end.X)
+                {
+                    // Goes from left to right
+                    start = new Point(start.X + startHalfWidth, start.Y);
+                    end = new Point(end.X - endHalfWidth - (2 * SymbolWidth), end.Y);
+                    diamondPoints = new List<Point> { 
+                        end,
+                        new(end.X + SymbolWidth,end.Y - SymbolHeight),
+                        new(end.X + (2 * SymbolWidth),end.Y),
+                        new(end.X + SymbolWidth,end.Y + SymbolHeight),
+                        end };
+                    trianglePoints = new List<Point> { 
+                        new(end.X,end.Y - SymbolHeight),
+                        new(end.X + (2 * SymbolWidth),end.Y),
+                        new(end.X,end.Y + SymbolHeight),
+                        new(end.X,end.Y - SymbolHeight)
+                    };
+                }
+                else
+                {
+                    // Goes from right to left
+                    start = new Point(start.X - startHalfWidth, start.Y);
+                    end = new Point(end.X + endHalfWidth + (2 * SymbolWidth), end.Y);
+                    diamondPoints = new List<Point> { 
+                        end,
+                        new(end.X - SymbolWidth,end.Y - SymbolHeight),
+                        new(end.X - (2 * SymbolWidth),end.Y),
+                        new(end.X - SymbolWidth,end.Y + SymbolHeight),
+                        end };
+                    trianglePoints = new List<Point> { 
+                        new(end.X,end.Y - SymbolHeight),
+                        new(end.X - (2 * SymbolWidth),end.Y),
+                        new(end.X,end.Y + SymbolHeight),
+                        new(end.X,end.Y - SymbolHeight)
+                    };
+                }
+            }
+            else
+            {
+                // Arrow is vertical
+                midStart = new Point(start.X, Math.Abs(start.Y + end.Y) / 2);
+                midEnd = new Point(end.X, Math.Abs(start.Y + end.Y) / 2);
+                if (start.Y < end.Y)
+                {
+                    // Goes top to bottom
+                    start = new Point(start.X, start.Y + startHalfHeight);
+                    end = new Point(end.X, end.Y - endHalfHeight - (2 * SymbolWidth));
+                    diamondPoints = new List<Point> { 
+                        end,
+                        new(end.X + SymbolHeight,end.Y + SymbolWidth),
+                        new(end.X,end.Y + (2 * SymbolWidth)),
+                        new(end.X - SymbolHeight,end.Y + SymbolWidth),
+                        end };
+                    trianglePoints = new List<Point> { 
+                        new(end.X + SymbolHeight,end.Y),
+                        new(end.X,end.Y + (2 * SymbolWidth)),
+                        new(end.X - SymbolHeight,end.Y),
+                        new(end.X + SymbolHeight,end.Y)
+                    };
+                }
+                else
+                {
+                    // Goes bottom to top
+                    start = new Point(start.X, start.Y - startHalfHeight);
+                    end = new Point(end.X, end.Y + endHalfHeight + (2 * SymbolWidth));
+                    diamondPoints = new List<Point> { 
+                        end,
+                        new(end.X + SymbolHeight,end.Y - SymbolWidth),
+                        new(end.X,end.Y - (2 * SymbolWidth)),
+                        new(end.X - SymbolHeight,end.Y - SymbolWidth),
+                        end };
+                    trianglePoints = new List<Point> { 
+                        new(end.X + SymbolHeight,end.Y),
+                        new(end.X,end.Y - (2 * SymbolWidth)),
+                        new(end.X - SymbolHeight,end.Y),
+                        new(end.X + SymbolHeight,end.Y)
+                    };
+                }
+            }
+            Line line1 = GetLine(start,midStart);
+            Line line2 = GetLine(midStart, midEnd);
+            Line line3 = GetLine(midEnd, end);
+            
+            // Add lines to the canvas
+            _canvas.Children.Add(line1);
+            _canvas.Children.Add(line2);
+            _canvas.Children.Add(line3);
+
+            // Draw the relationship symbol based on provided type
+            switch (relationshipType)
+            {
+                case "aggregation":
+                    _canvas.Children.Add(GetSymbol(diamondPoints));
+                    break;
+                case "composition":
+                    Polyline polyline = GetSymbol(diamondPoints);
+                    polyline.Fill = Brushes.White;
+                    _canvas.Children.Add(polyline);
+                    break;
+                case "inheritance": 
+                    _canvas.Children.Add(GetSymbol(trianglePoints));
+                    break;
+                case "realization": 
+                    line1.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    line2.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    line3.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    _canvas.Children.Add(GetSymbol(trianglePoints));
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Draws the relationship symbol from the given list of points
+        /// </summary>
+        /// <param name="points">A list of points for the vertices to draw</param>
+        /// <returns>The new relationship symbol</returns>
+        private Polyline GetSymbol(List<Point> points)
+        {
+            Polyline polyline = new Polyline();
+            polyline.Name = "Polyline";
+            polyline.Points = points;
+            polyline.Stroke = Brushes.White;
+            polyline.StrokeThickness = 2;
+            return polyline;
+        }
+
+        /// <summary>
+        /// Creates a line from the given start to end points
+        /// </summary>
+        /// <param name="lineStart">Point to start at</param>
+        /// <param name="lineEnd">Point to end at</param>
+        /// <returns>The new line</returns>
+        private Line GetLine(Point lineStart, Point lineEnd)
+        {
+            Line l = new Line();
+            l.Name = "Line";
+            l.StartPoint = lineStart;
+            l.EndPoint = lineEnd;
+            l.Stroke = Brushes.White;
+            l.StrokeThickness = 2;
+            l.ZIndex = 10;
+            return l;
+        }
+
+        /// <summary>
+        /// Removes all drawn lines from the canvas
+        /// </summary>
+        private void ClearLines()
+        {
+            List<IControl> children = new List<IControl>();
+            foreach (IControl child in _canvas.Children)
+            {
+                children.Add(child);
+            }
+
+            foreach (IControl child in children)
+            {
+                if (child.Name == "Line" || child.Name == "Polyline")
+                {
+                    _canvas.Children.Remove(child);
+                }
+            }
         }
 
         /// <summary>
@@ -169,19 +416,6 @@ namespace UMLEditor.Views
                 _inputBox.Focus();
                 return;
             }
-            
-            // Commented out because the GUI will be reworked
-            /*Class currentClass = _activeDiagram.GetClassByName(words[0]);
-            
-
-            // Warn user if the requested class does not exist
-            if (currentClass == null)
-            {
-                _outputBox.Text = "Nonexistent class entered";
-                _inputBox.Focus();
-                return;
-            }
-            _outputBox.Text = currentClass.ListAttributes();*/
         }
         
         private void List_Relationships_OnClick(object sender, RoutedEventArgs e)
@@ -508,35 +742,6 @@ namespace UMLEditor.Views
             
             string targetClassName = words[0];
             string targetAttributeName = words[1];
-
-            // Commented out because gui will be reworked
-            // Create CurrentClass for use in reaching its attributes
-            /*Class currentClass = _activeDiagram.GetClassByName(targetClassName);
-
-            // If the TargetClass does not exist throw an error
-            if (currentClass == null)
-            {
-                _outputBox.Text = "Nonexistent class entered";
-                _inputBox.Focus();
-                return;
-            }
-
-            try
-            {
-                
-                //currentClass.DeleteAttribute(targetAttributeName);
-
-            }
-            
-            // Check if the attribute doesn't exist.
-            catch (AttributeNonexistentException exception)
-            {
-
-                _outputBox.Text = exception.Message;
-                _inputBox.Focus();
-                return;
-
-            }*/
             
             ClearInputBox();
             _outputBox.Text = string.Format("Attribute Deleted ({0} => {1})", targetClassName, targetAttributeName);
@@ -638,31 +843,6 @@ namespace UMLEditor.Views
             }
             
             string targetClassName = words[0];
-
-            // Commented out because gui will be reworked
-            // Create CurrentClass for use in reaching its attributes
-            /*Class currentClass = _activeDiagram.GetClassByName(targetClassName);
-
-            // If the TargetClass does not exist throw an error
-            if (currentClass == null)
-            {
-                _outputBox.Text = "Nonexistent class entered";
-                _inputBox.Focus();
-                return;
-            }
-
-            try
-            {
-                _activeDiagram.DeleteClass(words[0]);
-            }
-
-            catch (Exception exception)
-
-            {
-                _outputBox.Text = exception.Message;
-                _inputBox.Focus();
-                return;
-            }*/
 
             ClearInputBox();
             _outputBox.Text = string.Format("Class Deleted {0}", words[0]);
@@ -788,9 +968,10 @@ namespace UMLEditor.Views
             
             try
             {
-                
-                _activeDiagram.DeleteRelationship(sourceClassName, destClassName);
-                
+
+                throw new NotImplementedException("Delete relationship needs to be refactored");
+                // _activeDiagram.DeleteRelationship(sourceClassName, destClassName);
+
             }
             
             catch (RelationshipNonexistentException exception)
