@@ -42,7 +42,13 @@ public class CommandLine
         //TODO The following is a good way to handle input for basic commands.  For commands that can have variable input, a different method, such as regular expressions, should be utilized for reading commandline input
         
         //TODO if we want to seperate the view and the controller, put this function in a controller class and have it return a struct that contains a string message and a console color.
-         
+
+        // In the case no input was provided, do nothing
+        if (input.Length == 0)
+        {
+            return;
+        }
+
         List<string> words = (input.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)).ToList();
         string command = words[0].ToLower();
         List<string> arguments = words.Skip(1).ToList();
@@ -94,7 +100,7 @@ public class CommandLine
                 else
                 {
                     PrintColoredLine("To rename a Class, please enter \"rename_class\" " +
-                                     "followed by a class NewName and class OldName into the console and then press enter.", ERROR_COLOR);
+                                     "followed by the class to rename and then the new name.", ERROR_COLOR);
                 }
                 break;
 
@@ -144,82 +150,57 @@ public class CommandLine
                 break;
             
             case ("add_method"):
-                //Regular expression for a character that is not the beginning of a parameter list.
-                Regex nonParamList = new Regex(@"[^{\s*\(]");
-                
-                //Checks if there are less than two arguments
-                //or if either of the first two arguments are the parameter list
-                if (arguments.Count() < 3
-                    || nonParamList.Matches((arguments[0][0]).ToString()).Count == 0
-                    || nonParamList.Matches((arguments[1][0]).ToString()).Count == 0
-                    || nonParamList.Matches((arguments[2][0]).ToString()).Count == 0)
-                {
-                    PrintColoredLine("Error: expected \"className, methodType, methodName, {(type, name) (type, name)...}\" " +
-                                     "or \"className, methodType, methodName\" as arguments", ERROR_COLOR);
-                    break;
-                }
-                
-                //Grab necessary information from arguments
-                string className = arguments[0];
-                string methodType = arguments[1];
-                string methodName = arguments[2];
 
-                //Checks if there are more than 3 arguments, is the third
-                //argument another word (when it should be a  param list)
-                if (arguments.Count() > 3 && nonParamList.Matches((arguments[3][0]).ToString()).Count == 1)
+                string syntaxError = "Expected syntax: targetClass returnType methodName *optional parameter list in the form <paramType> <paramName>*\n" +
+                                     "Examples:\n\tadd_method A int B\n\tadd_method A int B int x int y";
+                
+                /* Valid syntax:
+                 * add_method <targetClass> <returnType> <methodName> OR
+                 * add_method <targetClass> <returnType> <methodName> <parameter list (optional)> OR */
+                string[] enteredTokens = input.Split("".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                if (enteredTokens.Length >= 4)
                 {
-                    PrintColoredLine("Error: expected \"className, methodType, methodName, {(type, name) (type, name)...}\" as arguments", ERROR_COLOR);
-                    break;
+                    
+                    /* Ensure an even number of words follows
+                     * Valid parameter specification should be in the format of <type> <name> */
+                    int remainingWords = enteredTokens.Length - 4;
+
+                    if (remainingWords % 2 != 0)
+                    {
+                        
+                        // Syntax error
+                        PrintColoredLine(syntaxError, ERROR_COLOR);
+                        return;
+
+                    }
+
+                    List<NameTypeObject> parameters = new List<NameTypeObject>();
+                    for (int i = 4; i < enteredTokens.Length; i += 2)
+                    {
+                        
+                        // Parse out the entered parameters 
+                        string paramType = enteredTokens[i];
+                        string paramName = enteredTokens[i + 1];
+                        
+                        parameters.Add(new NameTypeObject(paramType, paramName));
+
+                    }
+
+                    string targetClass = enteredTokens[1];
+                    string returnType  = enteredTokens[2];
+                    string methodName  = enteredTokens[3];
+                    
+                    _activeDiagram.AddMethod(targetClass, returnType, methodName, parameters);
+                    PrintColoredLine("Method created", SUCCESS_COLOR);
+
                 }
 
-                if (arguments.Count() == 3)
+                else
                 {
-                    _activeDiagram!.AddMethod(className, methodType, methodName);
-                    break;
-                }
-
-                //Remove everything except for potential parameter list
-                arguments.RemoveRange(0, 3);
-                
-                //combines all of the potential parameters into one string
-                string methodList = String.Join(" ", arguments.ToArray());
-
-                //Checks if parameter list is formatted correctly
-                Regex paramListExpression = new Regex(@"{.*}");
-                MatchCollection paramListMatches = paramListExpression.Matches(methodList);
-                if (paramListMatches.Count == 0)
-                {
-                    PrintColoredLine("Error: expected { (type, name) " +
-                                     "(name, type) ...(name, type)} for parameter list", ERROR_COLOR);
-                    break;
+                    // Syntax error
+                    PrintColoredLine(syntaxError, ERROR_COLOR);
                 }
                 
-                //Regular expression per parameter (paramter consists of "(word, word)"
-                Regex paramExpression = new Regex(@"\(\w+,\s\w+\)");
-                MatchCollection paramMatches = paramExpression.Matches(methodList);
-
-                //Add each parameter into a paramList
-                List<NameTypeObject> paramList = new List<NameTypeObject>();
-                
-                //ensures that the layout of the parameter list is correct (checks that there is two strings per parameter,
-                //and that there is not just a single space or no words
-                //(the contains "" check is for a word that contains only spaces (a word of only spaces splits to a bunch of "")
-                if ((Regex.Replace(methodList, @"[{}\(\)]", "").Split(' ')).Length % 2 != 0 
-                    || ((Regex.Replace(methodList, @"[{}\(\)]", "").Split(' ')).ToList().Contains(""))
-                    || Regex.Replace(methodList, @"[{}\(\)]", "").Length == 1
-                    || Regex.Replace(methodList, @"[{}\(\)]", "").Length == 0)
-                {
-                    PrintColoredLine("Error: expected { (type, name) " +
-                                     "(name, type) ...(name, type)} for parameter list", ERROR_COLOR);
-                    break;
-                }
-                foreach (Match match in paramMatches)
-                {
-                    string[] paramArray = (Regex.Replace(match.Value, @"[\(,\)]", "")).Split(' ');
-                    paramList.Add(new NameTypeObject(paramArray[0], paramArray[1]));
-                }
-                
-                _activeDiagram!.AddMethod(className, methodType, methodName, paramList);
                 break;
 
             case ("delete_method"):
@@ -260,9 +241,9 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("To rename an existing Field, please enter \"rename_typeNameObject\" " +
-                                     "followed by a class name, field oldName, and newName,  into " +
-                                     "the console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("To rename an existing field, please enter \"rename_field\" " +
+                                     "followed by a class name, the name of the field to change, and a new name for the field" +
+                                     " and then press enter.", ERROR_COLOR);
                 }    
                 
                 break;
@@ -283,9 +264,9 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("To rename an existing Method, please enter \"rename_method\" " +
-                                     "followed by a class name, method oldName, and method newName into " +
-                                     "the console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("To rename an existing method, please enter \"rename_method\" " +
+                                     "followed by a class name, the name of the method to change, and " +
+                                     "a new name for the method and then press enter.", ERROR_COLOR);
                 }    
 
                 break;
@@ -298,7 +279,7 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("Invalid command: list relationship does not take any arguments", ERROR_COLOR);
+                    PrintColoredLine("Invalid command: list classes does not take any arguments", ERROR_COLOR);
                 }    
 
                 break;
@@ -370,25 +351,34 @@ public class CommandLine
 
                 else
                 {
+                    string validRelationshipTypes = "";
+                    foreach (string type in Relationship.ValidTypes)
+                    {
+                        validRelationshipTypes += $"{type} ";
+                    }
+
+                    // Cut off the space from the last type
+                    validRelationshipTypes = validRelationshipTypes.Substring(0, validRelationshipTypes.Length - 1);
+                    
                     PrintColoredLine("To create a new Relationship, please enter \"add_relationship\" " +
-                                     "followed by a two class names and the type relationship"+
-                                     "into the console and then press enter.", ERROR_COLOR);
+                                     "followed by a source class, a destination class, " +
+                                     $"and then the relationship type ({validRelationshipTypes}).", ERROR_COLOR);
                 } 
                 break;
 
             case ("delete_relationship"):
-                if (arguments.Count == 2)
+                if (arguments.Count == 3)
                 {
                     // Try to add relationship with the first provided word as its name
-                    _activeDiagram!.DeleteRelationship(arguments[0], arguments[1]);
+                    _activeDiagram!.DeleteRelationship(arguments[0], arguments[1], arguments[2]);
 
-                    PrintColoredLine($"Relationship {arguments[0]} => {arguments[1]} deleted", SUCCESS_COLOR);
+                    PrintColoredLine($"Relationship {arguments[2]} {arguments[0]} => {arguments[1]} deleted", SUCCESS_COLOR);
                 }
 
                 else
                 {
                     PrintColoredLine("To delete an existing Relationship, please enter \"delete_relationship\" " +
-                                     "followed by a two class names into the console and then press enter.", ERROR_COLOR);
+                                     "followed by the source class, destination class, and relationship type then press enter.", ERROR_COLOR);
                 } 
                 break;
 
@@ -401,7 +391,7 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("Invalid command: list relationship does not take any arguments", ERROR_COLOR);
+                    PrintColoredLine("Invalid command: list relationships does not take any arguments", ERROR_COLOR);
                 } 
                 break;
 
@@ -417,9 +407,12 @@ public class CommandLine
                                  "\nrename_class: Rename an existing class" +
                                  "\nadd_relationship: Add a relationship between classes" +
                                  "\ndelete_relationship: Delete an existing relationship" +
-                                 "\nadd_attribute: Add an attribute to an existing Class" +
-                                 "\ndelete_attribute: Delete an existing class attribute" +
-                                 "\nrename_attribute: Rename an existing attribute" +
+                                 "\nadd_field: Add a field to an existing Class" +
+                                 "\nadd_method: Add a method to an existing Class" +
+                                 "\ndelete_field: Delete an existing field from a class" +
+                                 "\ndelete_method: Delete an existing method from a class" +
+                                 "\nrename_field: Rename an existing field on a class" +
+                                 "\nrename_method: Rename an existing method on a class" +
                                  "\nsave_diagram: Save your progress" +
                                  "\nload_diagram: Load a previously saved diagram" +
                                  "\nlist_classes: List all existing classes" +

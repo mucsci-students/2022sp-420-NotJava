@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Classes;
+﻿using System.Data;
+
+namespace UMLEditor.Classes;
 
 using UMLEditor.Utility;
 using System;
@@ -16,6 +18,7 @@ public class Class: ICloneable
     
     // Public accessor for Fields
     // Creates copies to ensure data integrity
+    [JsonIgnore]
     public List<NameTypeObject> Fields
     {
         get => Utilities.CloneContainer(_fields);
@@ -26,6 +29,7 @@ public class Class: ICloneable
     
     // Public accessor for Methods
     // Creates copies to ensure data integrity
+    [JsonIgnore]
     public List<Method> Methods
     {
         get => Utilities.CloneContainer(_methods);
@@ -86,10 +90,12 @@ public class Class: ICloneable
     /// <param name="name">Valid name of new method</param>
     public void AddMethod(string returnType, string name)
     {
+        
         if (MethodExists(name))
         {
             throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", name));
         }
+        
         _methods.Add(new Method(returnType, name));
         
     }
@@ -103,11 +109,28 @@ public class Class: ICloneable
     /// <param name="paramList">List of parameters</param>
     public void AddMethod(string returnType, string name, List<NameTypeObject> paramList)
     {
+        
         if (MethodExists(name))
         {
             throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", name));
         }
+        
+        // Ensure there are no duplicate parameters in the param list
+        List<string> seenNames = new List<string>();
+        foreach (NameTypeObject param in paramList)
+        {
+
+            if (seenNames.Contains(param.AttributeName))
+            {
+                throw new DuplicateNameException($"Duplicate parameter: {param.ToString()}");
+            }
+         
+            seenNames.Add(param.AttributeName);
+            
+        }
+        
         _methods.Add(new Method(returnType, name, paramList));
+        
     }
 
     /// <summary>

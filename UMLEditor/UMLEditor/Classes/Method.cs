@@ -14,6 +14,7 @@ public class Method : AttributeObject, ICloneable
 
     // Public accessor for Parameters
     // Creates copies to ensure data integrity
+    [JsonIgnore]
     public List<NameTypeObject> Parameters
     {
         get => Utilities.CloneContainer(_parameters);
@@ -43,6 +44,7 @@ public class Method : AttributeObject, ICloneable
     {
         
         CheckValidAttributeName(withName);
+        CheckValidAttributeName(returnType);
         AttributeName = withName;
         ReturnType = returnType; 
 

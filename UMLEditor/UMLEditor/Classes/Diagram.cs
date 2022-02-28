@@ -8,26 +8,29 @@ using Exceptions;
 
 public class Diagram
 {
+    
     [JsonProperty("classes", Required = Required.Always)]
     private List<Class> _classes;
 
+    [JsonProperty("relationships", Required = Required.Always)]
+    private List<Relationship> _relationships;
+
     // Public accessor for Classes
     // Creates copies to ensure data integrity
+    [JsonIgnore]
     public List<Class> Classes
     {
         get => Utilities.CloneContainer(_classes);
     }
 
-    [JsonProperty("relationships", Required = Required.Always)]
-    private List<Relationship> _relationships;
-
     // Public accessor for Relationships
     // Creates copies to ensure data integrity
+    [JsonIgnore]
     public List<Relationship> Relationships
     {
         get => Utilities.CloneContainer(_relationships);
     }
-    
+
     /// <summary>
     /// Default constructor for a new Diagram.
     /// </summary>
@@ -71,11 +74,12 @@ public class Diagram
     /// </summary>
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
+    /// <param name="type">The type of the relationship</param>
     /// <returns>True if the relationship exists, false otherwise</returns>
-    private bool RelationshipExists (string sourceName, string destName)
+    private bool RelationshipExists (string sourceName, string destName, string type)
     {
 
-        return GetRelationshipByName(sourceName, destName) is not null;
+        return GetRelationship(sourceName, destName, type) is not null;
 
     }
     
@@ -84,12 +88,13 @@ public class Diagram
     /// </summary>
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
+    /// <param name="type">The type of the relationship</param>
     /// <returns>The found relationship object, or null if none exists</returns>
-    private Relationship? GetRelationshipByName(string sourceName, string destName)
+    private Relationship? GetRelationship(string sourceName, string destName, string type)
     {
         foreach (Relationship r in _relationships)
         {
-            if (r.SourceClass == sourceName && r.DestinationClass == destName)
+            if (r.SourceClass == sourceName && r.DestinationClass == destName && r.RelationshipType == type)
             {
                 return r;
             }
@@ -170,11 +175,14 @@ public class Diagram
     /// <param name="paramList">A list of parameters</param>
     public void AddMethod(string toClass, string returnType, string methodName, List<NameTypeObject> paramList)
     {
+        
         if (!ClassExists(toClass))
         {
             throw new ClassNonexistentException($"Class {toClass} does not exist");
         }
+        
         GetClassByName(toClass).AddMethod(returnType, methodName, paramList);
+        
     }
 
     /// <summary>
@@ -295,16 +303,17 @@ public class Diagram
     /// </summary>
     /// <param name="sourceName">Source class in the relationship</param>
     /// <param name="destName">Destination class in the relationship</param>
+    /// <param name="type">Type of the relationship</param>
     /// <exception cref="RelationshipNonexistentException">If the relationship does not exist</exception>
-    public void DeleteRelationship(string sourceName, string destName)
+    public void DeleteRelationship(string sourceName, string destName, string type)
     {
-        if (!RelationshipExists(sourceName, destName))
+        if (!RelationshipExists(sourceName, destName, type))
         {
-            throw new RelationshipNonexistentException(string.Format("Relationship {0} -> {1} does not exist", sourceName, destName));
+            throw new RelationshipNonexistentException($"Relationship {type} {sourceName} -> {destName} does not exist");
         }
         
         // Delete relationship
-        _relationships.Remove(GetRelationshipByName(sourceName, destName));
+        _relationships.Remove(GetRelationship(sourceName, destName, type)!);
     }
 
     /// <summary>

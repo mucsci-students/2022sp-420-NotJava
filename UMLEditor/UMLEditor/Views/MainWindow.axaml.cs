@@ -968,9 +968,10 @@ namespace UMLEditor.Views
             
             try
             {
-                
-                _activeDiagram.DeleteRelationship(sourceClassName, destClassName);
-                
+
+                throw new NotImplementedException("Delete relationship needs to be refactored");
+                // _activeDiagram.DeleteRelationship(sourceClassName, destClassName);
+
             }
             
             catch (RelationshipNonexistentException exception)
