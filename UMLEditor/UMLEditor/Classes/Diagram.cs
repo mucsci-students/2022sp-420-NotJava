@@ -357,7 +357,7 @@ public class Diagram
             throw new ClassNonexistentException($"Class '{toClass}' does not exist");
         }
 
-        Class targetClass = GetClassByName(toClass)!;
+        Class? targetClass = GetClassByName(toClass);
         targetClass!.AddField(withType, withName);
 
     }
@@ -376,8 +376,27 @@ public class Diagram
             throw new ClassNonexistentException($"Class '{fromClass}' does not exist");
         }
 
-        Class targetClass = GetClassByName(fromClass)!;
+        Class? targetClass = GetClassByName(fromClass);
         targetClass!.DeleteField(withName);
+
+    }
+
+    /// <summary>
+    /// Renames a field on a given class
+    /// </summary>
+    /// <param name="onClass">The class to rename the field on</param>
+    /// <param name="oldName">The current (old) name of the field to be renamed</param>
+    /// <param name="newName">The new name for the field</param>
+    public void RenameField(string onClass, string oldName, string newName)
+    {
+
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.RenameField(oldName, newName);
 
     }
 
@@ -395,8 +414,29 @@ public class Diagram
             throw new ClassNonexistentException($"Class '{onClass}' does not exist"); 
         }
 
-        Class targetClass = GetClassByName(onClass)!;
+        Class? targetClass = GetClassByName(onClass);
         targetClass!.DeleteMethodParameter(param, inMethod);
+
+    }
+
+    /// <summary>
+    /// Renames a specific parameter on a provided method
+    /// </summary>
+    /// <param name="onClass">The class the method is within</param>
+    /// <param name="onMethod">The name of the method the parameter is in</param>
+    /// <param name="oldParamName">The current (old) name of the parameter</param>
+    /// <param name="newParamName">The new name for the parameter</param>
+    /// <exception cref="ClassNonexistentException"></exception>
+    public void RenameParameter(string onClass, string onMethod, string oldParamName, string newParamName)
+    {
+
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.RenameParameter(onMethod, oldParamName, newParamName);
 
     }
     
