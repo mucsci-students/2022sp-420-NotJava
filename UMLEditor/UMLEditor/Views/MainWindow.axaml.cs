@@ -464,7 +464,7 @@ namespace UMLEditor.Views
             // Spin up a result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
-                // Case where 'OKAY' was not selected, return.
+                // Case where 'OKAY' was not selected, return
                 if (result.Result != DialogButtons.OKAY)
                 {
                     return;
@@ -1078,6 +1078,8 @@ namespace UMLEditor.Views
 
         private void Redraw_Relationship_OnClick(object sender, RoutedEventArgs e)
         {
+            Console.WriteLine("To be implemented");
+            return;
             Dispatcher.UIThread.Post(() =>
             {
                 List<IControl> children = new List<IControl>(_canvas.Children); 
