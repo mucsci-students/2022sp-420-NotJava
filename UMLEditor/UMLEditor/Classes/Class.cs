@@ -273,7 +273,7 @@ public class Class: ICloneable
     /// <param name="param">The parameter to remove</param>
     /// <param name="onMethod">The target method the parameter is a part of</param>
     /// <exception cref="AttributeNonexistentException">If the provided method does not exist</exception>
-    public void DeleteMethodParameter(NameTypeObject param, string onMethod)
+    public void DeleteMethodParameter(string param, string onMethod)
     {
 
         if (!MethodExists(onMethod))
@@ -343,6 +343,15 @@ public class Class: ICloneable
         return msg;
     }
 
+    public void AddParameter(string methodName, string paramType, string paramName)
+    {
+        if (!MethodExists(methodName))
+        {
+            throw new MethodNonexistentRelationship($"Method {methodName} does not exist");
+        }
+        GetMethodByName(methodName)!.AddParam(new NameTypeObject(paramType, paramName));
+    }
+
     /// <summary>
     /// Renames a field
     /// </summary>
@@ -392,6 +401,7 @@ public class Class: ICloneable
         GetMethodByName(oldName)!.AttRename(newName);
         
     }
+    
 
     /// <summary>
     /// Renames a parameter on the provided method
@@ -399,7 +409,7 @@ public class Class: ICloneable
     /// <param name="onMethod">The method the parameter is on</param>
     /// <param name="oldParamName">The current (old) name of the parameter</param>
     /// <param name="newParamName">The new name for the parameter</param>
-    public void RenameParameter(string onMethod, string oldParamName, string newParamName)
+    public void RenameMethodParameter(string onMethod, string oldParamName, string newParamName)
     {
 
         if (!MethodExists(onMethod))
@@ -463,7 +473,7 @@ public class Class: ICloneable
     /// <param name="onMethod">The method the parameter is a part of</param>
     /// <param name="toReplace">The parameter to replace</param>
     /// <param name="replaceWith">The new anatomy of the parameter</param>
-    public void ReplaceParameter(string onMethod, NameTypeObject toReplace, NameTypeObject replaceWith)
+    public void ReplaceParameter(string onMethod, string toReplace, NameTypeObject replaceWith)
     {
 
         if (!MethodExists(onMethod))

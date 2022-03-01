@@ -176,7 +176,7 @@ public class Method : AttributeObject, ICloneable
     /// </summary>
     /// <param name="param">Parameter to remove from method</param>
     /// <exception cref="AttributeNonexistentException">If the provided parameter is not in the list</exception>
-    public void RemoveParam(NameTypeObject param)
+    public void RemoveParam(string param)
     {
         if (!(_parameters.Remove(FindParamInList(param)!)))
         {
@@ -229,11 +229,11 @@ public class Method : AttributeObject, ICloneable
     /// </summary>
     /// <param name="toReplace">The parameter to replace</param>
     /// <param name="replaceWith">The new anatomy of the parameter</param>
-    public void ReplaceParam(NameTypeObject toReplace, NameTypeObject replaceWith)
+    public void ReplaceParam(string toReplace, NameTypeObject replaceWith)
     {
 
         // Make sure the new name is not a duplicate
-        bool nameChanged = toReplace.AttributeName != replaceWith.AttributeName;
+        bool nameChanged = toReplace != replaceWith.AttributeName;
         if (nameChanged && IsParamInList(replaceWith))
         {
             throw new AttributeAlreadyExistsException($"A parameter by the name of '{replaceWith.AttributeName}' already exists in method '{AttributeName}'");
