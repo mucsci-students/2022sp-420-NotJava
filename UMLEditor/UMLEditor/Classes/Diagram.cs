@@ -401,6 +401,46 @@ public class Diagram
     }
 
     /// <summary>
+    /// Changes the anatomy of the provided field
+    /// </summary>
+    /// <param name="onClass">The class to change the field on</param>
+    /// <param name="toRestructure">The field to restructure</param>
+    /// <param name="newStructure">The new anatomy of the field</param>
+    public void RestructureField(string onClass, NameTypeObject toRestructure, NameTypeObject newStructure)
+    {
+        
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass.ReplaceField(toRestructure, newStructure);
+
+    }
+
+    /// <summary>
+    /// Changes the anatomy of the provided parameter
+    /// </summary>
+    /// <param name="onClass">The class to change the parameter on</param>
+    /// <param name="inMethod">The method that the parameter belongs to</param>
+    /// <param name="toRestructure">The parameter to restructure</param>
+    /// <param name="newStructure">The new anatomy of the parameter</param>
+    public void RestructureParameter(string onClass, string inMethod, NameTypeObject toRestructure,
+        NameTypeObject newStructure)
+    {
+        
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ReplaceParameter(inMethod, toRestructure, newStructure);
+
+    }
+    
+    /// <summary>
     /// Deletes a parameter from a provided method on a provided class
     /// </summary>
     /// <param name="paramName">The parameter to delete</param>

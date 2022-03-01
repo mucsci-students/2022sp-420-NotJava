@@ -223,6 +223,35 @@ public class Method : AttributeObject, ICloneable
         targetParam!.AttRename(newParamName);
 
     }
+
+    /// <summary>
+    /// Replaces a provided parameter with a new one
+    /// </summary>
+    /// <param name="toReplace">The parameter to replace</param>
+    /// <param name="replaceWith">The new anatomy of the parameter</param>
+    public void ReplaceParam(NameTypeObject toReplace, NameTypeObject replaceWith)
+    {
+
+        // Make sure the new name is not a duplicate
+        bool nameChanged = toReplace.AttributeName != replaceWith.AttributeName;
+        if (nameChanged && IsParamInList(replaceWith))
+        {
+            throw new AttributeAlreadyExistsException($"A parameter by the name of '{replaceWith.AttributeName}' already exists in method '{AttributeName}'");
+        }
+
+        // Make sure the source parameter exists
+        if (!IsParamInList(toReplace))
+        {
+            throw new AttributeNonexistentException($"Parameter '{replaceWith.ToString()}' does not exist in method '{AttributeName}'");
+        }
+
+        /* - Find a reference to the target parameter
+         * - Rename the target parameter and apply the new type */
+        NameTypeObject? targetParam = FindParamInList(toReplace);
+        targetParam!.AttRename(replaceWith.AttributeName);
+        targetParam!.ChangeType(replaceWith.Type);
+
+    }
     
     /// <summary>
     /// Changes existing parameter list to the provided one

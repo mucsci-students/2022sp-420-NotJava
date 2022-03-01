@@ -45,7 +45,18 @@ public class NameTypeObject : AttributeObject, ICloneable
     public NameTypeObject(NameTypeObject n) : this(n.Type, n.AttributeName)
     { }
 
+    /// <summary>
+    /// Changes the type of this NameTypeObject
+    /// </summary>
+    /// <param name="newType">The new type to apply</param>
+    public void ChangeType(string newType)
+    {
+        
+        CheckValidAttributeName(newType);
+        Type = newType;
 
+    }
+    
     public static bool operator ==(NameTypeObject a, NameTypeObject b)
     {
         if (a is null && b is null)
