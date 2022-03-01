@@ -26,6 +26,7 @@ using UMLEditor.Interfaces;
 using Path = System.IO.Path;
 
 using System.Threading;
+using Avalonia.Animation;
 
 namespace UMLEditor.Views
 {
@@ -41,6 +42,8 @@ namespace UMLEditor.Views
 
         private readonly StackPanel _mainPanel;
         private readonly Canvas _canvas;
+        private Point _canvasPointer = new Point(0,0);
+        
         private List<RelationshipLine> _relationshipLines = new List<RelationshipLine>();
 
         private IDiagramFile _activeFile;
@@ -50,6 +53,11 @@ namespace UMLEditor.Views
 
         private MenuItem SaveDiagramButton;
         private MenuItem LoadDiagramButton;
+        
+        // Line specifications
+        private const double SymbolWidth = 15;
+        private const double SymbolHeight = 10;
+        private IBrush _brush = Brushes.CornflowerBlue;
 
         struct RelationshipLine
         {
@@ -60,6 +68,13 @@ namespace UMLEditor.Views
             public Line MidLine;
             public Line EndLine;
             public Polyline Symbol;
+        }
+
+        struct ClassBoxData
+        {
+            public UserControl Box;
+            public Point Position;
+            public List<RelationshipLine> TerminalLines;
         }
         
         /// <summary>
@@ -90,7 +105,7 @@ namespace UMLEditor.Views
             _mainPanel = this.FindControl<StackPanel>("MainPanel");
 
             _canvas = this.FindControl<Canvas>("MyCanvas");
-            
+
         }
         
         /// <summary>
@@ -101,15 +116,12 @@ namespace UMLEditor.Views
             AvaloniaXamlLoader.Load(this);
         }
 
-        private const double SymbolWidth = 15;
-        private const double SymbolHeight = 10;
         /// <summary>
         /// Draws the relationship arrow between two classes
         /// </summary>
         /// <param name="startCtrl">The source class to start drawing from</param>
         /// <param name="endCtrl">The destination class to draw to</param>
         /// <param name="relationshipType">The type of relationship to draw</param>
-        /// <returns>A RelationshipLine object containing the line information</returns>
         private void DrawRelationship(UserControl startCtrl, UserControl endCtrl, string relationshipType)
         {
             RelationshipLine newLine = new RelationshipLine();
@@ -262,7 +274,7 @@ namespace UMLEditor.Views
             Polyline polyline = new Polyline();
             polyline.Name = "Polyline";
             polyline.Points = points;
-            polyline.Stroke = Brushes.White;
+            polyline.Stroke = _brush;
             polyline.StrokeThickness = 2;
             return polyline;
         }
@@ -279,7 +291,7 @@ namespace UMLEditor.Views
             l.Name = "Line";
             l.StartPoint = lineStart;
             l.EndPoint = lineEnd;
-            l.Stroke = Brushes.White;
+            l.Stroke = _brush;
             l.StrokeThickness = 2;
             l.ZIndex = 10;
             return l;
@@ -1484,10 +1496,19 @@ namespace UMLEditor.Views
         /// The rendered classes will be default boxes with only the name being different.</param>
         private void RenderClasses(params string[] withName)
         {
-
             foreach (string currentClassName in withName)
             {
                 ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this);
+                Canvas.SetLeft(newClass, _canvasPointer.X);
+                Canvas.SetTop(newClass, _canvasPointer.Y);
+                if (_canvasPointer.X <= _canvas.Bounds.Width - 50)
+                {
+                    _canvasPointer = new Point(_canvasPointer.X + (450), _canvasPointer.Y);
+                }
+                else
+                {
+                    _canvasPointer = new Point(0, _canvasPointer.Y + 450);
+                }
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
             }            
@@ -1500,12 +1521,25 @@ namespace UMLEditor.Views
         /// <param name="withClasses">The list of classes to be added to the rendered area</param>
         private void RenderClasses(List<Class> withClasses)
         {
-
+            int count = 0;
             foreach (Class currentClass in withClasses)
             {
                 ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this);
+                Canvas.SetLeft(newClass, _canvasPointer.X);
+                Canvas.SetTop(newClass, _canvasPointer.Y);
+                Console.WriteLine(_canvas.Bounds.Width + " " + newClass.Bounds.Width);
+                if (_canvasPointer.X <= _canvas.Bounds.Width - 50 && count < 4)
+                {
+                    _canvasPointer = new Point(_canvasPointer.X + (450), _canvasPointer.Y);
+                }
+                else
+                {
+                    _canvasPointer = new Point(0, _canvasPointer.Y + 450);
+                }
+
+                ++count;
                 _classBoxes.Add(newClass);
-                _canvas.Children.Add(newClass);;
+                _canvas.Children.Add(newClass);
             }
 
         }
@@ -1524,6 +1558,7 @@ namespace UMLEditor.Views
         /// </summary>
         private void ClearCanvas()
         {
+            _canvasPointer = new Point(0, 0);
             _canvas.Children.Clear();
         }
     }
