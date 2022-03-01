@@ -10,10 +10,10 @@
         
         <Label 
             Margin="0 10 0 5 "
-            Content="Enter class name:"/>
+            Content="Enter name:"/>
         
         <TextBox 
-            Watermark="Class name goes here" 
+            Watermark="Name goes here" 
             Name="EnteredName"/>
         
     </StackPanel>

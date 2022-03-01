@@ -1,11 +1,9 @@
-﻿using System;
-using System.ComponentModel;
+﻿namespace UMLEditor.Views;
+
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-
-namespace UMLEditor.Views;
 
 /// <summary>
 /// Enum for the various button combinations that could be passed into a modal dialogue

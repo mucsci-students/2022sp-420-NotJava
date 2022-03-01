@@ -369,16 +369,16 @@ public class CommandLine
             case ("delete_relationship"):
                 if (arguments.Count == 3)
                 {
-                    // Try to add relationship with the first provided word as its name
-                    _activeDiagram!.DeleteRelationship(arguments[0], arguments[1], arguments[2]);
+                    // Try to delete relationship with the given source and destination classes
+                    _activeDiagram!.DeleteRelationship(arguments[0], arguments[1]);
 
-                    PrintColoredLine($"Relationship {arguments[2]} {arguments[0]} => {arguments[1]} deleted", SUCCESS_COLOR);
+                    PrintColoredLine($"Relationship {arguments[0]} => {arguments[1]} deleted", SUCCESS_COLOR);
                 }
 
                 else
                 {
                     PrintColoredLine("To delete an existing Relationship, please enter \"delete_relationship\" " +
-                                     "followed by the source class, destination class, and relationship type then press enter.", ERROR_COLOR);
+                                     "followed by the source class and destination class then press enter.", ERROR_COLOR);
                 } 
                 break;
             

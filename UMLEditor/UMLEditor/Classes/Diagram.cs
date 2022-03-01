@@ -1,7 +1,6 @@
 ﻿namespace UMLEditor.Classes;
 
 using UMLEditor.Utility;
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Exceptions;
@@ -74,12 +73,11 @@ public class Diagram
     /// </summary>
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
-    /// <param name="type">The type of the relationship</param>
     /// <returns>True if the relationship exists, false otherwise</returns>
-    private bool RelationshipExists (string sourceName, string destName, string type)
+    private bool RelationshipExists (string sourceName, string destName)
     {
 
-        return GetRelationship(sourceName, destName, type) is not null;
+        return GetRelationship(sourceName, destName) is not null;
 
     }
     
@@ -88,13 +86,12 @@ public class Diagram
     /// </summary>
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
-    /// <param name="type">The type of the relationship</param>
     /// <returns>The found relationship object, or null if none exists</returns>
-    private Relationship? GetRelationship(string sourceName, string destName, string type)
+    private Relationship? GetRelationship(string sourceName, string destName)
     {
         foreach (Relationship r in _relationships)
         {
-            if (r.SourceClass == sourceName && r.DestinationClass == destName && r.RelationshipType == type)
+            if (r.SourceClass == sourceName && r.DestinationClass == destName)
             {
                 return r;
             }
@@ -109,6 +106,9 @@ public class Diagram
     /// <returns>Returns the class if exists, or null if it does not</returns>
     public Class? GetClassByName(string name)
     {
+        
+        // TODO: GetClassByName should be made private
+        
         foreach (Class currentClass in _classes)
         {
             if (currentClass.ClassName == name)
@@ -138,17 +138,37 @@ public class Diagram
             
         }
         
-        else if (!(ClassExists(destClassName)))
+        if (!(ClassExists(destClassName)))
         {
 
             throw new ClassNonexistentException($"Nonexistent class name entered ({destClassName}).");
 
+        }
+        if (RelationshipExists(sourceClassName, destClassName))
+        {
+            throw new RelationshipAlreadyExistsException($"Relationship {sourceClassName} => {destClassName} already exists.");
         }
 
         // Create and add the new relationship
         Relationship newRel = new Relationship(sourceClassName, destClassName, relationshipType);
         _relationships.Add(newRel);
         
+    }
+
+    public void ChangeRelationship(string sourceClass, string destClass, string relationType)
+    {
+        if (!RelationshipExists(sourceClass, destClass))
+        {
+            throw new RelationshipNonexistentException($"Relationship {sourceClass} => {destClass} does not exist");
+        }
+
+        Relationship r = GetRelationship(sourceClass, destClass);
+        if (r.RelationshipType == relationType)
+        {
+            throw new InvalidRelationshipTypeException($"Relationship type {relationType} is not valid.");
+        }
+        
+        r.ChangeType(relationType);
     }
 
     /// <summary>
@@ -303,17 +323,16 @@ public class Diagram
     /// </summary>
     /// <param name="sourceName">Source class in the relationship</param>
     /// <param name="destName">Destination class in the relationship</param>
-    /// <param name="type">Type of the relationship</param>
     /// <exception cref="RelationshipNonexistentException">If the relationship does not exist</exception>
-    public void DeleteRelationship(string sourceName, string destName, string type)
+    public void DeleteRelationship(string sourceName, string destName)
     {
-        if (!RelationshipExists(sourceName, destName, type))
+        if (!RelationshipExists(sourceName, destName))
         {
-            throw new RelationshipNonexistentException($"Relationship {type} {sourceName} -> {destName} does not exist");
+            throw new RelationshipNonexistentException($"Relationship {sourceName} => {destName} does not exist");
         }
         
         // Delete relationship
-        _relationships.Remove(GetRelationship(sourceName, destName, type)!);
+        _relationships.Remove(GetRelationship(sourceName, destName)!);
     }
 
     /// <summary>
@@ -340,4 +359,142 @@ public class Diagram
 
     }
 
+    /// <summary>
+    /// Adds a field to a class in the diagram
+    /// </summary>
+    /// <param name="toClass">The target class to add the field to</param>
+    /// <param name="withType">The type of the field to add</param>
+    /// <param name="withName">The name of the field to add</param>
+    /// <exception cref="ClassNonexistentException">If the provided class does not exist</exception>
+    public void AddField(string toClass, string withType, string withName)
+    {
+
+        if (!ClassExists(toClass))
+        {
+            throw new ClassNonexistentException($"Class '{toClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(toClass);
+        targetClass!.AddField(withType, withName);
+
+    }
+
+    /// <summary>
+    /// Deletes a field from a class in the diagram
+    /// </summary>
+    /// <param name="fromClass">The target class to remove the field from</param>
+    /// <param name="withName">The name of the field to remove</param>
+    /// <exception cref="ClassNonexistentException">If the provided class does not exist</exception>
+    public void RemoveField(string fromClass, string withName)
+    {
+
+        if (!ClassExists(fromClass))
+        {
+            throw new ClassNonexistentException($"Class '{fromClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(fromClass);
+        targetClass!.DeleteField(withName);
+
+    }
+
+    /// <summary>
+    /// Renames a field on a given class
+    /// </summary>
+    /// <param name="onClass">The class to rename the field on</param>
+    /// <param name="oldName">The current (old) name of the field to be renamed</param>
+    /// <param name="newName">The new name for the field</param>
+    public void RenameField(string onClass, string oldName, string newName)
+    {
+
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.RenameField(oldName, newName);
+
+    }
+
+    /// <summary>
+    /// Changes the anatomy of the provided field
+    /// </summary>
+    /// <param name="onClass">The class to change the field on</param>
+    /// <param name="toRestructure">The field to restructure</param>
+    /// <param name="newStructure">The new anatomy of the field</param>
+    public void RestructureField(string onClass, NameTypeObject toRestructure, NameTypeObject newStructure)
+    {
+        
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass.ReplaceField(toRestructure, newStructure);
+
+    }
+
+    /// <summary>
+    /// Changes the anatomy of the provided parameter
+    /// </summary>
+    /// <param name="onClass">The class to change the parameter on</param>
+    /// <param name="inMethod">The method that the parameter belongs to</param>
+    /// <param name="toRestructure">The parameter to restructure</param>
+    /// <param name="newStructure">The new anatomy of the parameter</param>
+    public void RestructureParameter(string onClass, string inMethod, NameTypeObject toRestructure,
+        NameTypeObject newStructure)
+    {
+        
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ReplaceParameter(inMethod, toRestructure, newStructure);
+
+    }
+    
+    /// <summary>
+    /// Deletes a parameter from a provided method on a provided class
+    /// </summary>
+    /// <param name="paramName">The parameter to delete</param>
+    /// <param name="inMethod">The method to delete from</param>
+    /// <param name="onClass">The class to delete from</param>
+    public void RemoveParameter(NameTypeObject param, string inMethod, string onClass)
+    {
+
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist"); 
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.DeleteMethodParameter(param, inMethod);
+
+    }
+
+    /// <summary>
+    /// Renames a specific parameter on a provided method
+    /// </summary>
+    /// <param name="onClass">The class the method is within</param>
+    /// <param name="onMethod">The name of the method the parameter is in</param>
+    /// <param name="oldParamName">The current (old) name of the parameter</param>
+    /// <param name="newParamName">The new name for the parameter</param>
+    /// <exception cref="ClassNonexistentException"></exception>
+    public void RenameParameter(string onClass, string onMethod, string oldParamName, string newParamName)
+    {
+
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.RenameParameter(onMethod, oldParamName, newParamName);
+
+    }
+    
 }
