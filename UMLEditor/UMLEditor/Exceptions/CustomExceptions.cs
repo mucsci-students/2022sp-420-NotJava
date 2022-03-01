@@ -42,6 +42,12 @@ public class RelationshipNonexistentException : Exception
     {  }
 }
 
+public class RelationshipAlreadyExistsException : Exception
+{
+    public RelationshipAlreadyExistsException(string message) : base(message)
+    {  }
+}
+
 public class InvalidRelationshipTypeException : Exception
 {
     public InvalidRelationshipTypeException(string message) : base(message)

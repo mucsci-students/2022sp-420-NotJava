@@ -73,12 +73,11 @@ public class Diagram
     /// </summary>
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
-    /// <param name="type">The type of the relationship</param>
     /// <returns>True if the relationship exists, false otherwise</returns>
-    private bool RelationshipExists (string sourceName, string destName, string type)
+    private bool RelationshipExists (string sourceName, string destName)
     {
 
-        return GetRelationship(sourceName, destName, type) is not null;
+        return GetRelationship(sourceName, destName) is not null;
 
     }
     
@@ -87,13 +86,12 @@ public class Diagram
     /// </summary>
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
-    /// <param name="type">The type of the relationship</param>
     /// <returns>The found relationship object, or null if none exists</returns>
-    private Relationship? GetRelationship(string sourceName, string destName, string type)
+    private Relationship? GetRelationship(string sourceName, string destName)
     {
         foreach (Relationship r in _relationships)
         {
-            if (r.SourceClass == sourceName && r.DestinationClass == destName && r.RelationshipType == type)
+            if (r.SourceClass == sourceName && r.DestinationClass == destName)
             {
                 return r;
             }
@@ -140,17 +138,37 @@ public class Diagram
             
         }
         
-        else if (!(ClassExists(destClassName)))
+        if (!(ClassExists(destClassName)))
         {
 
             throw new ClassNonexistentException($"Nonexistent class name entered ({destClassName}).");
 
+        }
+        if (RelationshipExists(sourceClassName, destClassName))
+        {
+            throw new RelationshipAlreadyExistsException($"Relationship {sourceClassName} => {destClassName} already exists.");
         }
 
         // Create and add the new relationship
         Relationship newRel = new Relationship(sourceClassName, destClassName, relationshipType);
         _relationships.Add(newRel);
         
+    }
+
+    public void ChangeRelationship(string sourceClass, string destClass, string relationType)
+    {
+        if (!RelationshipExists(sourceClass, destClass))
+        {
+            throw new RelationshipNonexistentException($"Relationship {sourceClass} => {destClass} does not exist");
+        }
+
+        Relationship r = GetRelationship(sourceClass, destClass);
+        if (r.RelationshipType == relationType)
+        {
+            throw new InvalidRelationshipTypeException($"Relationship type {relationType} is not valid.");
+        }
+        
+        r.ChangeType(relationType);
     }
 
     /// <summary>
@@ -305,17 +323,16 @@ public class Diagram
     /// </summary>
     /// <param name="sourceName">Source class in the relationship</param>
     /// <param name="destName">Destination class in the relationship</param>
-    /// <param name="type">Type of the relationship</param>
     /// <exception cref="RelationshipNonexistentException">If the relationship does not exist</exception>
-    public void DeleteRelationship(string sourceName, string destName, string type)
+    public void DeleteRelationship(string sourceName, string destName)
     {
-        if (!RelationshipExists(sourceName, destName, type))
+        if (!RelationshipExists(sourceName, destName))
         {
-            throw new RelationshipNonexistentException($"Relationship {type} {sourceName} -> {destName} does not exist");
+            throw new RelationshipNonexistentException($"Relationship {sourceName} => {destName} does not exist");
         }
         
         // Delete relationship
-        _relationships.Remove(GetRelationship(sourceName, destName, type)!);
+        _relationships.Remove(GetRelationship(sourceName, destName)!);
     }
 
     /// <summary>
