@@ -43,7 +43,7 @@ public class MethodContainer : UserControl
         ReturnType = returnType;
         MethodName = name;
         
-        _methodSignature.Content = $"{returnType} {name}";
+        _methodSignature.Content = $"{returnType} {name}()";
         _parentWindow = parentWindow;
         
     }

@@ -11,13 +11,15 @@ public class FieldContainer : UserControl
 
     private Label _display;
     private Grid _backing;
-    private ClassBox _parentWindow;
+    private ClassBox _parentClassBox;
     protected Button _deleteButton; 
     protected Button _editButton; 
     
     // Properties for field name/ type
     public string FieldName { get; protected set; }
     public string Type { get; protected set; }
+
+    protected bool _isMethodParam;
     
     /// <summary>
     /// The NameTypeObject representation of this control
@@ -56,17 +58,16 @@ public class FieldContainer : UserControl
     public FieldContainer(string withType, string fieldName, ClassBox parentWindow, bool isMethodParam = false) : this()
     {
 
-        FieldName = fieldName;
         Type = withType;
-        _display.Content = $"{withType} {fieldName}";
-        _parentWindow = parentWindow;
-        
-        if (isMethodParam)
+        FieldName = fieldName;
+        _parentClassBox = parentWindow;
+
+        _isMethodParam = isMethodParam;
+        if (_isMethodParam)
         {
             
             // Adopt style for a method parameter
             _backing.Background = new SolidColorBrush(paramBackground);
-            _display.Content = "     " + _display.Content;
 
         }
 
@@ -77,10 +78,16 @@ public class FieldContainer : UserControl
 
             _deleteButton.Click += (object sender, RoutedEventArgs args) =>
             {
-                _parentWindow.RequestFieldDeletion(this);   
+                _parentClassBox.RequestFieldDeletion(this);   
+            };
+
+            _editButton.Click += (object sender, RoutedEventArgs args) =>
+            {
+                _parentClassBox.RequestFieldRename(this);
             };
 
         }
+        UpdateNameLabel();
         
     }
 
@@ -93,7 +100,29 @@ public class FieldContainer : UserControl
     public FieldContainer(NameTypeObject template, ClassBox parentWindow, bool isMethodParam = false) 
         : this(template.Type, template.AttributeName, parentWindow, isMethodParam)
     {  }
-    
+
+    /// <summary>
+    /// Changes the type and name of this container
+    /// </summary>
+    /// <param name="newAnatomy">The new type / name to adopt</param>
+    public void ChangeAnatomy(NameTypeObject newAnatomy)
+    {
+
+        FieldName = newAnatomy.AttributeName;
+        Type = newAnatomy.Type;
+
+        UpdateNameLabel();
+        
+    }
+
+    /// <summary>
+    /// Redraws the type / name on the displayed label
+    /// </summary>
+    private void UpdateNameLabel()
+    {
+        _display.Content = (_isMethodParam ? $"     {Type} {FieldName}" : $"{Type} {FieldName}");
+    }
+
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);

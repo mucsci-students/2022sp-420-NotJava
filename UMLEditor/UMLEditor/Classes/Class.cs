@@ -146,6 +146,38 @@ public class Class: ICloneable
     }
 
     /// <summary>
+    /// Checks if a specific field exists
+    /// </summary>
+    /// <param name="field">The field to check</param>
+    /// <returns>True if the field exists, false otherwise</returns>
+    private bool FieldExists(NameTypeObject field)
+    {
+        return GetField(field) is not null;
+    }
+
+    /// <summary>
+    /// Gets a reference to the provided field, if it exists
+    /// </summary>
+    /// <param name="toFind">The field to search for</param>
+    /// <returns>A reference to the provided field, or null if it does not exist</returns>
+    private NameTypeObject? GetField(NameTypeObject toFind)
+    {
+
+        foreach (NameTypeObject current in _fields)
+        {
+
+            if (current == toFind)
+            {
+                return current;
+            }
+
+        }
+        
+        return null;
+
+    }
+    
+    /// <summary>
     /// Finds the field with the specified name, if it exists
     /// </summary>
     /// <param name="name">Name of field you are looking for</param>
@@ -387,7 +419,7 @@ public class Class: ICloneable
     /// <exception cref="InvalidNameException">Thrown if the name is not valid</exception>
     private void CheckValidClassName(string name)
     {
-        if (name is null || !Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
+        if (name is null || name.Length == 0 || !Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
         {
             throw new InvalidNameException(String.Format("{0} is an invalid class name.  " +
                                                                 "Class name must be a single word that starts with an alphabetic " +
@@ -396,6 +428,54 @@ public class Class: ICloneable
         }
     }
 
+    /// <summary>
+    /// Overwrites a field with a new one.
+    /// </summary>
+    /// <param name="toReplace">The field to replace</param>
+    /// <param name="replaceWith">The new anatomy of the field</param>
+    public void ReplaceField(NameTypeObject toReplace, NameTypeObject replaceWith)
+    {
+
+        // Check that a new name is not a duplicate
+        bool nameWasChanged = toReplace.AttributeName != replaceWith.AttributeName;
+        if (nameWasChanged && FieldExists(replaceWith.AttributeName))
+        {
+            throw new AttributeAlreadyExistsException($"A field by the name of '{replaceWith.AttributeName}' already exists");
+        }
+
+        // Check that the target field exists
+        if (!FieldExists(toReplace))
+        {
+            throw new AttributeNonexistentException($"Field '{toReplace.ToString()}' does not exist");
+        }
+
+        /* - Get a reference to the Field to be changed (which is a NameTypeObject)
+         * - Apply the new name and type to the Field */
+        NameTypeObject? target = GetField(toReplace);
+        target!.AttRename(replaceWith.AttributeName);
+        target!.ChangeType(replaceWith.Type);
+
+    }
+
+    /// <summary>
+    /// Replaces the provided parameter on the provided method
+    /// </summary>
+    /// <param name="onMethod">The method the parameter is a part of</param>
+    /// <param name="toReplace">The parameter to replace</param>
+    /// <param name="replaceWith">The new anatomy of the parameter</param>
+    public void ReplaceParameter(string onMethod, NameTypeObject toReplace, NameTypeObject replaceWith)
+    {
+
+        if (!MethodExists(onMethod))
+        {
+            throw new AttributeNonexistentException($"Method '{onMethod}' does not exist");
+        }
+
+        Method? targetMethod = GetMethodByName(onMethod);
+        targetMethod!.ReplaceParam(toReplace, replaceWith);
+        
+    }
+    
     /// <summary>
     /// Renames class.  Checks to ensure name is valid
     /// Pre-condition: Class "name" does not already exist

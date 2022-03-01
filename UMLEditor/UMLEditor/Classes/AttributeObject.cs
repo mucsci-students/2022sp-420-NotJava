@@ -37,7 +37,7 @@ public abstract class AttributeObject
     /// <exception cref="InvalidNameException">If the provided name is invalid.</exception>
     protected void CheckValidAttributeName(string name)
     {
-        if (name is null || !Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
+        if (name is null || name.Length == 0 || !Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
         {
             throw new InvalidNameException(String.Format("{0} is an invalid attribute name or type.  " +
                                                          "Attribute name/type must be a single word that starts with an alphabetic " +
