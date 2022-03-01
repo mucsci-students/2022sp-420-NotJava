@@ -390,7 +390,7 @@ public class ClassBox : UserControl
     /// <summary>
     /// Prompts the user to change the name of a field
     /// </summary>
-    /// <param name="onContainer">The FieldContainer the click even was raised from</param>
+    /// <param name="onContainer">The FieldContainer the click event was raised from</param>
     public void RequestFieldRename(FieldContainer onContainer)
     {
 
