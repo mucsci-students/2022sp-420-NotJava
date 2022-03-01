@@ -86,7 +86,7 @@ public class ClassBox : UserControl
     /// <param name="parentWindow">A reference to the window this class is shown in</param>
     public ClassBox(string withClassName, ref Diagram inDiagram, MainWindow parentWindow) : this()
     {
-        
+        Name = withClassName;
         _classNameLabel.Content = withClassName;
         _activeDiagram = inDiagram;
         _parentWindow = parentWindow;

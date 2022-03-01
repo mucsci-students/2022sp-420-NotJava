@@ -10,6 +10,7 @@
         <entry key="UMLEditor/UMLEditor/Views/AddRelationshipPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/AlertPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/ClassBox.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/DeleteRelationshipPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/FieldContainer.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/GenericModal.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/MainView.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />

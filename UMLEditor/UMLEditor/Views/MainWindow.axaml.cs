@@ -34,11 +34,14 @@ namespace UMLEditor.Views
 
         private Diagram _activeDiagram;
 
+        private List<ClassBox> _classBoxes;
+        
         private readonly TextBox _outputBox;
         private readonly TextBox _inputBox;
 
         private readonly StackPanel _mainPanel;
         private readonly Canvas _canvas;
+        private List<RelationshipLine> _relationshipLines = new List<RelationshipLine>();
 
         private IDiagramFile _activeFile;
 
@@ -47,6 +50,17 @@ namespace UMLEditor.Views
 
         private MenuItem SaveDiagramButton;
         private MenuItem LoadDiagramButton;
+
+        struct RelationshipLine
+        {
+            public UserControl SourceClass;
+            public UserControl DestClass;
+            public string RelationshipType;
+            public Line StartLine;
+            public Line MidLine;
+            public Line EndLine;
+            public Polyline Symbol;
+        }
         
         /// <summary>
         /// Main method to create the window
@@ -61,6 +75,8 @@ namespace UMLEditor.Views
 #endif
             
             _activeDiagram = new Diagram();
+
+            _classBoxes = new List<ClassBox>();
             _activeFile = new JSONDiagramFile();
             
             _outputBox = this.FindControl<TextBox>("OutputBox");
@@ -73,16 +89,7 @@ namespace UMLEditor.Views
             // Get size of StackPanel
             _mainPanel = this.FindControl<StackPanel>("MainPanel");
 
-            // return;
             _canvas = this.FindControl<Canvas>("MyCanvas");
-
-            /*
-            ClassBox c1 = new ClassBox("c1");
-            ClassBox c2 = new ClassBox("c2");
-
-            _canvas.Children.Add(c1);
-            _canvas.Children.Add(c2);
-            */
             
         }
         
@@ -102,8 +109,13 @@ namespace UMLEditor.Views
         /// <param name="startCtrl">The source class to start drawing from</param>
         /// <param name="endCtrl">The destination class to draw to</param>
         /// <param name="relationshipType">The type of relationship to draw</param>
-        private void DrawRelationship(Control startCtrl, Control endCtrl, string relationshipType)
+        /// <returns>A RelationshipLine object containing the line information</returns>
+        private void DrawRelationship(UserControl startCtrl, UserControl endCtrl, string relationshipType)
         {
+            RelationshipLine newLine = new RelationshipLine();
+            newLine.SourceClass = startCtrl;
+            newLine.DestClass = endCtrl;
+            newLine.RelationshipType = relationshipType;
             // Calculate lengths of controls
             double startHalfWidth = startCtrl.Bounds.Width / 2;
             double startHalfHeight = startCtrl.Bounds.Height / 2;
@@ -206,14 +218,14 @@ namespace UMLEditor.Views
                     };
                 }
             }
-            Line line1 = GetLine(start,midStart);
-            Line line2 = GetLine(midStart, midEnd);
-            Line line3 = GetLine(midEnd, end);
+            newLine.StartLine = GetLine(start,midStart);
+            newLine.MidLine = GetLine(midStart, midEnd);
+            newLine.EndLine = GetLine(midEnd, end);
             
             // Add lines to the canvas
-            _canvas.Children.Add(line1);
-            _canvas.Children.Add(line2);
-            _canvas.Children.Add(line3);
+            _canvas.Children.Add(newLine.StartLine);
+            _canvas.Children.Add(newLine.MidLine);
+            _canvas.Children.Add(newLine.EndLine);
 
             // Draw the relationship symbol based on provided type
             switch (relationshipType)
@@ -230,12 +242,14 @@ namespace UMLEditor.Views
                     _canvas.Children.Add(GetSymbol(trianglePoints));
                     break;
                 case "realization": 
-                    line1.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    line2.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    line3.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    _canvas.Children.Add(GetSymbol(trianglePoints));
+                    newLine.StartLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    newLine.MidLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    newLine.EndLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    newLine.Symbol = GetSymbol(trianglePoints);
+                    _canvas.Children.Add(newLine.Symbol);
                     break;
             }
+            _relationshipLines.Add(newLine);
         }
 
         /// <summary>
@@ -329,19 +343,6 @@ namespace UMLEditor.Views
                 
             }
         }
-        
-        /// <summary>
-        /// Clears the input box in a thread safe manner
-        /// </summary>
-        private void ClearInputBox()
-        {
-            // Ask the UI thread to clear the input box
-            Dispatcher.UIThread.Post(() =>
-            {
-                
-                _inputBox.Text = "";
-            });
-        }
 
         private void ExitB_OnClick(object sender, RoutedEventArgs e)
         {
@@ -357,123 +358,6 @@ namespace UMLEditor.Views
                 AlertIcon.INFO
             );
             return;
-        }
-        
-        private void List_Classes_OnClick(object sender, RoutedEventArgs e)
-        {
-            _outputBox.Text = _activeDiagram.ListClasses();
-        }
-        
-        private void List_Attributes_OnClick(object sender, RoutedEventArgs e)
-        {
-            //Get input from input box
-            string input = _inputBox.Text;
-            
-            //Split the input into class names
-            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
-
-            if (words.Length != 1)
-            {
-                // Error for invalid input
-                _outputBox.Text =
-                    "To list the attributes of an existing class enter the " +
-                    "class name into the input box and then click 'List Attributes'.";
-                _inputBox.Focus();
-                return;
-            }
-        }
-        
-        private void List_Relationships_OnClick(object sender, RoutedEventArgs e)
-        {
-            _outputBox.Text = _activeDiagram.ListRelationships();
-        }
-
-        private void AddRelationship_OnClick(object sender, RoutedEventArgs e)
-        {
-            // Create a new modal dialogue and wire it up to the 'AddRelationshipPanel'
-            ModalDialog addRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Add New Relationship", DialogButtons.OK_CANCEL);
-            Task<DialogButtons> modalResult = addRelationshipModal.ShowDialog<DialogButtons>(this);
-            
-            // Spin up the result
-            modalResult.ContinueWith((Task<DialogButtons> result) =>
-            {
-                // Case where user does not select OKAY button.
-                if (result.Result != DialogButtons.OKAY)
-                {
-                    return;
-                }
-                // Dispatching a UIThread to ensure the body is executed in thread-safe manor.
-                Dispatcher.UIThread.Post(() =>
-                {
-                    // Creating the variables that we will be snagging from the 'AddRelationshipPanel'
-                    string sourceName = addRelationshipModal.GetPrompt<AddRelationshipPanel>().SourceClass;
-                    string destinationName = addRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
-                    string relationshipType = addRelationshipModal.GetPrompt<AddRelationshipPanel>().SelectedType;
-                  
-                    // Verification to check if no input was added
-                    if (sourceName is null || sourceName.Trim().Length == 0)
-                    {
-                        RaiseAlert(
-                            "Relationship Creation Failed", 
-                            "Could Not Create Relationship",
-                            "The source name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    // Verification to check if no input was added
-                    if (destinationName is null || destinationName.Trim().Length == 0)
-                    {
-
-                        RaiseAlert(
-                            "Relationship Creation Failed", 
-                            "Could Not Create Relationship",
-                            "The destination name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-
-                    }
-                    // Verification to check if no input was added
-                    if (relationshipType is null || relationshipType.Trim().Length == 0)
-                    {
-                        RaiseAlert(
-                            "Relationship Creation Failed", 
-                            "Could Not Create Relationship",
-                            "The relationship type name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    switch (result.Result)
-                    {
-                        // If OKAY was selected...
-                        case DialogButtons.OKAY:
-
-                            try
-                            {
-                                // Attempt to create a new relationship with the information given.  If succeeds raise an alert.
-                                _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
-                                RaiseAlert(
-                                    "Relationship Added",
-                                    $"Relationship '{sourceName} => {destinationName}' of type '{relationshipType}' created",
-                                    "",
-                                    AlertIcon.INFO);
-                            }
-                            // Alert if the add fails.
-                            catch (Exception e)
-                            {
-                                RaiseAlert(
-                                    "Class Creation Failed",
-                                    $"Could not create relationship '{sourceName} => {destinationName}'",
-                                    e.Message,
-                                    AlertIcon.ERROR
-                                );
-                            }
-                            break;
-                    }
-                });
-            });
         }
 
         private void Save_Button_OnClick(object sender, RoutedEventArgs e)
@@ -580,7 +464,7 @@ namespace UMLEditor.Views
             // Spin up a result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
-                // Case where 'OKAY' was not selected, return.
+                // Case where 'OKAY' was not selected, return
                 if (result.Result != DialogButtons.OKAY)
                 {
                     return;
@@ -674,43 +558,7 @@ namespace UMLEditor.Views
                 });
             });
         }
-        private void Delete_Attribute_OnClick(object sender, RoutedEventArgs e)
-        {
-            //User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, delete attribute if is.
-            string input = _inputBox.Text;
-            
-            //Split the input into words to use later on.
-            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
-
-            if (words.Length == 0)
-            {
-                // No input arguments
-                _outputBox.Text = 
-                    "To delete an existing attribute enter source class and attribute in the format " +
-                    "'Class Attribute' into the input box and then click 'Delete Attribute'.";
-                
-                _inputBox.Focus();
-                return;
-            }
-            
-            else if (words.Length != 2)
-            {
-                // Invalid input arguments
-                _outputBox.Text = 
-                    "Input must be in the form 'Class Attribute' with only one class and one attribute.  " +
-                    "Please enter this into the input box and click 'Delete Attribute'.";
-                
-                _inputBox.Focus();
-                return;
-            }
-            
-            string targetClassName = words[0];
-            string targetAttributeName = words[1];
-            
-            ClearInputBox();
-            _outputBox.Text = string.Format("Attribute Deleted ({0} => {1})", targetClassName, targetAttributeName);
-        }
-
+      
         private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
         {
             // Create and wire up a new modal dialogue to the 'AddClassPanel'
@@ -754,11 +602,11 @@ namespace UMLEditor.Views
                                 // Attempt to create a new class with the given information.  Alert if succeeds
                                 _activeDiagram.AddClass(enteredName);
                                 RenderClasses(enteredName);
-                                RaiseAlert(
-                                    "Class Added",
-                                    $"Class '{enteredName}' created",
-                                    "",
-                                    AlertIcon.INFO);
+                                //RaiseAlert(
+                                //    "Class Added",
+                                //    $"Class '{enteredName}' created",
+                                //    "",
+                                //    AlertIcon.INFO);
                             }
                             // If fails, raise an alert.
                             catch (Exception e)
@@ -809,7 +657,6 @@ namespace UMLEditor.Views
             
             string targetClassName = words[0];
 
-            ClearInputBox();
             _outputBox.Text = string.Format("Class Deleted {0}", words[0]);
         }
 
@@ -899,55 +746,357 @@ namespace UMLEditor.Views
             });
         }
         
-        private void DeleteRelationship_OnClick(object sender, RoutedEventArgs e)
+        
+        /// <summary>
+        /// Event handler to add a relationship when the menu option is selected
+        /// </summary>
+        /// <param name="sender">Object that generated the event</param>
+        /// <param name="e">Extra arguments sent to the handler</param>
+        private void Add_Relationship_OnClick(object sender, RoutedEventArgs e)
         {
-            // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, add relationship if valid.
-            string input = _inputBox.Text;
+            // Create a new modal dialogue and wire it up to the 'AddRelationshipPanel'
+            ModalDialog addRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Add New Relationship", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult = addRelationshipModal.ShowDialog<DialogButtons>(this);
             
-            // Split the input into words to use later on.
-            string[] words = input.Split(" ".ToCharArray() , StringSplitOptions.RemoveEmptyEntries);
-
-            if (words.Length == 0)
+            // Spin up the result
+            modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
-                // No input arguments
-                _outputBox.Text = 
-                    "To delete a relationship, please enter source and destination in the format " +
-                    "'A B' into the input box and then click 'Delete Relationship'.";
+                // Case where user does not select OKAY button.
+                if (result.Result != DialogButtons.OKAY)
+                {
+                    return;
+                }
+                // Dispatching a UIThread to ensure the body is executed in thread-safe manor.
+                Dispatcher.UIThread.Post(() =>
+                {
+                    // Creating the variables that we will be snagging from the 'AddRelationshipPanel'
+                    string sourceName = addRelationshipModal.GetPrompt<AddRelationshipPanel>().SourceClass;
+                    string destinationName = addRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
+                    string relationshipType = addRelationshipModal.GetPrompt<AddRelationshipPanel>().SelectedType;
+                  
+                    // Verification to check if no input was added
+                    if (sourceName is null || sourceName.Trim().Length == 0)
+                    {
+                        RaiseAlert(
+                            "Relationship Creation Failed", 
+                            "Could Not Create Relationship",
+                            "The source name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    // Verification to check if no input was added
+                    if (destinationName is null || destinationName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Relationship Creation Failed", 
+                            "Could Not Create Relationship",
+                            "The destination name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+                    // Verification to check if no input was added
+                    if (relationshipType is null || relationshipType.Trim().Length == 0)
+                    {
+                        RaiseAlert(
+                            "Relationship Creation Failed", 
+                            "Could Not Create Relationship",
+                            "The relationship type name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    switch (result.Result)
+                    {
+                        // If OKAY was selected...
+                        case DialogButtons.OKAY:
+
+                            try
+                            {
+                                // Attempt to create a new relationship with the information given.
+                                _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
+                               // RaiseAlert(
+                                //    "Relationship Added",
+                                 //   $"Relationship '{sourceName} => {destinationName}' of type '{relationshipType}' created",
+                                 //   "",
+                                 //   AlertIcon.INFO);
+                                
+                                /// TODO Update this class search if a method is created
+
+                                ClassBox sourceClassBox = new ClassBox();
+                                ClassBox destClassBox = new ClassBox();
+                                foreach (var classBox in _classBoxes)
+                                {
+                                    if (classBox.Name == sourceName)
+                                    {
+                                        sourceClassBox = classBox;
+                                    }
+
+                                    if (classBox.Name == destinationName)
+                                    {
+                                        destClassBox = classBox;
+                                    }
+                                }
+                                DrawRelationship(sourceClassBox, destClassBox, relationshipType);
+                            }
+                            // Alert if the add fails.
+                            catch (Exception e)
+                            {
+                                RaiseAlert(
+                                    "Relationship Creation Failed",
+                                    $"Could not create relationship '{sourceName} => {destinationName}'",
+                                    e.Message,
+                                    AlertIcon.ERROR
+                                );
+                            }
+                            break;
+                    }
+                });
+            });
+        }
+        
+        private void Change_Relationship_OnClick(object sender, RoutedEventArgs e)
+        {
+            // Create a new modal dialogue and wire it up to the 'ChangeRelationshipPanel'
+            ModalDialog changeRelationshipModal = ModalDialog.CreateDialog<ChangeRelationshipPanel>("Change Relationship Type", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult = changeRelationshipModal.ShowDialog<DialogButtons>(this);
+            
+            // Spin up the result
+            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            {
+                // Case where user does not select OKAY button.
+                if (result.Result != DialogButtons.OKAY)
+                {
+                    return;
+                }
+                // Dispatching a UIThread to ensure the body is executed in thread-safe manor.
+                Dispatcher.UIThread.Post(() =>
+                {
+                    // Creating the variables that we will be snagging from the 'ChangeRelationshipPanel'
+                    string sourceName = changeRelationshipModal.GetPrompt<ChangeRelationshipPanel>().SourceClass;
+                    string destinationName = changeRelationshipModal.GetPrompt<ChangeRelationshipPanel>().DestinationClass;
+                    string relationshipType = changeRelationshipModal.GetPrompt<ChangeRelationshipPanel>().SelectedType;
+                  
+                    // Verification to check if no input was added
+                    if (sourceName is null || sourceName.Trim().Length == 0)
+                    {
+                        RaiseAlert(
+                            "Type Change Failed", 
+                            "Could Not Change Relationship Type",
+                            "The source name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    // Verification to check if no input was added
+                    if (destinationName is null || destinationName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Type Change Failed", 
+                            "Could Not Change Relationship Type",
+                            "The destination name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+                    // Verification to check if no input was added
+                    if (relationshipType is null || relationshipType.Trim().Length == 0)
+                    {
+                        RaiseAlert(
+                            "Type Change Failed", 
+                            "Could Not Change Relationship Type",
+                            "The relationship type name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    switch (result.Result)
+                    {
+                        // If OKAY was selected...
+                        case DialogButtons.OKAY:
+
+                            try
+                            {
+                                // Attempt to change a relationship type with the information given.  If succeeds raise an alert.
+                                _activeDiagram.ChangeRelationship(sourceName,destinationName,relationshipType);
+                                RaiseAlert(
+                                    "Relationship Type Changed",
+                                    $"Relationship '{sourceName} => {destinationName}' type changed to '{relationshipType}'",
+                                    "",
+                                    AlertIcon.INFO);
+                                
+                                /// TODO Update this class search if a method is created
+                                RelationshipLine currentLine = new RelationshipLine();
+                                foreach (var line in _relationshipLines)
+                                {
+                                    if (line.SourceClass.Name == sourceName &&
+                                        line.DestClass.Name == destinationName)
+                                    {
+                                        currentLine = line;
+                                    }
+                                }
+                                ClassBox sourceClassBox = new ClassBox();
+                                ClassBox destClassBox = new ClassBox();
+                                foreach (var classBox in _classBoxes)
+                                {
+                                    if (classBox.Name == sourceName)
+                                    {
+                                        sourceClassBox = classBox;
+                                    }
+
+                                    if (classBox.Name == destinationName)
+                                    {
+                                        destClassBox = classBox;
+                                    }
+                                }
+                                List<IControl> children = new List<IControl>(_canvas.Children); 
+                                foreach (var control in children)
+                                {
+                                    if (control.GetType() == typeof(Line) || control.GetType() == typeof(Polyline))
+                                    {
+                                        _canvas.Children.Remove(control);
+                                    }
+                                }
+                                _relationshipLines.Remove(currentLine);
+                                DrawRelationship(sourceClassBox,destClassBox,relationshipType);
+                            }
+                            // Alert if the change fails.
+                            catch (Exception e)
+                            {
+                                RaiseAlert(
+                                    "Type Change Failed",
+                                    $"Could not change type to '{relationshipType}'",
+                                    e.Message,
+                                    AlertIcon.ERROR
+                                );
+                            }
+                            break;
+                    }
+                });
+            });
+        }
+        
+        private void Delete_Relationship_OnClick(object sender, RoutedEventArgs e)
+        {
+            // Create a new modal dialogue and wire it up to the 'DeleteRelationshipPanel'
+            ModalDialog deleteRelationshipModal = ModalDialog.CreateDialog<DeleteRelationshipPanel>("Delete Relationship", DialogButtons.OK_CANCEL);
+            Task<DialogButtons> modalResult = deleteRelationshipModal.ShowDialog<DialogButtons>(this);
+            // Spin up the result
+            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            {
+                // Case where user does not select OKAY button.
+                if (result.Result != DialogButtons.OKAY)
+                {
+                    return;
+                }
+                // Dispatching a UIThread to ensure the body is executed in thread-safe manor.
+                Dispatcher.UIThread.Post(() =>
+                {
+                    // Creating the variables that we will be snagging from the 'DeleteRelationshipPanel'
+                    string sourceName = deleteRelationshipModal.GetPrompt<DeleteRelationshipPanel>().SourceClass;
+                    string destinationName = deleteRelationshipModal.GetPrompt<DeleteRelationshipPanel>().DestinationClass;
+                  
+                    // Verification to check if no input was added
+                    if (sourceName is null || sourceName.Trim().Length == 0)
+                    {
+                        RaiseAlert(
+                            "Relationship Deletion Failed", 
+                            "Could Not Delete Relationship",
+                            "The source name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+                    }
+                    // Verification to check if no input was added
+                    if (destinationName is null || destinationName.Trim().Length == 0)
+                    {
+
+                        RaiseAlert(
+                            "Relationship Deletion Failed", 
+                            "Could Not Delete Relationship",
+                            "The destination name cannot be empty",
+                            AlertIcon.ERROR
+                        );
+                        return;
+
+                    }
+                    switch (result.Result)
+                    {
+                        // If OKAY was selected...
+                        case DialogButtons.OKAY:
+
+                            try
+                            {
+                                // Attempt to delete relationship with the information given.  If succeeds raise an alert.
+                                _activeDiagram.DeleteRelationship(sourceName,destinationName);
+                                //RaiseAlert(
+                                //    "Relationship Deleted",
+                                //    $"Relationship '{sourceName} => {destinationName}' of type '{relationshipType}' deleted",
+                                //    "",
+                                //    AlertIcon.INFO);
+                                RelationshipLine currentLine = new RelationshipLine();
+                                foreach (var line in _relationshipLines)
+                                {
+                                    if (line.SourceClass.Name == sourceName &&
+                                        line.DestClass.Name == destinationName)
+                                    {
+                                        currentLine = line;
+                                    }
+                                }
+
+                                List<IControl> children = new List<IControl>(_canvas.Children); 
+                                foreach (var control in children)
+                                {
+                                    if (control.GetType() == typeof(Line) || control.GetType() == typeof(Polyline))
+                                    {
+                                        _canvas.Children.Remove(control);
+                                    }
+                                }
+                                _relationshipLines.Remove(currentLine);
+
+                            }
+                            // Alert if the delete fails.
+                            catch (Exception e)
+                            {
+                                RaiseAlert(
+                                    "Relationship Delete Failed",
+                                    $"Could not delete relationship '{sourceName} => {destinationName}'",
+                                    e.Message,
+                                    AlertIcon.ERROR
+                                );
+                            }
+                            break;
+                    }
+                });
+            });
+        }
+
+        private void Redraw_Relationship_OnClick(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("To be implemented");
+            return;
+            Dispatcher.UIThread.Post(() =>
+            {
+                List<IControl> children = new List<IControl>(_canvas.Children); 
+                foreach (var control in children)
+                {
+                    if (control.GetType() == typeof(Line) || control.GetType() == typeof(Polyline))
+                    {
+                        _canvas.Children.Remove(control);
+                    }
+                }
+
                 
-                _inputBox.Focus();
-                return;
-            }
-            
-            //Ensures two classes entered
-            if (words.Length != 2)
-            {
-                _outputBox.Text =
-                    "Two classes required to delete relationship";
-                
-                _inputBox.Focus();
-                return;
-            }
-            
-            string sourceClassName = words[0];
-            string destClassName = words[1];
-            
-            try
-            {
-
-                throw new NotImplementedException("Delete relationship needs to be refactored");
-                // _activeDiagram.DeleteRelationship(sourceClassName, destClassName);
-
-            }
-            
-            catch (RelationshipNonexistentException exception)
-            {
-                _outputBox.Text = exception.Message;
-                _inputBox.Focus();
-                return;
-            }
-            
-            ClearInputBox();
-            _outputBox.Text = string.Format("Relationship Deleted ({0} => {1})", sourceClassName, destClassName);
+                foreach (var VARIABLE in _relationshipLines)
+                {
+                    
+                }
+            });
         }
 
         private void Add_Method_OnClick(object sender, RoutedEventArgs e)
@@ -1339,6 +1488,7 @@ namespace UMLEditor.Views
             foreach (string currentClassName in withName)
             {
                 ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this);
+                _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
             }            
             
@@ -1354,9 +1504,10 @@ namespace UMLEditor.Views
             foreach (Class currentClass in withClasses)
             {
                 ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this);
+                _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);;
             }
-            
+
         }
 
         /// <summary>
@@ -1375,7 +1526,6 @@ namespace UMLEditor.Views
         {
             _canvas.Children.Clear();
         }
-
     }
     
     

@@ -31,6 +31,20 @@
                                                   Click="Class_AddClass_OnClick"
                                                   />
                                 </MenuItem>
+                                <MenuItem Header="_Relationship">
+                                        <MenuItem Header="_Add"
+                                                  Click="Add_Relationship_OnClick"
+                                        />
+                                        <MenuItem Header="_Change"
+                                                  Click="Change_Relationship_OnClick"
+                                        />
+                                        <MenuItem Header="_Delete"
+                                                  Click="Delete_Relationship_OnClick"
+                                        />
+                                        <MenuItem Header="_Redraw Lines"
+                                                  Click="Redraw_Relationship_OnClick"
+                                        />
+                                </MenuItem>
                                 <MenuItem Header="Utility">
                                         <MenuItem Header="_Help"
                                                   Click="HelpB_OnClick"
