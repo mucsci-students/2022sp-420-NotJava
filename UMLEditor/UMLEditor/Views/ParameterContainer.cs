@@ -31,6 +31,11 @@ public class ParameterContainer : FieldContainer
             parentWindow.RequestParameterDeletion(this, _parentMethod);
         };
 
+        _editButton.Click += (object sender, RoutedEventArgs args) =>
+        {
+            parentWindow.RequestParamRename(this, _parentMethod);
+        };
+
     }
     
 }

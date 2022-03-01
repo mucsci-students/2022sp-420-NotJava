@@ -14,6 +14,7 @@ public class Method : AttributeObject, ICloneable
 
     // Public accessor for Parameters
     // Creates copies to ensure data integrity
+    [JsonIgnore]
     public List<NameTypeObject> Parameters
     {
         get => Utilities.CloneContainer(_parameters);
@@ -43,11 +44,23 @@ public class Method : AttributeObject, ICloneable
     {
         
         CheckValidAttributeName(withName);
+        CheckValidAttributeName(returnType);
         AttributeName = withName;
         ReturnType = returnType; 
 
     }
-
+    
+    /// <summary>
+    /// Constructs a new method with the provided name, type, and a list of parameters.
+    /// </summary>
+    /// <param name="returnType"></param>
+    /// <param name="withName"></param>
+    /// <param name="parameters"></param>
+    public Method(string returnType, string withName, List<NameTypeObject> parameters) : this(returnType, withName)
+    {
+        _parameters = parameters;
+    }
+    
     /// <summary>
     /// Copy constructor
     /// </summary>
@@ -69,7 +82,7 @@ public class Method : AttributeObject, ICloneable
 
     /// <summary>
     /// Locates the provided parameter contained in this method
-    /// and returns the reference to the paramter in the list 
+    /// and returns the reference to the parameter in the list 
     /// </summary>
     /// <param name="param">The parameter to locate</param>
     /// <returns>The reference of the parameter in the list, if it exists at all</returns>
@@ -84,6 +97,23 @@ public class Method : AttributeObject, ICloneable
         }
         return null;
     }
+
+    /// <summary>
+    /// Locates the provided parameter in this method and returns the reference to the parameter in the list 
+    /// </summary>
+    /// <param name="paramName">The name of the parameter to search for</param>
+    /// <returns>The reference of the parameter in the list, if it exists at all</returns>
+    public NameTypeObject? FindParamInList(string paramName)
+    {
+        foreach (NameTypeObject p in _parameters)
+        {
+            if (p.AttributeName == paramName)
+            {
+                return p;
+            }
+        }
+        return null;
+    }
     
     /// <summary>
     /// Checks if given parameter is in the current parameter list using name
@@ -92,14 +122,7 @@ public class Method : AttributeObject, ICloneable
     /// <returns>True if the given parameter is in the list, false otherwise</returns>
     public bool IsParamInList(string paramName)
     {
-        foreach (NameTypeObject p in _parameters)
-        {
-            if (p.AttributeName == paramName)
-            {
-                return true;
-            }
-        }
-        return false;
+        return FindParamInList(paramName) is not null;
     }
 
     /// <summary>
@@ -183,6 +206,53 @@ public class Method : AttributeObject, ICloneable
         _parameters[_parameters.IndexOf(oldParam)] = newParam;
     }
 
+    /// <summary>
+    /// Changes the name on the provided parameter
+    /// </summary>
+    /// <param name="oldParamName">The current (old) parameter name</param>
+    /// <param name="newParamName">The new name for the parameter</param>
+    public void RenameParam(string oldParamName, string newParamName)
+    {
+
+        if (!IsParamInList(oldParamName))
+        {
+            throw new AggregateException($"Method '{AttributeName}' does not have a parameter named '{oldParamName}'");
+        }
+
+        NameTypeObject? targetParam = FindParamInList(oldParamName);
+        targetParam!.AttRename(newParamName);
+
+    }
+
+    /// <summary>
+    /// Replaces a provided parameter with a new one
+    /// </summary>
+    /// <param name="toReplace">The parameter to replace</param>
+    /// <param name="replaceWith">The new anatomy of the parameter</param>
+    public void ReplaceParam(NameTypeObject toReplace, NameTypeObject replaceWith)
+    {
+
+        // Make sure the new name is not a duplicate
+        bool nameChanged = toReplace.AttributeName != replaceWith.AttributeName;
+        if (nameChanged && IsParamInList(replaceWith))
+        {
+            throw new AttributeAlreadyExistsException($"A parameter by the name of '{replaceWith.AttributeName}' already exists in method '{AttributeName}'");
+        }
+
+        // Make sure the source parameter exists
+        if (!IsParamInList(toReplace))
+        {
+            throw new AttributeNonexistentException($"Parameter '{replaceWith.ToString()}' does not exist in method '{AttributeName}'");
+        }
+
+        /* - Find a reference to the target parameter
+         * - Rename the target parameter and apply the new type */
+        NameTypeObject? targetParam = FindParamInList(toReplace);
+        targetParam!.AttRename(replaceWith.AttributeName);
+        targetParam!.ChangeType(replaceWith.Type);
+
+    }
+    
     /// <summary>
     /// Changes existing parameter list to the provided one
     /// </summary>

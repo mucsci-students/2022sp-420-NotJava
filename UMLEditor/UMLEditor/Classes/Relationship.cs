@@ -10,8 +10,10 @@ using Exceptions;
 public class Relationship : ICloneable
 {
     // Valid relationship types
+    [JsonIgnore]
     private static readonly List<string> _validTypes = new List<string>{"aggregation", "composition", "inheritance", "realization"};
 
+    [JsonIgnore]
     public static List<string> ValidTypes
     {
         get => new List<string>(_validTypes);

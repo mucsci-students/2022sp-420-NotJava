@@ -86,7 +86,7 @@ public class ClassBox : UserControl
     /// <param name="parentWindow">A reference to the window this class is shown in</param>
     public ClassBox(string withClassName, ref Diagram inDiagram, MainWindow parentWindow) : this()
     {
-        
+        Name = withClassName;
         _classNameLabel.Content = withClassName;
         _activeDiagram = inDiagram;
         _parentWindow = parentWindow;
@@ -291,7 +291,7 @@ public class ClassBox : UserControl
         (
         
             "Confirm Deletion",
-            $"Delete field {toDelete.FieldName} from {ClassName}?",
+            $"Delete field '{toDelete.FieldName}' from '{ClassName}'?",
             "Are you sure you want to delete this?",
             AlertIcon.QUESTION,
             (selection) =>
@@ -316,7 +316,7 @@ public class ClassBox : UserControl
                     
                             _parentWindow.RaiseAlert(
                                 "Deletion Failed",
-                                $"Deletion Failed",
+                                "Deletion Failed",
                                 e.Message,
                                 AlertIcon.ERROR
                             );
@@ -370,7 +370,7 @@ public class ClassBox : UserControl
                     
                             _parentWindow.RaiseAlert(
                                 "Deletion Failed",
-                                $"Deletion Failed",
+                                "Deletion Failed",
                                 e.Message,
                                 AlertIcon.ERROR
                             );
@@ -387,4 +387,109 @@ public class ClassBox : UserControl
 
     }
 
+    /// <summary>
+    /// Prompts the user to change the name of a field
+    /// </summary>
+    /// <param name="onContainer">The FieldContainer the click event was raised from</param>
+    public void RequestFieldRename(FieldContainer onContainer)
+    {
+
+        ModalDialog editBox = ModalDialog.CreateDialog<AddFieldPanel>($"Rename Field '{onContainer.FieldName}'", DialogButtons.OK_CANCEL);
+        AddFieldPanel form = editBox.GetPrompt<AddFieldPanel>();
+        form.FieldName = onContainer.FieldName;
+        form.FieldType = onContainer.Type;
+        
+        editBox.ShowDialog<DialogButtons>(_parentWindow).ContinueWith((selection) =>
+        {
+
+            if (selection.Result == DialogButtons.OKAY)
+            {
+                
+                Dispatcher.UIThread.Post(() =>
+                {
+
+                    try
+                    {
+                                            
+                        NameTypeObject oldField = new NameTypeObject(onContainer.Type, onContainer.FieldName);
+                        NameTypeObject newField = new NameTypeObject(form.FieldType, form.FieldName);
+
+                        _activeDiagram.RestructureField(ClassName, oldField, newField);
+                        onContainer.ChangeAnatomy(newField);
+
+                    }
+
+                    catch (Exception e)
+                    {
+                        
+                        _parentWindow.RaiseAlert(
+                            "Field Rename Failed",
+                            "Field Rename Failed",
+                            e.Message,
+                            AlertIcon.ERROR
+                        );
+                        
+                    }
+
+                });
+                
+            }
+
+        });
+
+    }
+
+    /// <summary>
+    /// Prompts the user to modify a parameter on a method
+    /// </summary>
+    /// <param name="onContainer">The FieldContainer the event was raised from</param>
+    /// <param name="onParentMethod">The method this parameter is a member of</param>
+    public void RequestParamRename(FieldContainer onContainer, MethodContainer onParentMethod)
+    {
+
+        ModalDialog editBox = ModalDialog.CreateDialog<AddFieldPanel>($"Rename Parameter '{onContainer.FieldName}'", DialogButtons.OK_CANCEL);
+        AddFieldPanel form = editBox.GetPrompt<AddFieldPanel>();
+        form.FieldName = onContainer.FieldName;
+        form.FieldType = onContainer.Type;
+        
+        editBox.ShowDialog<DialogButtons>(_parentWindow).ContinueWith((selection) =>
+        {
+
+            if (selection.Result == DialogButtons.OKAY)
+            {
+                
+                Dispatcher.UIThread.Post(() =>
+                {
+
+                    try
+                    {
+                                            
+                        NameTypeObject oldParam = new NameTypeObject(onContainer.Type, onContainer.FieldName);
+                        NameTypeObject newParam = new NameTypeObject(form.FieldType, form.FieldName);
+
+                        _activeDiagram.RestructureParameter(ClassName, onParentMethod.MethodName, oldParam, newParam);
+                        onContainer.ChangeAnatomy(newParam);
+
+                    }
+
+                    catch (Exception e)
+                    {
+                        
+                        _parentWindow.RaiseAlert(
+                            "Parameter Rename Failed",
+                            "Parameter Rename Failed",
+                            e.Message,
+                            AlertIcon.ERROR
+                        );
+                        
+                    }
+
+                });
+                
+            }
+
+        });
+
+    }
+    
 }
