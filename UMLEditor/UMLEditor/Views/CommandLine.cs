@@ -381,6 +381,16 @@ public class CommandLine
                                      "followed by the source class, destination class, and relationship type then press enter.", ERROR_COLOR);
                 } 
                 break;
+            
+            case ("change_relationship_type"):
+                if (arguments.Count != 3)
+                {
+                    PrintColoredLine("To change the type of an existing relationship, please provide a source and destination" +
+                                     "class and the new relationship type", ERROR_COLOR);
+                    break;
+                }
+                
+                
 
             case ("list_relationships"):
                 if (arguments.Count == 0)
