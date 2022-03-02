@@ -43,10 +43,11 @@
                     VerticalAlignment="Center"
                     FontWeight="Bold"/>
             </ScrollViewer>
-            <Button Grid.Column="5" Classes="ControlButton" Click="RenameClass_Button_OnClick">
+            <!-- TODO: Flip trash can and double arrow buttons -->
+            <Button Grid.Column="6" Classes="ControlButton" Click="RenameClass_Button_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
             </Button>
-            <Button Grid.Column="6" Classes="ControlButton">
+            <Button Grid.Column="5" Classes="ControlButton" IsVisible="False">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/DoubleArrowButton.png"></Image>
             </Button>
             <Button Grid.Column="7" Classes="ControlButton" Click="DeleteClass_Button_OnClick">
@@ -91,7 +92,7 @@
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
             </ScrollViewer>
-            <Button Grid.Column="7" Classes="ControlButton">
+            <Button Grid.Column="7" Classes="ControlButton" Click="AddMethodButton_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>

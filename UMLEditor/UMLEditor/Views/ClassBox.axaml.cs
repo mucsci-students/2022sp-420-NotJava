@@ -16,9 +16,17 @@ using UMLEditor.Classes;
 public class ClassBox : UserControl
 {
 
+    private string _className;
     public string ClassName
     {
-        get => (string) _classNameLabel.Content;
+        get => _className;
+        private set
+        {
+
+            _className = value;
+            _classNameLabel.Content = $"_{_className}";
+
+        }
     }
 
     private StackPanel fieldsArea;
@@ -87,7 +95,7 @@ public class ClassBox : UserControl
     public ClassBox(string withClassName, ref Diagram inDiagram, MainWindow parentWindow) : this()
     {
         Name = withClassName;
-        _classNameLabel.Content = withClassName;
+        ClassName = withClassName;
         _activeDiagram = inDiagram;
         _parentWindow = parentWindow;
 
@@ -210,7 +218,7 @@ public class ClassBox : UserControl
 
                         AddClassPanel form = dialog.GetPrompt<AddClassPanel>();
                         _activeDiagram.RenameClass(ClassName, form.ClassName);
-                        _classNameLabel.Content = form.ClassName;
+                        ClassName = form.ClassName;
 
                     }
 
@@ -488,6 +496,211 @@ public class ClassBox : UserControl
                 
             }
 
+        });
+
+    }
+
+    /// <summary>
+    /// Prompts the user to delete a specific method
+    /// </summary>
+    /// <param name="toDelete">The method container the event came from</param>
+    public void RequestMethodDelete(MethodContainer toDelete)
+    {
+        
+        _parentWindow.RaiseConfirmation
+        (
+            
+            $"Delete Method '{toDelete.ReturnType} {toDelete.MethodName}'",
+            $"Delete Method '{toDelete.ReturnType} {toDelete.MethodName}'?",
+            $"Are you sure you want to delete '{toDelete.ReturnType} {toDelete.MethodName}?'",
+            AlertIcon.QUESTION,
+            (selection) =>
+            {
+
+                if (selection.Result == DialogButtons.YES)
+                {
+
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        
+                        try
+                        {
+    
+                            _activeDiagram.DeleteMethod(ClassName, toDelete.MethodName);
+                            methodsArea.Children.Remove(toDelete);
+    
+                        }
+                        
+                        catch (Exception e)
+                        {
+                            
+                            _parentWindow.RaiseAlert(
+                                "Method Deletion Failed",
+                                "Method Deletion Failed",
+                                e.Message,
+                                AlertIcon.ERROR
+                            );
+                            
+                        }
+                        
+                    });
+                    
+                }
+                
+            }
+
+        );
+        
+    }
+
+    /// <summary>
+    /// Prompts the user to change the name and type of the provided method
+    /// </summary>
+    /// <param name="onMethod">The MethodContainer the event came from</param>
+    public void RequestMtdNameTypeChange(MethodContainer onMethod)
+    {
+
+        ModalDialog prompt = ModalDialog.CreateDialog<AddFieldPanel>($"Edit '{onMethod.ReturnType} {onMethod.MethodName}'", DialogButtons.OK_CANCEL);
+        AddFieldPanel form = prompt.GetPrompt<AddFieldPanel>();
+        form.FieldName = onMethod.MethodName;
+        form.FieldType = onMethod.ReturnType;
+        
+        prompt.ShowDialog<DialogButtons>(_parentWindow).ContinueWith((selection) =>
+        {
+
+            if (selection.Result == DialogButtons.OKAY)
+            {
+                
+                Dispatcher.UIThread.Post(() =>
+                {
+            
+                    try
+                    {
+
+                        NameTypeObject newAnatomy = new NameTypeObject(form.FieldType, form.FieldName);
+                        _activeDiagram.ChangeMethodNameType
+                        (
+                            ClassName, 
+                            onMethod.MethodName, 
+                            newAnatomy
+                        );
+
+                        onMethod.ChangeNameType(newAnatomy);
+
+                    }
+                    
+                    catch (Exception e)
+                    {
+                        
+                        _parentWindow.RaiseAlert(
+                            "Method Change Failed",
+                            "Method Change Failed",
+                            e.Message,
+                            AlertIcon.ERROR
+                        );
+
+                    }
+
+                });
+                
+            }
+            
+        });
+
+    }
+
+    /// <summary>
+    /// Prompts the user to add a parameter to the provided method
+    /// </summary>
+    /// <param name="onMethod">The method to add a paramter to</param>
+    public void RequestParameterAdd(MethodContainer onMethod)
+    {
+
+        ModalDialog prompt = ModalDialog.CreateDialog<AddFieldPanel>($"Add Parameter To Method '{onMethod.MethodName}'", DialogButtons.OK_CANCEL);
+        AddFieldPanel form = prompt.GetPrompt<AddFieldPanel>();
+        
+        prompt.ShowDialog<DialogButtons>(_parentWindow).ContinueWith((selection) =>
+        {
+
+            if (selection.Result == DialogButtons.OKAY)
+            {
+                
+                Dispatcher.UIThread.Post(() =>
+                {
+            
+                    try
+                    {
+
+                        NameTypeObject newParam = new NameTypeObject(form.FieldType, form.FieldName);
+                        _activeDiagram.AddParameter
+                        (
+                            ClassName, 
+                            onMethod.MethodName, 
+                            newParam
+                        );
+
+                        onMethod.AddParams(newParam);
+
+                    }
+                    
+                    catch (Exception e)
+                    {
+                        
+                        _parentWindow.RaiseAlert(
+                            "Parameter Add Failed",
+                            "Parameter Add Failed",
+                            e.Message,
+                            AlertIcon.ERROR
+                        );
+
+                    }
+
+                });
+                
+            }
+            
+        });
+
+    }
+    
+    private void AddMethodButton_OnClick(object sender, RoutedEventArgs e)
+    {
+
+        ModalDialog prompt = ModalDialog.CreateDialog<AddFieldPanel>("Create New Method", DialogButtons.OK_CANCEL);
+        prompt.ShowDialog<DialogButtons>(_parentWindow).ContinueWith((selection) =>
+        {
+
+            if (selection.Result == DialogButtons.OKAY)
+            {
+                
+                Dispatcher.UIThread.Post(() =>
+                {
+
+                    try
+                    {
+
+                        AddFieldPanel form = prompt.GetPrompt<AddFieldPanel>();
+                        _activeDiagram.AddMethod(ClassName, form.FieldType, form.FieldName);
+                        methodsArea.Children.Add(new MethodContainer(form.FieldType, form.FieldName, this));
+
+                    }
+                    
+                    catch (Exception e)
+                    {
+                        
+                        _parentWindow.RaiseAlert(
+                            "Method Add Failed",
+                            "Method Add Failed",
+                            e.Message,
+                            AlertIcon.ERROR
+                        );
+                        
+                    }
+
+                });
+                
+            }
+            
         });
 
     }

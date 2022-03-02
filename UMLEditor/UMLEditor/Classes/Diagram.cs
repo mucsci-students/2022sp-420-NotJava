@@ -496,5 +496,61 @@ public class Diagram
         targetClass!.RenameParameter(onMethod, oldParamName, newParamName);
 
     }
+
+    /// <summary>
+    /// Change the name and type of the provided method
+    /// </summary>
+    /// <param name="onClass">The class the method is on</param>
+    /// <param name="methodName">The name of the method to change</param>
+    /// <param name="newMethodAnatomy">The new name and type of the method</param>
+    public void ChangeMethodNameType(string onClass, string methodName, NameTypeObject newMethodAnatomy)
+    {
+        
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ChangeMethodNameType(methodName, newMethodAnatomy);
+
+    }
+
+    /// <summary>
+    /// Adds a new parameter to the provided method
+    /// </summary>
+    /// <param name="inClass">The class the method is on</param>
+    /// <param name="toMethod">The method to add a parameter to</param>
+    /// <param name="parameter">The new parameter to add</param>
+    public void AddParameter(string inClass, string toMethod, NameTypeObject parameter)
+    {
+        
+        if (!ClassExists(inClass))
+        {
+            throw new ClassNonexistentException($"Class '{inClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(inClass);
+        targetClass!.AddParameter(toMethod, parameter);
+
+    }
+    
+    /// <summary>
+    /// Deletes the provided method on the provided class
+    /// </summary>
+    /// <param name="onClass">The class the method is on</param>
+    /// <param name="methodName">The name of the method to delete</param>
+    public void DeleteMethod(string onClass, string methodName)
+    {
+
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.DeleteMethod(methodName);        
+
+    }
     
 }

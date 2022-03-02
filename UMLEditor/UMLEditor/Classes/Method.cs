@@ -261,6 +261,18 @@ public class Method : AttributeObject, ICloneable
     {
         _parameters = parameters;
     }
+
+    /// <summary>
+    /// Changes the return type of this method
+    /// </summary>
+    /// <param name="newType">The new return type</param>
+    public void ChangeReturnType(string newType)
+    {
+        
+        CheckValidAttributeName(newType);
+        ReturnType = newType;
+
+    }
     
     /// <summary>
     /// Returns the parameter list as a string separated list
