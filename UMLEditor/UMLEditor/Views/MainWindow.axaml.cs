@@ -245,6 +245,10 @@ namespace UMLEditor.Views
                         try
                         {
                             _activeDiagram = _activeFile.LoadDiagram(chosenFile);
+                            ClearCanvas();
+                            RenderClasses(_activeDiagram.Classes);
+                            Dispatcher.UIThread.RunJobs();
+                            RenderLines(_activeDiagram.Relationships);
                         }
             
                         catch (Exception exception)
@@ -258,11 +262,6 @@ namespace UMLEditor.Views
                             );
 
                         }
-                        
-                        ClearCanvas();
-                        RenderClasses(_activeDiagram.Classes);
-                        Dispatcher.UIThread.RunJobs();
-                        RenderLines(_activeDiagram.Relationships);
                     }
                     
                 });
