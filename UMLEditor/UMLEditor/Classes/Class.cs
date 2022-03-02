@@ -475,6 +475,51 @@ public class Class: ICloneable
         targetMethod!.ReplaceParam(toReplace, replaceWith);
         
     }
+
+    /// <summary>
+    /// Adds a parameter to a specific method 
+    /// </summary>
+    /// <param name="toMethod">The method to add the parameter to</param>
+    /// <param name="parameter">The parameter to add</param>
+    /// <exception cref="AttributeNonexistentException">If the provided method does not exist</exception>
+    public void AddParameter(string toMethod, NameTypeObject parameter)
+    {
+        
+        if (!MethodExists(toMethod))
+        {
+            throw new AttributeNonexistentException($"Method '{toMethod}' does not exist");
+        }
+
+        Method? targetMethod = GetMethodByName(toMethod);
+        targetMethod!.AddParam(parameter);
+        
+    }
+    
+    /// <summary>
+    /// Changes the name and type of a method within this class
+    /// </summary>
+    /// <param name="onMethod">The method to modify</param>
+    /// <param name="newMethodAnatomy">The new name and return type of the method</param>
+    /// <exception cref="AttributeNonexistentException">If the provided method does not exist</exception>
+    public void ChangeMethodNameType(string onMethod, NameTypeObject newMethodAnatomy)
+    {
+        
+        if (!MethodExists(onMethod))
+        {
+            throw new AttributeNonexistentException($"Method '{onMethod}' does not exist");
+        }
+
+        // If the name changed, check that it isn't a duplicate
+        if (onMethod != newMethodAnatomy.AttributeName && MethodExists(newMethodAnatomy.AttributeName))
+        {
+            throw new AttributeAlreadyExistsException($"A method by the name '{newMethodAnatomy.AttributeName}' already exists");
+        }
+        
+        Method? targetMethod = GetMethodByName(onMethod);
+        targetMethod!.AttRename(newMethodAnatomy.AttributeName);
+        targetMethod!.ChangeReturnType(newMethodAnatomy.Type);
+        
+    }
     
     /// <summary>
     /// Renames class.  Checks to ensure name is valid
