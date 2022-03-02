@@ -1344,9 +1344,9 @@ namespace UMLEditor.Views
                 }
             }
 
-            newLine.StartLine = GetLine(start,midStart);
-            newLine.MidLine = GetLine(midStart, midEnd);
-            newLine.EndLine = GetLine(midEnd, end);
+            newLine.StartLine = CreateRelationshipLine(start,midStart);
+            newLine.MidLine = CreateRelationshipLine(midStart, midEnd);
+            newLine.EndLine = CreateRelationshipLine(midEnd, end);
             
             // Add lines to the canvas
             _canvas.Children.Add(newLine.StartLine);
@@ -1357,21 +1357,21 @@ namespace UMLEditor.Views
             switch (relationshipType)
             {
                 case "aggregation":
-                    _canvas.Children.Add(GetSymbol(diamondPoints));
+                    _canvas.Children.Add(CreateRelationshipSymbol(diamondPoints));
                     break;
                 case "composition":
-                    Polyline polyline = GetSymbol(diamondPoints);
+                    Polyline polyline = CreateRelationshipSymbol(diamondPoints);
                     polyline.Fill = _brush;
                     _canvas.Children.Add(polyline);
                     break;
                 case "inheritance":
-                    _canvas.Children.Add(GetSymbol(trianglePoints));
+                    _canvas.Children.Add(CreateRelationshipSymbol(trianglePoints));
                     break;
                 case "realization":
                     newLine.StartLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
                     newLine.MidLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
                     newLine.EndLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    newLine.Symbol = GetSymbol(trianglePoints);
+                    newLine.Symbol = CreateRelationshipSymbol(trianglePoints);
                     _canvas.Children.Add(newLine.Symbol);
                     break;
             }
@@ -1383,7 +1383,7 @@ namespace UMLEditor.Views
         /// </summary>
         /// <param name="points">A list of points for the vertices to draw</param>
         /// <returns>The new relationship symbol</returns>
-        private Polyline GetSymbol(List<Point> points)
+        private Polyline CreateRelationshipSymbol(List<Point> points)
         {
             Polyline polyline = new Polyline();
             polyline.Name = "Polyline";
@@ -1399,7 +1399,7 @@ namespace UMLEditor.Views
         /// <param name="lineStart">Point to start at</param>
         /// <param name="lineEnd">Point to end at</param>
         /// <returns>The new line</returns>
-        private Line GetLine(Point lineStart, Point lineEnd)
+        private Line CreateRelationshipLine(Point lineStart, Point lineEnd)
         {
             Line l = new Line();
             l.Name = "Line";
