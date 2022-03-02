@@ -612,7 +612,7 @@ public class ClassBox : UserControl
     /// <summary>
     /// Prompts the user to add a parameter to the provided method
     /// </summary>
-    /// <param name="onMethod">The method to add a paramter to</param>
+    /// <param name="onMethod">The method to add a parameter to</param>
     public void RequestParameterAdd(MethodContainer onMethod)
     {
 
