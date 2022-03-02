@@ -335,7 +335,7 @@ namespace UMLEditor.Views
             {
                 // Establish a filter for the current file extension
                 FileDialogFilter filter = new FileDialogFilter();
-                filter.Name = string.Format(".{0} Diagram Files", extension);
+                filter.Name = $".{extension} Diagram Files";
                 filter.Extensions.Add(extension);
 
                 openFD.Filters.Add(filter);
@@ -558,7 +558,6 @@ namespace UMLEditor.Views
                 });
             });
         }
-      
         private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
         {
             // Create and wire up a new modal dialogue to the 'AddClassPanel'
@@ -626,6 +625,7 @@ namespace UMLEditor.Views
 
         private void Class_DeleteClass_OnClick(object sender, RoutedEventArgs e)
         {
+            /*
             // User input is taken in from the textbox, validation is done to make sure that what the user entered is valid, delete attribute if is.
             string input = _inputBox.Text;
             
@@ -658,6 +658,7 @@ namespace UMLEditor.Views
             string targetClassName = words[0];
 
             _outputBox.Text = string.Format("Class Deleted {0}", words[0]);
+            */
         }
 
         private void Class_RenameClass_OnClick(object sender, RoutedEventArgs e)
