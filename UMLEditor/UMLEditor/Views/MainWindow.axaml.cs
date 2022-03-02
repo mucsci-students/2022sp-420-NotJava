@@ -574,80 +574,38 @@ namespace UMLEditor.Views
                     string destinationName = addRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
                     string relationshipType = addRelationshipModal.GetPrompt<AddRelationshipPanel>().SelectedType;
                   
-                    // Verification to check if no input was added
-                    if (sourceName is null || sourceName.Trim().Length == 0)
+                   try
                     {
-                        RaiseAlert(
-                            "Relationship Creation Failed", 
-                            "Could Not Create Relationship",
-                            "The source name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    // Verification to check if no input was added
-                    if (destinationName is null || destinationName.Trim().Length == 0)
-                    {
+                        // Attempt to create a new relationship with the information given.
+                        _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
+                        
+                        /// TODO Update this class search if a method is created
 
-                        RaiseAlert(
-                            "Relationship Creation Failed", 
-                            "Could Not Create Relationship",
-                            "The destination name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-
-                    }
-                    // Verification to check if no input was added
-                    if (relationshipType is null || relationshipType.Trim().Length == 0)
-                    {
-                        RaiseAlert(
-                            "Relationship Creation Failed", 
-                            "Could Not Create Relationship",
-                            "The relationship type name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    switch (result.Result)
-                    {
-                        // If OKAY was selected...
-                        case DialogButtons.OKAY:
-
-                            try
+                        ClassBox sourceClassBox = new ClassBox();
+                        ClassBox destClassBox = new ClassBox();
+                        foreach (var classBox in _classBoxes)
+                        {
+                            if (classBox.Name == sourceName)
                             {
-                                // Attempt to create a new relationship with the information given.
-                                _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
-                                
-                                /// TODO Update this class search if a method is created
-
-                                ClassBox sourceClassBox = new ClassBox();
-                                ClassBox destClassBox = new ClassBox();
-                                foreach (var classBox in _classBoxes)
-                                {
-                                    if (classBox.Name == sourceName)
-                                    {
-                                        sourceClassBox = classBox;
-                                    }
-
-                                    if (classBox.Name == destinationName)
-                                    {
-                                        destClassBox = classBox;
-                                    }
-                                }
-                                DrawRelationship(sourceClassBox, destClassBox, relationshipType);
+                                sourceClassBox = classBox;
                             }
-                            // Alert if the add fails.
-                            catch (Exception e)
+
+                            if (classBox.Name == destinationName)
                             {
-                                RaiseAlert(
-                                    "Relationship Creation Failed",
-                                    $"Could not create relationship '{sourceName} => {destinationName}'",
-                                    e.Message,
-                                    AlertIcon.ERROR
-                                );
+                                destClassBox = classBox;
                             }
-                            break;
+                        }
+                        DrawRelationship(sourceClassBox, destClassBox, relationshipType);
+                    }
+                    // Alert if the add fails.
+                    catch (Exception e)
+                    {
+                        RaiseAlert(
+                            "Relationship Creation Failed",
+                            $"Could not create relationship '{sourceName} => {destinationName}'",
+                            e.Message,
+                            AlertIcon.ERROR
+                        );
                     }
                 });
             });
@@ -680,97 +638,55 @@ namespace UMLEditor.Views
                     string destinationName = changeRelationshipModal.GetPrompt<ChangeRelationshipPanel>().DestinationClass;
                     string relationshipType = changeRelationshipModal.GetPrompt<ChangeRelationshipPanel>().SelectedType;
                   
-                    // Verification to check if no input was added
-                    if (sourceName is null || sourceName.Trim().Length == 0)
+                   try
                     {
-                        RaiseAlert(
-                            "Type Change Failed", 
-                            "Could Not Change Relationship Type",
-                            "The source name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    // Verification to check if no input was added
-                    if (destinationName is null || destinationName.Trim().Length == 0)
-                    {
-
-                        RaiseAlert(
-                            "Type Change Failed", 
-                            "Could Not Change Relationship Type",
-                            "The destination name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-
-                    }
-                    // Verification to check if no input was added
-                    if (relationshipType is null || relationshipType.Trim().Length == 0)
-                    {
-                        RaiseAlert(
-                            "Type Change Failed", 
-                            "Could Not Change Relationship Type",
-                            "The relationship type name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-                    }
-                    switch (result.Result)
-                    {
-                        // If OKAY was selected...
-                        case DialogButtons.OKAY:
-
-                            try
+                        // Attempt to change a relationship type with the information given.
+                        _activeDiagram.ChangeRelationship(sourceName,destinationName,relationshipType);
+                        
+                        /// TODO Update this class search if a method is created
+                        RelationshipLine currentLine = new RelationshipLine();
+                        foreach (var line in _relationshipLines)
+                        {
+                            if (line.SourceClass.Name == sourceName &&
+                                line.DestClass.Name == destinationName)
                             {
-                                // Attempt to change a relationship type with the information given.
-                                _activeDiagram.ChangeRelationship(sourceName,destinationName,relationshipType);
-                                
-                                /// TODO Update this class search if a method is created
-                                RelationshipLine currentLine = new RelationshipLine();
-                                foreach (var line in _relationshipLines)
-                                {
-                                    if (line.SourceClass.Name == sourceName &&
-                                        line.DestClass.Name == destinationName)
-                                    {
-                                        currentLine = line;
-                                    }
-                                }
-                                ClassBox sourceClassBox = new ClassBox();
-                                ClassBox destClassBox = new ClassBox();
-                                foreach (var classBox in _classBoxes)
-                                {
-                                    if (classBox.Name == sourceName)
-                                    {
-                                        sourceClassBox = classBox;
-                                    }
-
-                                    if (classBox.Name == destinationName)
-                                    {
-                                        destClassBox = classBox;
-                                    }
-                                }
-                                List<IControl> children = new List<IControl>(_canvas.Children); 
-                                foreach (var control in children)
-                                {
-                                    if (control.GetType() == typeof(Line) || control.GetType() == typeof(Polyline))
-                                    {
-                                        _canvas.Children.Remove(control);
-                                    }
-                                }
-                                _relationshipLines.Remove(currentLine);
-                                DrawRelationship(sourceClassBox,destClassBox,relationshipType);
+                                currentLine = line;
                             }
-                            // Alert if the change fails.
-                            catch (Exception e)
+                        }
+                        ClassBox sourceClassBox = new ClassBox();
+                        ClassBox destClassBox = new ClassBox();
+                        foreach (var classBox in _classBoxes)
+                        {
+                            if (classBox.Name == sourceName)
                             {
-                                RaiseAlert(
-                                    "Type Change Failed",
-                                    $"Could not change type to '{relationshipType}'",
-                                    e.Message,
-                                    AlertIcon.ERROR
-                                );
+                                sourceClassBox = classBox;
                             }
-                            break;
+
+                            if (classBox.Name == destinationName)
+                            {
+                                destClassBox = classBox;
+                            }
+                        }
+                        List<IControl> children = new List<IControl>(_canvas.Children); 
+                        foreach (var control in children)
+                        {
+                            if (control.GetType() == typeof(Line) || control.GetType() == typeof(Polyline))
+                            {
+                                _canvas.Children.Remove(control);
+                            }
+                        }
+                        _relationshipLines.Remove(currentLine);
+                        DrawRelationship(sourceClassBox,destClassBox,relationshipType);
+                    }
+                    // Alert if the change fails.
+                    catch (Exception e)
+                    {
+                        RaiseAlert(
+                            "Type Change Failed",
+                            $"Could not change type to '{relationshipType}'",
+                            e.Message,
+                            AlertIcon.ERROR
+                        );
                     }
                 });
             });
@@ -800,72 +716,41 @@ namespace UMLEditor.Views
                     // Creating the variables that we will be snagging from the 'DeleteRelationshipPanel'
                     string sourceName = deleteRelationshipModal.GetPrompt<DeleteRelationshipPanel>().SourceClass;
                     string destinationName = deleteRelationshipModal.GetPrompt<DeleteRelationshipPanel>().DestinationClass;
-                  
-                    // Verification to check if no input was added
-                    if (sourceName is null || sourceName.Trim().Length == 0)
+
+                    try
+                    {
+                        // Attempt to delete relationship with the information given.
+                        _activeDiagram.DeleteRelationship(sourceName,destinationName);
+                        RelationshipLine currentLine = new RelationshipLine();
+                        foreach (var line in _relationshipLines)
+                        {
+                            if (line.SourceClass.Name == sourceName &&
+                                line.DestClass.Name == destinationName)
+                            {
+                                currentLine = line;
+                            }
+                        }
+
+                        List<IControl> children = new List<IControl>(_canvas.Children); 
+                        foreach (var control in children)
+                        {
+                            if (control.GetType() == typeof(Line) || control.GetType() == typeof(Polyline))
+                            {
+                                _canvas.Children.Remove(control);
+                            }
+                        }
+                        _relationshipLines.Remove(currentLine);
+
+                    }
+                    // Alert if the delete fails.
+                    catch (Exception e)
                     {
                         RaiseAlert(
-                            "Relationship Deletion Failed", 
-                            "Could Not Delete Relationship",
-                            "The source name cannot be empty",
+                            "Relationship Delete Failed",
+                            $"Could not delete relationship '{sourceName} => {destinationName}'",
+                            e.Message,
                             AlertIcon.ERROR
                         );
-                        return;
-                    }
-                    // Verification to check if no input was added
-                    if (destinationName is null || destinationName.Trim().Length == 0)
-                    {
-
-                        RaiseAlert(
-                            "Relationship Deletion Failed", 
-                            "Could Not Delete Relationship",
-                            "The destination name cannot be empty",
-                            AlertIcon.ERROR
-                        );
-                        return;
-
-                    }
-                    switch (result.Result)
-                    {
-                        // If OKAY was selected...
-                        case DialogButtons.OKAY:
-
-                            try
-                            {
-                                // Attempt to delete relationship with the information given.
-                                _activeDiagram.DeleteRelationship(sourceName,destinationName);
-                                RelationshipLine currentLine = new RelationshipLine();
-                                foreach (var line in _relationshipLines)
-                                {
-                                    if (line.SourceClass.Name == sourceName &&
-                                        line.DestClass.Name == destinationName)
-                                    {
-                                        currentLine = line;
-                                    }
-                                }
-
-                                List<IControl> children = new List<IControl>(_canvas.Children); 
-                                foreach (var control in children)
-                                {
-                                    if (control.GetType() == typeof(Line) || control.GetType() == typeof(Polyline))
-                                    {
-                                        _canvas.Children.Remove(control);
-                                    }
-                                }
-                                _relationshipLines.Remove(currentLine);
-
-                            }
-                            // Alert if the delete fails.
-                            catch (Exception e)
-                            {
-                                RaiseAlert(
-                                    "Relationship Delete Failed",
-                                    $"Could not delete relationship '{sourceName} => {destinationName}'",
-                                    e.Message,
-                                    AlertIcon.ERROR
-                                );
-                            }
-                            break;
                     }
                 });
             });
