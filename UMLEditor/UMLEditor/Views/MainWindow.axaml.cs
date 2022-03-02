@@ -27,6 +27,7 @@ using Path = System.IO.Path;
 
 using System.Threading;
 using Avalonia.Animation;
+using DynamicData.Binding;
 
 namespace UMLEditor.Views
 {
@@ -42,6 +43,9 @@ namespace UMLEditor.Views
 
         private readonly StackPanel _mainPanel;
         private readonly Canvas _canvas;
+        
+        // Used to track where the next ClassBox should be placed
+        private int _classBoxCount = 0;
         private Point _canvasPointer = new Point(0,0);
         
         private List<RelationshipLine> _relationshipLines = new List<RelationshipLine>();
@@ -55,10 +59,12 @@ namespace UMLEditor.Views
         private MenuItem LoadDiagramButton;
         
         // Line specifications
-        private const double SymbolWidth = 15;
-        private const double SymbolHeight = 10;
+        private const double _symbolWidth = 15;
+        private const double _symbolHeight = 10;
+        private const int _lineThickness = 2;
         private IBrush _brush = Brushes.CornflowerBlue;
 
+        // Data structure for the display of a Relationship line
         struct RelationshipLine
         {
             public UserControl SourceClass;
@@ -70,6 +76,7 @@ namespace UMLEditor.Views
             public Polyline Symbol;
         }
 
+        // Data structure for the display of a Class Box
         struct ClassBoxData
         {
             public UserControl Box;
@@ -114,207 +121,6 @@ namespace UMLEditor.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
-        }
-
-        /// <summary>
-        /// Draws the relationship arrow between two classes
-        /// </summary>
-        /// <param name="startCtrl">The source class to start drawing from</param>
-        /// <param name="endCtrl">The destination class to draw to</param>
-        /// <param name="relationshipType">The type of relationship to draw</param>
-        private void DrawRelationship(UserControl startCtrl, UserControl endCtrl, string relationshipType)
-        {
-            RelationshipLine newLine = new RelationshipLine();
-            newLine.SourceClass = startCtrl;
-            newLine.DestClass = endCtrl;
-            newLine.RelationshipType = relationshipType;
-            // Calculate lengths of controls
-            double startHalfWidth = startCtrl.Bounds.Width / 2;
-            double startHalfHeight = startCtrl.Bounds.Height / 2;
-            double endHalfWidth = endCtrl.Bounds.Width / 2;
-            double endHalfHeight = endCtrl.Bounds.Height / 2;
-            // Initialize points to middle of controls
-            Point start = new Point(
-                startCtrl.Bounds.X + startHalfWidth,
-                startCtrl.Bounds.Y + startHalfHeight);
-            Point end = new Point(
-                endCtrl.Bounds.X + endHalfWidth,
-                endCtrl.Bounds.Y + endHalfHeight);
-
-            // Set points to draw lines
-            Point midStart;
-            Point midEnd;
-            List<Point> diamondPoints;
-            List<Point> trianglePoints;
-            if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
-            {
-                // Arrow is horizontal
-                midStart = new Point(Math.Abs(start.X + end.X) / 2, start.Y);
-                midEnd = new Point(Math.Abs(start.X + end.X) / 2, end.Y);
-                if (start.X < end.X)
-                {
-                    // Goes from left to right
-                    start = new Point(start.X + startHalfWidth, start.Y);
-                    end = new Point(end.X - endHalfWidth - (2 * SymbolWidth), end.Y);
-                    diamondPoints = new List<Point> { 
-                        end,
-                        new(end.X + SymbolWidth,end.Y - SymbolHeight),
-                        new(end.X + (2 * SymbolWidth),end.Y),
-                        new(end.X + SymbolWidth,end.Y + SymbolHeight),
-                        end };
-                    trianglePoints = new List<Point> { 
-                        new(end.X,end.Y - SymbolHeight),
-                        new(end.X + (2 * SymbolWidth),end.Y),
-                        new(end.X,end.Y + SymbolHeight),
-                        new(end.X,end.Y - SymbolHeight)
-                    };
-                }
-                else
-                {
-                    // Goes from right to left
-                    start = new Point(start.X - startHalfWidth, start.Y);
-                    end = new Point(end.X + endHalfWidth + (2 * SymbolWidth), end.Y);
-                    diamondPoints = new List<Point> { 
-                        end,
-                        new(end.X - SymbolWidth,end.Y - SymbolHeight),
-                        new(end.X - (2 * SymbolWidth),end.Y),
-                        new(end.X - SymbolWidth,end.Y + SymbolHeight),
-                        end };
-                    trianglePoints = new List<Point> { 
-                        new(end.X,end.Y - SymbolHeight),
-                        new(end.X - (2 * SymbolWidth),end.Y),
-                        new(end.X,end.Y + SymbolHeight),
-                        new(end.X,end.Y - SymbolHeight)
-                    };
-                }
-            }
-            else
-            {
-                // Arrow is vertical
-                midStart = new Point(start.X, Math.Abs(start.Y + end.Y) / 2);
-                midEnd = new Point(end.X, Math.Abs(start.Y + end.Y) / 2);
-                if (start.Y < end.Y)
-                {
-                    // Goes top to bottom
-                    start = new Point(start.X, start.Y + startHalfHeight);
-                    end = new Point(end.X, end.Y - endHalfHeight - (2 * SymbolWidth));
-                    diamondPoints = new List<Point> { 
-                        end,
-                        new(end.X + SymbolHeight,end.Y + SymbolWidth),
-                        new(end.X,end.Y + (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight,end.Y + SymbolWidth),
-                        end };
-                    trianglePoints = new List<Point> { 
-                        new(end.X + SymbolHeight,end.Y),
-                        new(end.X,end.Y + (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight,end.Y),
-                        new(end.X + SymbolHeight,end.Y)
-                    };
-                }
-                else
-                {
-                    // Goes bottom to top
-                    start = new Point(start.X, start.Y - startHalfHeight);
-                    end = new Point(end.X, end.Y + endHalfHeight + (2 * SymbolWidth));
-                    diamondPoints = new List<Point> { 
-                        end,
-                        new(end.X + SymbolHeight,end.Y - SymbolWidth),
-                        new(end.X,end.Y - (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight,end.Y - SymbolWidth),
-                        end };
-                    trianglePoints = new List<Point> { 
-                        new(end.X + SymbolHeight,end.Y),
-                        new(end.X,end.Y - (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight,end.Y),
-                        new(end.X + SymbolHeight,end.Y)
-                    };
-                }
-            }
-            newLine.StartLine = GetLine(start,midStart);
-            newLine.MidLine = GetLine(midStart, midEnd);
-            newLine.EndLine = GetLine(midEnd, end);
-            
-            // Add lines to the canvas
-            _canvas.Children.Add(newLine.StartLine);
-            _canvas.Children.Add(newLine.MidLine);
-            _canvas.Children.Add(newLine.EndLine);
-
-            // Draw the relationship symbol based on provided type
-            switch (relationshipType)
-            {
-                case "aggregation":
-                    _canvas.Children.Add(GetSymbol(diamondPoints));
-                    break;
-                case "composition":
-                    Polyline polyline = GetSymbol(diamondPoints);
-                    polyline.Fill = Brushes.White;
-                    _canvas.Children.Add(polyline);
-                    break;
-                case "inheritance": 
-                    _canvas.Children.Add(GetSymbol(trianglePoints));
-                    break;
-                case "realization": 
-                    newLine.StartLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    newLine.MidLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    newLine.EndLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    newLine.Symbol = GetSymbol(trianglePoints);
-                    _canvas.Children.Add(newLine.Symbol);
-                    break;
-            }
-            _relationshipLines.Add(newLine);
-        }
-
-        /// <summary>
-        /// Draws the relationship symbol from the given list of points
-        /// </summary>
-        /// <param name="points">A list of points for the vertices to draw</param>
-        /// <returns>The new relationship symbol</returns>
-        private Polyline GetSymbol(List<Point> points)
-        {
-            Polyline polyline = new Polyline();
-            polyline.Name = "Polyline";
-            polyline.Points = points;
-            polyline.Stroke = _brush;
-            polyline.StrokeThickness = 2;
-            return polyline;
-        }
-
-        /// <summary>
-        /// Creates a line from the given start to end points
-        /// </summary>
-        /// <param name="lineStart">Point to start at</param>
-        /// <param name="lineEnd">Point to end at</param>
-        /// <returns>The new line</returns>
-        private Line GetLine(Point lineStart, Point lineEnd)
-        {
-            Line l = new Line();
-            l.Name = "Line";
-            l.StartPoint = lineStart;
-            l.EndPoint = lineEnd;
-            l.Stroke = _brush;
-            l.StrokeThickness = 2;
-            l.ZIndex = 10;
-            return l;
-        }
-
-        /// <summary>
-        /// Removes all drawn lines from the canvas
-        /// </summary>
-        private void ClearLines()
-        {
-            List<IControl> children = new List<IControl>();
-            foreach (IControl child in _canvas.Children)
-            {
-                children.Add(child);
-            }
-
-            foreach (IControl child in children)
-            {
-                if (child.Name == "Line" || child.Name == "Polyline")
-                {
-                    _canvas.Children.Remove(child);
-                }
-            }
         }
 
         /// <summary>
@@ -439,14 +245,6 @@ namespace UMLEditor.Views
                         try
                         {
                             _activeDiagram = _activeFile.LoadDiagram(chosenFile);
-                            RaiseAlert(
-                                "Load Successful",
-                                $"Load Successful",
-                                $"Diagram loaded from {chosenFile}",
-                                AlertIcon.INFO
-                            );
-                            ClearCanvas();
-                            RenderClasses(_activeDiagram.Classes);
                         }
             
                         catch (Exception exception)
@@ -460,6 +258,11 @@ namespace UMLEditor.Views
                             );
 
                         }
+                        
+                        ClearCanvas();
+                        RenderClasses(_activeDiagram.Classes);
+                        Dispatcher.UIThread.RunJobs();
+                        RenderLines(_activeDiagram.Relationships);
                     }
                     
                 });
@@ -546,13 +349,8 @@ namespace UMLEditor.Views
 
                             try
                             {
-                                // Try to create a new field with the information given.  Raise an alert on succeed.
+                                // Try to create a new field with the information given.
                                 currentClass.AddField(fieldType,targetField);
-                                RaiseAlert(
-                                    "Field Added",
-                                    $"Field '{targetField}' with type '{fieldType}' created",
-                                    "",
-                                    AlertIcon.INFO);
                             }
 
                             // On failure, raise an alert.
@@ -611,14 +409,9 @@ namespace UMLEditor.Views
                         case DialogButtons.OKAY:
                             try
                             {
-                                // Attempt to create a new class with the given information.  Alert if succeeds
+                                // Attempt to create a new class with the given information.
                                 _activeDiagram.AddClass(enteredName);
                                 RenderClasses(enteredName);
-                                //RaiseAlert(
-                                //    "Class Added",
-                                //    $"Class '{enteredName}' created",
-                                //    "",
-                                //    AlertIcon.INFO);
                             }
                             // If fails, raise an alert.
                             catch (Exception e)
@@ -731,13 +524,8 @@ namespace UMLEditor.Views
                             try
                             {
 
-                                // Attempt to rename class with given information.  If succeeds raise alert.
+                                // Attempt to rename class with given information.
                                 _activeDiagram.RenameClass(oldName,newName);
-                                RaiseAlert(
-                                    "Class Renamed",
-                                    $"Class '{oldName}' renamed to '{newName}'",
-                                    "",
-                                    AlertIcon.INFO);
 
                             }
 
@@ -760,7 +548,7 @@ namespace UMLEditor.Views
         
         
         /// <summary>
-        /// Event handler to add a relationship when the menu option is selected
+        /// Event handler to add a relationship
         /// </summary>
         /// <param name="sender">Object that generated the event</param>
         /// <param name="e">Extra arguments sent to the handler</param>
@@ -830,11 +618,6 @@ namespace UMLEditor.Views
                             {
                                 // Attempt to create a new relationship with the information given.
                                 _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
-                               // RaiseAlert(
-                                //    "Relationship Added",
-                                 //   $"Relationship '{sourceName} => {destinationName}' of type '{relationshipType}' created",
-                                 //   "",
-                                 //   AlertIcon.INFO);
                                 
                                 /// TODO Update this class search if a method is created
 
@@ -870,6 +653,11 @@ namespace UMLEditor.Views
             });
         }
         
+        /// <summary>
+        ///  Event handler to change a relationship's type
+        /// </summary>
+        /// <param name="sender">Object that generated the event</param>
+        /// <param name="e">Extra arguments sent to the handler</param>
         private void Change_Relationship_OnClick(object sender, RoutedEventArgs e)
         {
             // Create a new modal dialogue and wire it up to the 'ChangeRelationshipPanel'
@@ -934,13 +722,8 @@ namespace UMLEditor.Views
 
                             try
                             {
-                                // Attempt to change a relationship type with the information given.  If succeeds raise an alert.
+                                // Attempt to change a relationship type with the information given.
                                 _activeDiagram.ChangeRelationship(sourceName,destinationName,relationshipType);
-                                RaiseAlert(
-                                    "Relationship Type Changed",
-                                    $"Relationship '{sourceName} => {destinationName}' type changed to '{relationshipType}'",
-                                    "",
-                                    AlertIcon.INFO);
                                 
                                 /// TODO Update this class search if a method is created
                                 RelationshipLine currentLine = new RelationshipLine();
@@ -993,6 +776,11 @@ namespace UMLEditor.Views
             });
         }
         
+        /// <summary>
+        ///  Event handler to delete a relationship
+        /// </summary>
+        /// <param name="sender">Object that generated the event</param>
+        /// <param name="e">Extra arguments sent to the handler</param>
         private void Delete_Relationship_OnClick(object sender, RoutedEventArgs e)
         {
             // Create a new modal dialogue and wire it up to the 'DeleteRelationshipPanel'
@@ -1044,13 +832,8 @@ namespace UMLEditor.Views
 
                             try
                             {
-                                // Attempt to delete relationship with the information given.  If succeeds raise an alert.
+                                // Attempt to delete relationship with the information given.
                                 _activeDiagram.DeleteRelationship(sourceName,destinationName);
-                                //RaiseAlert(
-                                //    "Relationship Deleted",
-                                //    $"Relationship '{sourceName} => {destinationName}' of type '{relationshipType}' deleted",
-                                //    "",
-                                //    AlertIcon.INFO);
                                 RelationshipLine currentLine = new RelationshipLine();
                                 foreach (var line in _relationshipLines)
                                 {
@@ -1088,10 +871,13 @@ namespace UMLEditor.Views
             });
         }
 
+        /// <summary>
+        ///  Event handler to redraw all relationships
+        /// </summary>
+        /// <param name="sender">Object that generated the event</param>
+        /// <param name="e">Extra arguments sent to the handler</param>
         private void Redraw_Relationship_OnClick(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("To be implemented");
-            return;
             Dispatcher.UIThread.Post(() =>
             {
                 List<IControl> children = new List<IControl>(_canvas.Children); 
@@ -1102,12 +888,7 @@ namespace UMLEditor.Views
                         _canvas.Children.Remove(control);
                     }
                 }
-
-                
-                foreach (var VARIABLE in _relationshipLines)
-                {
-                    
-                }
+                RenderLines(_activeDiagram.Relationships);
             });
         }
 
@@ -1195,13 +976,8 @@ namespace UMLEditor.Views
                             try
                             {
 
-                                    // Attempt to enter a new method using given information.  Raise alert if succeed.
+                                    // Attempt to enter a new method using given information.
                                     currentClass.AddMethod(returnType,methodName);
-                                    RaiseAlert(
-                                    "Relationship Added",
-                                    $"Method '{methodName}' with return type '{returnType}' created",
-                                    "",
-                                    AlertIcon.INFO);
 
                             }
 
@@ -1308,13 +1084,8 @@ namespace UMLEditor.Views
 
                             try
                             {
-                                // Try to rename field using the given information.  Raise alert if succeeds.
+                                // Try to rename field using the given information.
                                 currentClass.RenameField(oldName,newName);
-                                RaiseAlert(
-                                    "Field Renamed",
-                                    $"Field '{oldName}' renamed to '{newName}'",
-                                    "",
-                                    AlertIcon.INFO);
                             }
 
                             // Throw an exception if fails...
@@ -1418,13 +1189,8 @@ namespace UMLEditor.Views
                         case DialogButtons.OKAY:
                             try
                             {
-                                // Try to rename method with given information.  Raise alert if succeeds.
+                                // Try to rename method with given information.
                                 currentClass.RenameMethod(oldName, newName);
-                                RaiseAlert(
-                                    "Method Renamed",
-                                    $"Method '{oldName}' renamed to '{newName}'",
-                                    "",
-                                    AlertIcon.INFO);
                             }
                             // If fails, raise an alert.
                             catch (Exception e)
@@ -1501,18 +1267,18 @@ namespace UMLEditor.Views
                 ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this);
                 Canvas.SetLeft(newClass, _canvasPointer.X);
                 Canvas.SetTop(newClass, _canvasPointer.Y);
-                if (_canvasPointer.X <= _canvas.Bounds.Width - 50)
+                if (_classBoxCount % 4 <= 2)
                 {
                     _canvasPointer = new Point(_canvasPointer.X + (450), _canvasPointer.Y);
                 }
                 else
                 {
-                    _canvasPointer = new Point(0, _canvasPointer.Y + 450);
+                    _canvasPointer = new Point(0, _canvasPointer.Y + 250);
                 }
+                ++_classBoxCount;
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
-            }            
-            
+            }
         }
         
         /// <summary>
@@ -1521,27 +1287,258 @@ namespace UMLEditor.Views
         /// <param name="withClasses">The list of classes to be added to the rendered area</param>
         private void RenderClasses(List<Class> withClasses)
         {
-            int count = 0;
             foreach (Class currentClass in withClasses)
             {
                 ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this);
                 Canvas.SetLeft(newClass, _canvasPointer.X);
                 Canvas.SetTop(newClass, _canvasPointer.Y);
-                Console.WriteLine(_canvas.Bounds.Width + " " + newClass.Bounds.Width);
-                if (_canvasPointer.X <= _canvas.Bounds.Width - 50 && count < 4)
+                if (_classBoxCount % 4 <= 2)
                 {
                     _canvasPointer = new Point(_canvasPointer.X + (450), _canvasPointer.Y);
                 }
                 else
                 {
-                    _canvasPointer = new Point(0, _canvasPointer.Y + 450);
+                    _canvasPointer = new Point(0, _canvasPointer.Y + 250);
                 }
-
-                ++count;
+                ++_classBoxCount;
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
             }
 
+        }
+
+        /// <summary>
+        /// Iterates through the given list of Relationships and draws each line
+        /// </summary>
+        /// <param name="withRelationships">The list of Relationships to be added to the rendered area</param>
+        private void RenderLines(List<Relationship> withRelationships)
+        {
+            foreach (Relationship currentRelation in withRelationships)
+            {
+                ClassBox sourceClassBox = new ClassBox();
+                ClassBox destClassBox = new ClassBox();
+                foreach (var classBox in _canvas.Children)
+                {
+                    if (classBox.GetType() == typeof(ClassBox))
+                    {
+                        if (classBox.Name == currentRelation.SourceClass)
+                        {
+                            sourceClassBox = (ClassBox) classBox;
+                        }
+
+                        if (classBox.Name == currentRelation.DestinationClass)
+                        {
+                            destClassBox = (ClassBox) classBox;
+                        }
+                    }
+                }
+
+                DrawRelationship(sourceClassBox, destClassBox, currentRelation.RelationshipType);
+            }
+        }
+        
+        /// <summary>
+        /// Draws the relationship arrow between two classes
+        /// </summary>
+        /// <param name="startCtrl">The source class to start drawing from</param>
+        /// <param name="endCtrl">The destination class to draw to</param>
+        /// <param name="relationshipType">The type of relationship to draw</param>
+        private void DrawRelationship(UserControl startCtrl, UserControl endCtrl, string relationshipType)
+        {
+            RelationshipLine newLine = new RelationshipLine();
+            newLine.SourceClass = startCtrl;
+            newLine.DestClass = endCtrl;
+            newLine.RelationshipType = relationshipType;
+            
+            // Calculate lengths of controls
+            double startHalfWidth = startCtrl.Bounds.Width / 2;
+            double startHalfHeight = startCtrl.Bounds.Height / 2;
+            double endHalfWidth = endCtrl.Bounds.Width / 2;
+            double endHalfHeight = endCtrl.Bounds.Height / 2;
+            // Initialize points to middle of controls
+            Point start = new Point(
+                startCtrl.Bounds.X + startHalfWidth,
+                startCtrl.Bounds.Y + startHalfHeight);
+            Point end = new Point(
+                endCtrl.Bounds.X + endHalfWidth,
+                endCtrl.Bounds.Y + endHalfHeight);
+
+            // Set points to draw lines
+            Point midStart;
+            Point midEnd;
+            List<Point> diamondPoints;
+            List<Point> trianglePoints;
+            if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
+            {
+                // Arrow is horizontal
+                midStart = new Point(Math.Abs(start.X + end.X) / 2, start.Y);
+                midEnd = new Point(Math.Abs(start.X + end.X) / 2, end.Y);
+                if (start.X < end.X)
+                {
+                    // Goes from left to right
+                    start = new Point(start.X + startHalfWidth, start.Y);
+                    end = new Point(end.X - endHalfWidth - (2 * _symbolWidth), end.Y);
+                    diamondPoints = new List<Point> { 
+                        end,
+                        new(end.X + _symbolWidth,end.Y - _symbolHeight),
+                        new(end.X + (2 * _symbolWidth),end.Y),
+                        new(end.X + _symbolWidth,end.Y + _symbolHeight),
+                        end };
+                    trianglePoints = new List<Point> { 
+                        new(end.X,end.Y - _symbolHeight),
+                        new(end.X + (2 * _symbolWidth),end.Y),
+                        new(end.X,end.Y + _symbolHeight),
+                        new(end.X,end.Y - _symbolHeight)
+                    };
+                }
+                else
+                {
+                    // Goes from right to left
+                    start = new Point(start.X - startHalfWidth, start.Y);
+                    end = new Point(end.X + endHalfWidth + (2 * _symbolWidth), end.Y);
+                    diamondPoints = new List<Point> { 
+                        end,
+                        new(end.X - _symbolWidth,end.Y - _symbolHeight),
+                        new(end.X - (2 * _symbolWidth),end.Y),
+                        new(end.X - _symbolWidth,end.Y + _symbolHeight),
+                        end };
+                    trianglePoints = new List<Point> { 
+                        new(end.X,end.Y - _symbolHeight),
+                        new(end.X - (2 * _symbolWidth),end.Y),
+                        new(end.X,end.Y + _symbolHeight),
+                        new(end.X,end.Y - _symbolHeight)
+                    };
+                }
+            }
+            else
+            {
+                // Arrow is vertical
+                midStart = new Point(start.X, Math.Abs(start.Y + end.Y) / 2);
+                midEnd = new Point(end.X, Math.Abs(start.Y + end.Y) / 2);
+                if (start.Y < end.Y)
+                {
+                    // Goes top to bottom
+                    start = new Point(start.X, start.Y + startHalfHeight);
+                    end = new Point(end.X, end.Y - endHalfHeight - (2 * _symbolWidth));
+                    diamondPoints = new List<Point>
+                    {
+                        end,
+                        new(end.X + _symbolHeight, end.Y + _symbolWidth),
+                        new(end.X, end.Y + (2 * _symbolWidth)),
+                        new(end.X - _symbolHeight, end.Y + _symbolWidth),
+                        end
+                    };
+                    trianglePoints = new List<Point>
+                    {
+                        new(end.X + _symbolHeight, end.Y),
+                        new(end.X, end.Y + (2 * _symbolWidth)),
+                        new(end.X - _symbolHeight, end.Y),
+                        new(end.X + _symbolHeight, end.Y)
+                    };
+                }
+                else
+                {
+                    // Goes bottom to top
+                    start = new Point(start.X, start.Y - startHalfHeight);
+                    end = new Point(end.X, end.Y + endHalfHeight + (2 * _symbolWidth));
+                    diamondPoints = new List<Point>
+                    {
+                        end,
+                        new(end.X + _symbolHeight, end.Y - _symbolWidth),
+                        new(end.X, end.Y - (2 * _symbolWidth)),
+                        new(end.X - _symbolHeight, end.Y - _symbolWidth),
+                        end
+                    };
+                    trianglePoints = new List<Point>
+                    {
+                        new(end.X + _symbolHeight, end.Y),
+                        new(end.X, end.Y - (2 * _symbolWidth)),
+                        new(end.X - _symbolHeight, end.Y),
+                        new(end.X + _symbolHeight, end.Y)
+                    };
+                }
+            }
+
+            newLine.StartLine = GetLine(start,midStart);
+            newLine.MidLine = GetLine(midStart, midEnd);
+            newLine.EndLine = GetLine(midEnd, end);
+            
+            // Add lines to the canvas
+            _canvas.Children.Add(newLine.StartLine);
+            _canvas.Children.Add(newLine.MidLine);
+            _canvas.Children.Add(newLine.EndLine);
+
+            // Draw the relationship symbol based on provided type
+            switch (relationshipType)
+            {
+                case "aggregation":
+                    _canvas.Children.Add(GetSymbol(diamondPoints));
+                    break;
+                case "composition":
+                    Polyline polyline = GetSymbol(diamondPoints);
+                    polyline.Fill = _brush;
+                    _canvas.Children.Add(polyline);
+                    break;
+                case "inheritance":
+                    _canvas.Children.Add(GetSymbol(trianglePoints));
+                    break;
+                case "realization":
+                    newLine.StartLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    newLine.MidLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    newLine.EndLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    newLine.Symbol = GetSymbol(trianglePoints);
+                    _canvas.Children.Add(newLine.Symbol);
+                    break;
+            }
+            _relationshipLines.Add(newLine);
+        }
+
+        /// <summary>
+        /// Draws the relationship symbol from the given list of points
+        /// </summary>
+        /// <param name="points">A list of points for the vertices to draw</param>
+        /// <returns>The new relationship symbol</returns>
+        private Polyline GetSymbol(List<Point> points)
+        {
+            Polyline polyline = new Polyline();
+            polyline.Name = "Polyline";
+            polyline.Points = points;
+            polyline.Stroke = _brush;
+            polyline.StrokeThickness = _lineThickness;
+            return polyline;
+        }
+
+        /// <summary>
+        /// Creates a line from the given start to end points
+        /// </summary>
+        /// <param name="lineStart">Point to start at</param>
+        /// <param name="lineEnd">Point to end at</param>
+        /// <returns>The new line</returns>
+        private Line GetLine(Point lineStart, Point lineEnd)
+        {
+            Line l = new Line();
+            l.Name = "Line";
+            l.StartPoint = lineStart;
+            l.EndPoint = lineEnd;
+            l.Stroke = _brush;
+            l.StrokeThickness = _lineThickness;
+            l.ZIndex = 10;
+            return l;
+        }
+
+        /// <summary>
+        /// Removes all drawn lines from the canvas
+        /// </summary>
+        private void ClearLines()
+        {
+            List<IControl> children = new List<IControl>(_canvas.Children); 
+            foreach (var control in children)
+            {
+                if (control.GetType() == typeof(Line) || control.GetType() == typeof(Polyline))
+                {
+                    _canvas.Children.Remove(control);
+                }
+            }
         }
 
         /// <summary>
@@ -1558,6 +1555,7 @@ namespace UMLEditor.Views
         /// </summary>
         private void ClearCanvas()
         {
+            _classBoxCount = 0;
             _canvasPointer = new Point(0, 0);
             _canvas.Children.Clear();
         }
