@@ -169,6 +169,14 @@ namespace UMLEditor.Views
 
         private void HelpB_OnClick(object sender, RoutedEventArgs e)
         {
+            
+            
+            ModalDialog test = ModalDialog.CreateDialog<TestingPanel>("Test", DialogButtons.OK_CANCEL);
+            test.ShowDialog<DialogButtons>(this);
+
+            System.Diagnostics.Process.Start("http://google.com");
+
+            /*
             RaiseAlert(
                 "Help", 
                 "",
@@ -176,6 +184,7 @@ namespace UMLEditor.Views
                 AlertIcon.INFO
             );
             return;
+            */
         }
 
         private void Save_Button_OnClick(object sender, RoutedEventArgs e)
@@ -762,7 +771,7 @@ namespace UMLEditor.Views
         /// </summary>
         /// <param name="sender">Object that generated the event</param>
         /// <param name="e">Extra arguments sent to the handler</param>
-        private void Redraw_Relationship_OnClick(object sender, RoutedEventArgs e)
+        public void Redraw_Relationship_OnClick(object sender, RoutedEventArgs e)
         {
             Dispatcher.UIThread.Post(() =>
             {

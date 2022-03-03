@@ -79,6 +79,8 @@ public class ClassBox : UserControl
 
                 // TODO: At some point, use smarter math so the movement isn't snapped to the upper left corner of the box
                 
+                _parentWindow.Redraw_Relationship_OnClick(null, null);
+                
             }
             
         };
