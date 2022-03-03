@@ -120,7 +120,7 @@ public class FieldContainer : UserControl
     /// </summary>
     private void UpdateNameLabel()
     {
-        _display.Content = (_isMethodParam ? $"     {Type} {FieldName}" : $"{Type} {FieldName}");
+        _display.Content = "_" + (_isMethodParam ? $"     {Type} {FieldName}" : $"{Type} {FieldName}");
     }
 
     private void InitializeComponent()

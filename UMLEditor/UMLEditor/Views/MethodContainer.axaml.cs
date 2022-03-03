@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Views;
+﻿using Avalonia.Interactivity;
+
+namespace UMLEditor.Views;
 
 using System.Collections.Generic;
 using Avalonia.Controls;
@@ -37,15 +39,23 @@ public class MethodContainer : UserControl
     /// <param name="returnType">The type the method will return</param>
     /// <param name="name">The name of the method</param>
     /// <param name="parentWindow">The classbox this method is shown within</param>
-    private MethodContainer(string returnType, string name, ClassBox parentWindow) : this()
+    public MethodContainer(string returnType, string name, ClassBox parentWindow) : this()
     {
 
         ReturnType = returnType;
         MethodName = name;
+        RefreshLabel();
         
-        _methodSignature.Content = $"{returnType} {name}()";
         _parentWindow = parentWindow;
         
+    }
+
+    /// <summary>
+    /// Updates the text on the label to reflect the current return type and name
+    /// </summary>
+    private void RefreshLabel()
+    {
+        _methodSignature.Content = $"_{ReturnType} {MethodName}()";
     }
     
     /// <summary>
@@ -61,7 +71,7 @@ public class MethodContainer : UserControl
     /// <summary>
     /// Adds a list of parameters to this method container
     /// </summary>
-    /// <param name="toAdd">The list of paramters to add</param>
+    /// <param name="toAdd">The list of parameters to add</param>
     private void AddParams(List<NameTypeObject> toAdd)
     {
 
@@ -71,6 +81,28 @@ public class MethodContainer : UserControl
         }
         
     }
+
+    /// <summary>
+    /// Adds an array of parameters to this method container
+    /// </summary>
+    /// <param name="toAdd">The array of parameters to add</param>
+    public void AddParams(params NameTypeObject[] toAdd)
+    {
+        AddParams(new List<NameTypeObject>(toAdd));
+    }
+    
+    /// <summary>
+    ///  Changes the name and return type of this method 
+    /// </summary>
+    /// <param name="newAnatomy">The new name and return type to show</param>
+    public void ChangeNameType(NameTypeObject newAnatomy)
+    {
+
+        MethodName = newAnatomy.AttributeName;
+        ReturnType = newAnatomy.Type;
+        RefreshLabel();
+
+    }
     
     private void InitializeComponent()
     {
@@ -78,12 +110,27 @@ public class MethodContainer : UserControl
     }
 
     /// <summary>
-    /// Deletes a provided paramter from this container
+    /// Deletes a provided parameter from this container
     /// </summary>
-    /// <param name="toWipe">The paramter to wipe</param>
+    /// <param name="toWipe">The parameter to wipe</param>
     public void WipeParameter(ParameterContainer toWipe)
     {
         _paramsArea.Children.Remove(toWipe);
+    }
+
+    private void DeleteButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        _parentWindow.RequestMethodDelete(this);
+    }
+
+    private void RenameMtdButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        _parentWindow.RequestMtdNameTypeChange(this);
+    }
+
+    private void AddParamButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        _parentWindow.RequestParameterAdd(this);
     }
     
 }

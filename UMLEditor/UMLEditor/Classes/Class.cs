@@ -76,7 +76,7 @@ public class Class: ICloneable
     {
         if (FieldExists(name))
         {
-            throw new AttributeAlreadyExistsException(string.Format("Field {0} already exists", name));
+            throw new AttributeAlreadyExistsException($"Field {name} already exists");
         }
         _fields.Add(new NameTypeObject(type, name));
         
@@ -93,7 +93,7 @@ public class Class: ICloneable
         
         if (MethodExists(name))
         {
-            throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", name));
+            throw new AttributeAlreadyExistsException($"Method {name} already exists");
         }
         
         _methods.Add(new Method(returnType, name));
@@ -273,7 +273,7 @@ public class Class: ICloneable
     /// <param name="param">The parameter to remove</param>
     /// <param name="onMethod">The target method the parameter is a part of</param>
     /// <exception cref="AttributeNonexistentException">If the provided method does not exist</exception>
-    public void DeleteMethodParameter(string param, string onMethod)
+    public void DeleteMethodParameter(NameTypeObject param, string onMethod)
     {
 
         if (!MethodExists(onMethod))
@@ -302,7 +302,7 @@ public class Class: ICloneable
     public string ListFields()
     {
         
-        string msg = string.Format("{0} fields: \n", ClassName);
+        string msg = $"{ClassName} fields: \n";
         
         if (_fields.Count == 0)
         {
@@ -312,7 +312,7 @@ public class Class: ICloneable
         {
             foreach (NameTypeObject a in _fields)
             {
-                msg += string.Format("    {0}\n", a.ToString());
+                msg += $"    {a.ToString()}\n";
             }
         }
 
@@ -326,7 +326,7 @@ public class Class: ICloneable
     public string ListMethods()
     {
         
-        string msg = string.Format("{0} methods: \n", ClassName);
+        string msg = $"{ClassName} methods: \n";
         
         if (_methods.Count == 0)
         {
@@ -336,20 +336,11 @@ public class Class: ICloneable
         {
             foreach (Method a in _methods)
             {
-                msg += string.Format("    {0}\n", a.ToString());
+                msg += $"    {a.ToString()}\n";
             }
         }
 
         return msg;
-    }
-
-    public void AddParameter(string methodName, string paramType, string paramName)
-    {
-        if (!MethodExists(methodName))
-        {
-            throw new MethodNonexistentRelationship($"Method {methodName} does not exist");
-        }
-        GetMethodByName(methodName)!.AddParam(new NameTypeObject(paramType, paramName));
     }
 
     /// <summary>
@@ -365,11 +356,11 @@ public class Class: ICloneable
         
         if (!FieldExists(oldName))
         {
-            throw new AttributeNonexistentException(string.Format("Field {0} does not exist", oldName));
+            throw new AttributeNonexistentException($"Field {oldName} does not exist");
         }
         if (FieldExists(newName))
         {
-            throw new AttributeAlreadyExistsException(string.Format("Field {0} already exists", newName));
+            throw new AttributeAlreadyExistsException($"Field {newName} already exists");
         }
         
         // Rename field
@@ -390,18 +381,17 @@ public class Class: ICloneable
         
         if (!MethodExists(oldName))
         {
-            throw new AttributeNonexistentException(string.Format("Method {0} does not exist", oldName));
+            throw new AttributeNonexistentException($"Method {oldName} does not exist");
         }
         if (MethodExists(newName))
         {
-            throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", newName));
+            throw new AttributeAlreadyExistsException($"Method {newName} already exists");
         }
         
         // Rename field
         GetMethodByName(oldName)!.AttRename(newName);
         
     }
-    
 
     /// <summary>
     /// Renames a parameter on the provided method
@@ -409,7 +399,7 @@ public class Class: ICloneable
     /// <param name="onMethod">The method the parameter is on</param>
     /// <param name="oldParamName">The current (old) name of the parameter</param>
     /// <param name="newParamName">The new name for the parameter</param>
-    public void RenameMethodParameter(string onMethod, string oldParamName, string newParamName)
+    public void RenameParameter(string onMethod, string oldParamName, string newParamName)
     {
 
         if (!MethodExists(onMethod))
@@ -431,45 +421,11 @@ public class Class: ICloneable
     {
         if (name is null || name.Length == 0 || !Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
         {
-            throw new InvalidNameException(String.Format("{0} is an invalid class name.  " +
+            throw new InvalidNameException($"{name} is an invalid class name.  " +
                                                                 "Class name must be a single word that starts with an alphabetic " +
                                                                 "character or an underscore.  " +
-                                                                "Please Try again.", name));
+                                                                "Please Try again.");
         }
-    }
-
-    /// <summary>
-    /// Changes the type of an existing field
-    /// </summary>
-    /// <param name="fieldName">Field to change type of </param>
-    /// <param name="newType">New type of field</param>
-    /// <exception cref="AttributeNonexistentException">Thrown if the field does not exist</exception>
-    public void ChangeFieldType(string fieldName, string newType)
-    {
-        if (!FieldExists(fieldName))
-        {
-            throw new AttributeNonexistentException($"Field '{fieldName}' does not exist");
-        }
-
-        NameTypeObject? fieldToChange = GetFieldByName(fieldName);
-        ReplaceField(fieldToChange!, new NameTypeObject(fieldName, newType));
-    }
-    
-    /// <summary>
-    /// Changes the type of a method
-    /// </summary>
-    /// <param name="methodName">Method to change the type of</param>
-    /// <param name="newType">New type for method</param>
-    /// <exception cref="AttributeNonexistentException">Thrown if the method does not exist</exception>
-    public void ChangeMethodType(string methodName, string newType)
-    {
-        if (!MethodExists(methodName))
-        {
-            throw new AttributeNonexistentException($"Method '{methodName}' does not exist");
-        }
-
-        Method? methodToChange = GetMethodByName(methodName);
-        methodToChange.ChangeMethodType(newType);
     }
 
     /// <summary>
@@ -507,7 +463,7 @@ public class Class: ICloneable
     /// <param name="onMethod">The method the parameter is a part of</param>
     /// <param name="toReplace">The parameter to replace</param>
     /// <param name="replaceWith">The new anatomy of the parameter</param>
-    public void ReplaceParameter(string onMethod, string toReplace, NameTypeObject replaceWith)
+    public void ReplaceParameter(string onMethod, NameTypeObject toReplace, NameTypeObject replaceWith)
     {
 
         if (!MethodExists(onMethod))
@@ -520,15 +476,49 @@ public class Class: ICloneable
         
     }
 
-    public void ClearParameters(string onMethod)
+    /// <summary>
+    /// Adds a parameter to a specific method 
+    /// </summary>
+    /// <param name="toMethod">The method to add the parameter to</param>
+    /// <param name="parameter">The parameter to add</param>
+    /// <exception cref="AttributeNonexistentException">If the provided method does not exist</exception>
+    public void AddParameter(string toMethod, NameTypeObject parameter)
     {
+        
+        if (!MethodExists(toMethod))
+        {
+            throw new AttributeNonexistentException($"Method '{toMethod}' does not exist");
+        }
+
+        Method? targetMethod = GetMethodByName(toMethod);
+        targetMethod!.AddParam(parameter);
+        
+    }
+    
+    /// <summary>
+    /// Changes the name and type of a method within this class
+    /// </summary>
+    /// <param name="onMethod">The method to modify</param>
+    /// <param name="newMethodAnatomy">The new name and return type of the method</param>
+    /// <exception cref="AttributeNonexistentException">If the provided method does not exist</exception>
+    public void ChangeMethodNameType(string onMethod, NameTypeObject newMethodAnatomy)
+    {
+        
         if (!MethodExists(onMethod))
         {
             throw new AttributeNonexistentException($"Method '{onMethod}' does not exist");
         }
-        
-        GetMethodByName(onMethod)!.ClearParameters();
 
+        // If the name changed, check that it isn't a duplicate
+        if (onMethod != newMethodAnatomy.AttributeName && MethodExists(newMethodAnatomy.AttributeName))
+        {
+            throw new AttributeAlreadyExistsException($"A method by the name '{newMethodAnatomy.AttributeName}' already exists");
+        }
+        
+        Method? targetMethod = GetMethodByName(onMethod);
+        targetMethod!.AttRename(newMethodAnatomy.AttributeName);
+        targetMethod!.ChangeReturnType(newMethodAnatomy.Type);
+        
     }
     
     /// <summary>

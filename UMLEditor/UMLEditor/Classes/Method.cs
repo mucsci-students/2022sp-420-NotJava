@@ -70,12 +70,6 @@ public class Method : AttributeObject, ICloneable
         _parameters = Utilities.CloneContainer(m._parameters);
     }
 
-    public void ChangeMethodType(string newType)
-    {
-        CheckValidAttributeName(newType);
-        ReturnType = newType;
-    }
-
     /// <summary>
     /// Checks if given parameter is in the current parameter list using NameTypeObject
     /// </summary>
@@ -182,7 +176,7 @@ public class Method : AttributeObject, ICloneable
     /// </summary>
     /// <param name="param">Parameter to remove from method</param>
     /// <exception cref="AttributeNonexistentException">If the provided parameter is not in the list</exception>
-    public void RemoveParam(string param)
+    public void RemoveParam(NameTypeObject param)
     {
         if (!(_parameters.Remove(FindParamInList(param)!)))
         {
@@ -235,11 +229,11 @@ public class Method : AttributeObject, ICloneable
     /// </summary>
     /// <param name="toReplace">The parameter to replace</param>
     /// <param name="replaceWith">The new anatomy of the parameter</param>
-    public void ReplaceParam(string toReplace, NameTypeObject replaceWith)
+    public void ReplaceParam(NameTypeObject toReplace, NameTypeObject replaceWith)
     {
 
         // Make sure the new name is not a duplicate
-        bool nameChanged = toReplace != replaceWith.AttributeName;
+        bool nameChanged = toReplace.AttributeName != replaceWith.AttributeName;
         if (nameChanged && IsParamInList(replaceWith))
         {
             throw new AttributeAlreadyExistsException($"A parameter by the name of '{replaceWith.AttributeName}' already exists in method '{AttributeName}'");
@@ -269,11 +263,15 @@ public class Method : AttributeObject, ICloneable
     }
 
     /// <summary>
-    /// Clears the existing parameter list
+    /// Changes the return type of this method
     /// </summary>
-    public void ClearParameters()
+    /// <param name="newType">The new return type</param>
+    public void ChangeReturnType(string newType)
     {
-        _parameters = new List<NameTypeObject>();
+        
+        CheckValidAttributeName(newType);
+        ReturnType = newType;
+
     }
     
     /// <summary>
