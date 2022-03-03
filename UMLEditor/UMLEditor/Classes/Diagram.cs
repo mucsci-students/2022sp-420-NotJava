@@ -172,8 +172,8 @@ public class Diagram
         }
 
         //Check if the relationship between the two classes is already of type newRelationshipType
-        Relationship r = GetRelationship(sourceClass, destClass);
-        if (r.RelationshipType == newRelationshipType)
+        Relationship? r = GetRelationship(sourceClass, destClass);
+        if (r!.RelationshipType == newRelationshipType)
         {
             throw new RelationshipTypeAlreadyExists($"Relationship {sourceClass} => {destClass} is already of type {newRelationshipType}.");
         }
@@ -193,7 +193,7 @@ public class Diagram
         {
             throw new ClassNonexistentException($"Class {toClass} does not exist");
         }
-        GetClassByName(toClass).AddMethod(returnType, methodName);
+        GetClassByName(toClass)!.AddMethod(returnType, methodName);
     }
     
     /// <summary>
@@ -211,7 +211,7 @@ public class Diagram
             throw new ClassNonexistentException($"Class {toClass} does not exist");
         }
         
-        GetClassByName(toClass).AddMethod(returnType, methodName, paramList);
+        GetClassByName(toClass)!.AddMethod(returnType, methodName, paramList);
         
     }
 
@@ -250,7 +250,7 @@ public class Diagram
             throw new ClassInUseException($"Class {className} is in use by a relationship and cannot be deleted");
         }
         
-        _classes.Remove(GetClassByName(className));
+        _classes.Remove(GetClassByName(className)!);
     }
     
     /// <summary>
@@ -475,6 +475,13 @@ public class Diagram
         targetClass!.ChangeFieldType(fieldToChange, newType);
     }
     
+    /// <summary>
+    /// Changes type of method
+    /// </summary>
+    /// <param name="onClass">Class method exists in</param>
+    /// <param name="onMethod">Method to change type of</param>
+    /// <param name="newType">New type of method</param>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
     public void ChangeMethodType(string onClass, string onMethod, string newType)
     {
         if (!ClassExists(onClass))
@@ -582,6 +589,14 @@ public class Diagram
 
     }
 
+    /// <summary>
+    /// Adds parameter to an existing method
+    /// </summary>
+    /// <param name="className">Name of class method is in</param>
+    /// <param name="methodName">Method to add parameter to</param>
+    /// <param name="paramType">Return type of parameter</param>
+    /// <param name="paramName">Name of parameter</param>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
     public void AddParameter(string className, string methodName, string paramType, string paramName)
     {
         if (!ClassExists(className))
