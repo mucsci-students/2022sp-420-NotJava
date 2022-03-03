@@ -237,16 +237,7 @@ public class CommandLine
             case ("delete_method"):
                 if (arguments.Count() == 2)
                 {
-                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
-                    
-                    if (currentClass is null)
-                    {
-                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
-                    }
-                    currentClass.DeleteMethod(arguments[1]);
-                    
-                    
-                    
+                    _activeDiagram!.DeleteMethod(arguments[0], arguments[1]);
                     PrintColoredLine($"Method {arguments[1]} deleted in Class {arguments[0]}", SUCCESS_COLOR);
                 }
 

@@ -550,7 +550,7 @@ public class Class: ICloneable
     }
     
     /// <summary>
-    /// Changes the name and type of a method within this class
+    /// Changes the name and type of a method within this class.  This is primarily used by the GUI
     /// </summary>
     /// <param name="onMethod">The method to modify</param>
     /// <param name="newMethodAnatomy">The new name and return type of the method</param>
