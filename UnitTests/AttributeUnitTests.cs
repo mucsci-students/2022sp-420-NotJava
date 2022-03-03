@@ -151,7 +151,7 @@ public class AttributeUnitTests
         NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
         testMethod.AddParam(testParam1);
         Assert.AreEqual(true, testMethod.IsParamInList(testParam1));
-        testMethod.RemoveParam(testParam1);
+        testMethod.RemoveParam(testParam1.AttributeName);
         Assert.AreEqual(false, testMethod.IsParamInList(testParam1));
         testMethod.AddParam(testParam1);
         Assert.AreEqual(true, testMethod.IsParamInList(testParam1));
@@ -164,7 +164,7 @@ public class AttributeUnitTests
     {
         Method testMethod = new Method(validType, methodName1);
         NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
-        Assert.Throws<AttributeNonexistentException>(delegate { testMethod.RemoveParam(testParam1);});
+        Assert.Throws<AttributeNonexistentException>(delegate { testMethod.RemoveParam(testParam1.AttributeName);});
     }
     
     /*

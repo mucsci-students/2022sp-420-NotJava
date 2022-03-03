@@ -368,7 +368,7 @@ public class ClassBox : UserControl
                         try
                         {
 
-                            _activeDiagram.RemoveParameter(toDelete.NTO_Representation, inMethod.MethodName, ClassName);
+                            _activeDiagram.RemoveParameter(toDelete.NTO_Representation.AttributeName, inMethod.MethodName, ClassName);
                             inMethod.WipeParameter(toDelete);
                         
                         }
@@ -422,7 +422,7 @@ public class ClassBox : UserControl
                         NameTypeObject oldField = new NameTypeObject(onContainer.Type, onContainer.FieldName);
                         NameTypeObject newField = new NameTypeObject(form.FieldType, form.FieldName);
 
-                        _activeDiagram.RestructureField(ClassName, oldField, newField);
+                        _activeDiagram.ReplaceField(ClassName, oldField, newField);
                         onContainer.ChangeAnatomy(newField);
 
                     }
@@ -475,7 +475,7 @@ public class ClassBox : UserControl
                         NameTypeObject oldParam = new NameTypeObject(onContainer.Type, onContainer.FieldName);
                         NameTypeObject newParam = new NameTypeObject(form.FieldType, form.FieldName);
 
-                        _activeDiagram.RestructureParameter(ClassName, onParentMethod.MethodName, oldParam, newParam);
+                        _activeDiagram.ReplaceParameter(ClassName, onParentMethod.MethodName, oldParam.AttributeName, newParam);
                         onContainer.ChangeAnatomy(newParam);
 
                     }

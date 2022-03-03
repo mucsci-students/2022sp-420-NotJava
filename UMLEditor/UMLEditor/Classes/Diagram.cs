@@ -154,21 +154,31 @@ public class Diagram
         _relationships.Add(newRel);
         
     }
-
-    public void ChangeRelationship(string sourceClass, string destClass, string relationType)
+    
+    /// <summary>
+    /// Changes type of existing relationship
+    /// </summary>
+    /// <param name="sourceClass">Name of source class</param>
+    /// <param name="destClass">Name of destination class</param>
+    /// <param name="newRelationshipType">Type to change relationship into</param>
+    /// <exception cref="RelationshipNonexistentException">Thrown if the relationship already exists</exception>
+    /// <exception cref="RelationshipTypeAlreadyExists">Thrown if the existing relationship is already of type newRelationshipType</exception>
+    public void ChangeRelationship(string sourceClass, string destClass, string newRelationshipType)
     {
+        //Check if relationship exists at all
         if (!RelationshipExists(sourceClass, destClass))
         {
             throw new RelationshipNonexistentException($"Relationship {sourceClass} => {destClass} does not exist");
         }
 
-        Relationship r = GetRelationship(sourceClass, destClass);
-        if (r.RelationshipType == relationType)
+        //Check if the relationship between the two classes is already of type newRelationshipType
+        Relationship? r = GetRelationship(sourceClass, destClass);
+        if (r!.RelationshipType == newRelationshipType)
         {
-            throw new InvalidRelationshipTypeException($"Relationship type {relationType} is not valid.");
+            throw new RelationshipTypeAlreadyExists($"Relationship {sourceClass} => {destClass} is already of type {newRelationshipType}.");
         }
         
-        r.ChangeType(relationType);
+        r.ChangeType(newRelationshipType);
     }
 
     /// <summary>
@@ -183,7 +193,7 @@ public class Diagram
         {
             throw new ClassNonexistentException($"Class {toClass} does not exist");
         }
-        GetClassByName(toClass).AddMethod(returnType, methodName);
+        GetClassByName(toClass)!.AddMethod(returnType, methodName);
     }
     
     /// <summary>
@@ -201,7 +211,7 @@ public class Diagram
             throw new ClassNonexistentException($"Class {toClass} does not exist");
         }
         
-        GetClassByName(toClass).AddMethod(returnType, methodName, paramList);
+        GetClassByName(toClass)!.AddMethod(returnType, methodName, paramList);
         
     }
 
@@ -240,7 +250,7 @@ public class Diagram
             throw new ClassInUseException($"Class {className} is in use by a relationship and cannot be deleted");
         }
         
-        _classes.Remove(GetClassByName(className));
+        _classes.Remove(GetClassByName(className)!);
     }
     
     /// <summary>
@@ -269,7 +279,23 @@ public class Diagram
         {
             currentRel.RenameMember(oldName, newName);
         }
+    }
+
+    /// <summary>
+    /// Renames existing method to newName
+    /// </summary>
+    /// <param name="onClass">Class that method is in</param>
+    /// <param name="oldName">Method to rename</param>
+    /// <param name="newName">New name of method</param>
+    /// <exception cref="ClassNonexistentException">Thrown if the class does not exist</exception>
+    public void RenameMethod(string onClass, string oldName, string newName)
+    {
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class {onClass} does not exist");
+        }
         
+        GetClassByName(onClass)!.RenameMethod(oldName, newName);
     }
     
     
@@ -315,6 +341,22 @@ public class Diagram
         }
 
         return msg;
+    }
+
+    /// <summary>
+    /// Lists attributes of a class
+    /// </summary>
+    /// <param name="onClass">Class to list attributes of</param>
+    /// <returns></returns>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
+    public string ListAttributes(string onClass)
+    {
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class {onClass} does not exist");
+        }
+
+        return GetClassByName(onClass)!.ListAttributes();
     }
     
     /// <summary>
@@ -417,12 +459,47 @@ public class Diagram
     }
 
     /// <summary>
+    /// Change the type of an existing field
+    /// </summary>
+    /// <param name="onClass">The class to change the field on</param>
+    /// <param name="fieldToChange">The field to change the type of</param>
+    /// <param name="newType">The new type of the field</param>
+    public void ChangeFieldType(string onClass, string fieldToChange, string newType)
+    {
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+        
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ChangeFieldType(fieldToChange, newType);
+    }
+    
+    /// <summary>
+    /// Changes type of method
+    /// </summary>
+    /// <param name="onClass">Class method exists in</param>
+    /// <param name="onMethod">Method to change type of</param>
+    /// <param name="newType">New type of method</param>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
+    public void ChangeMethodType(string onClass, string onMethod, string newType)
+    {
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+        
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ChangeMethodType(onMethod, newType);
+    }
+
+    /// <summary>
     /// Changes the anatomy of the provided field
     /// </summary>
     /// <param name="onClass">The class to change the field on</param>
-    /// <param name="toRestructure">The field to restructure</param>
-    /// <param name="newStructure">The new anatomy of the field</param>
-    public void RestructureField(string onClass, NameTypeObject toRestructure, NameTypeObject newStructure)
+    /// <param name="toRename">The field to rename</param>
+    /// <param name="newField">The new field</param>
+    public void ReplaceField(string onClass, NameTypeObject toRename, NameTypeObject newField)
     {
         
         if (!ClassExists(onClass))
@@ -431,7 +508,7 @@ public class Diagram
         }
 
         Class? targetClass = GetClassByName(onClass);
-        targetClass.ReplaceField(toRestructure, newStructure);
+        targetClass!.ReplaceField(toRename, newField);
 
     }
 
@@ -440,10 +517,10 @@ public class Diagram
     /// </summary>
     /// <param name="onClass">The class to change the parameter on</param>
     /// <param name="inMethod">The method that the parameter belongs to</param>
-    /// <param name="toRestructure">The parameter to restructure</param>
-    /// <param name="newStructure">The new anatomy of the parameter</param>
-    public void RestructureParameter(string onClass, string inMethod, NameTypeObject toRestructure,
-        NameTypeObject newStructure)
+    /// <param name="toReplace">The parameter to replace</param>
+    /// <param name="newParameter">The new parameter</param>
+    public void ReplaceParameter(string onClass, string inMethod, string toReplace,
+        NameTypeObject newParameter)
     {
         
         if (!ClassExists(onClass))
@@ -452,8 +529,24 @@ public class Diagram
         }
 
         Class? targetClass = GetClassByName(onClass);
-        targetClass!.ReplaceParameter(inMethod, toRestructure, newStructure);
+        targetClass!.ReplaceParameter(inMethod, toReplace, newParameter);
 
+    }
+
+    /// <summary>
+    /// Clears parameters from a method
+    /// </summary>
+    /// <param name="onClass">Class that method exists in</param>
+    /// <param name="inMethod">Method to clear parameters from</param>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
+    public void ClearParameters(string onClass, string inMethod)
+    {
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist"); 
+        }
+
+        GetClassByName(onClass)!.ClearParameters(inMethod);
     }
     
     /// <summary>
@@ -462,7 +555,7 @@ public class Diagram
     /// <param name="paramName">The parameter to delete</param>
     /// <param name="inMethod">The method to delete from</param>
     /// <param name="onClass">The class to delete from</param>
-    public void RemoveParameter(NameTypeObject param, string inMethod, string onClass)
+    public void RemoveParameter(string paramName, string inMethod, string onClass)
     {
 
         if (!ClassExists(onClass))
@@ -471,7 +564,7 @@ public class Diagram
         }
 
         Class? targetClass = GetClassByName(onClass);
-        targetClass!.DeleteMethodParameter(param, inMethod);
+        targetClass!.DeleteMethodParameter(paramName, inMethod);
 
     }
 
@@ -492,7 +585,27 @@ public class Diagram
         }
 
         Class? targetClass = GetClassByName(onClass);
-        targetClass!.RenameParameter(onMethod, oldParamName, newParamName);
+        targetClass!.RenameMethodParameter(onMethod, oldParamName, newParamName);
+
+    }
+
+    /// <summary>
+    /// Adds parameter to an existing method
+    /// </summary>
+    /// <param name="className">Name of class method is in</param>
+    /// <param name="methodName">Method to add parameter to</param>
+    /// <param name="paramType">Return type of parameter</param>
+    /// <param name="paramName">Name of parameter</param>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
+    public void AddParameter(string className, string methodName, string paramType, string paramName)
+    {
+        if (!ClassExists(className))
+        {
+            throw new ClassNonexistentException($"Class {className} does not exist");
+        }
+
+        GetClassByName(className)!.AddParameter(methodName, paramType, paramName);
+
 
     }
 
@@ -530,7 +643,7 @@ public class Diagram
         }
 
         Class? targetClass = GetClassByName(inClass);
-        targetClass!.AddParameter(toMethod, parameter);
+        targetClass!.AddParameter(toMethod, parameter.Type, parameter.AttributeName);
 
     }
     
