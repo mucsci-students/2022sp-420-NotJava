@@ -771,20 +771,9 @@ namespace UMLEditor.Views
         /// </summary>
         /// <param name="sender">Object that generated the event</param>
         /// <param name="e">Extra arguments sent to the handler</param>
-        public void Redraw_Relationship_OnClick(object sender, RoutedEventArgs e)
+        private void Redraw_Relationship_OnClick(object sender, RoutedEventArgs e)
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                List<IControl> children = new List<IControl>(_canvas.Children); 
-                foreach (var control in children)
-                {
-                    if (control.GetType() == typeof(Line) || control.GetType() == typeof(Polyline))
-                    {
-                        _canvas.Children.Remove(control);
-                    }
-                }
-                RenderLines(_activeDiagram.Relationships);
-            });
+            RedrawLines();
         }
 
         private void Add_Method_OnClick(object sender, RoutedEventArgs e)
@@ -1454,7 +1443,23 @@ namespace UMLEditor.Views
             _canvasPointer = new Point(0, 0);
             _canvas.Children.Clear();
         }
+
+        /// <summary>
+        /// Redraws all lines for the relationships
+        /// </summary>
+        public void RedrawLines()
+        {
+            
+            Dispatcher.UIThread.Post(() =>
+            {
+                
+                ClearLines();
+                RenderLines(_activeDiagram.Relationships);
+                
+            });
+            
+        }
+        
     }
-    
     
 }
