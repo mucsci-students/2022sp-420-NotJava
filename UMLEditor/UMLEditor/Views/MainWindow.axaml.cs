@@ -169,14 +169,6 @@ namespace UMLEditor.Views
 
         private void HelpB_OnClick(object sender, RoutedEventArgs e)
         {
-            
-            
-            ModalDialog test = ModalDialog.CreateDialog<TestingPanel>("Test", DialogButtons.OK_CANCEL);
-            test.ShowDialog<DialogButtons>(this);
-
-            System.Diagnostics.Process.Start("http://google.com");
-
-            /*
             RaiseAlert(
                 "Help", 
                 "",
@@ -184,7 +176,6 @@ namespace UMLEditor.Views
                 AlertIcon.INFO
             );
             return;
-            */
         }
 
         private void Save_Button_OnClick(object sender, RoutedEventArgs e)
