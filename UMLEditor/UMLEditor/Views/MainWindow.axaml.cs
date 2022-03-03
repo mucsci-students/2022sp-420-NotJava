@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.IO;
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -169,13 +171,26 @@ namespace UMLEditor.Views
 
         private void HelpB_OnClick(object sender, RoutedEventArgs e)
         {
+            string link = "https://github.com/mucsci-students/2022sp-420-NotJava";
             RaiseAlert(
                 "Help", 
                 "",
-                "", // TODO Figure out the wording for the new help functionality
+                $"For detailed help instructions, see\n {link}", 
                 AlertIcon.INFO
             );
-            return;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo(link)
+                    {UseShellExecute = true});
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", link);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", link);
+            }
         }
 
         private void Save_Button_OnClick(object sender, RoutedEventArgs e)
