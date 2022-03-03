@@ -105,13 +105,7 @@ public class CommandLine
             case ("add_field"):
                 if (arguments.Count == 3)
                 {
-                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
-                    if (currentClass is null)
-                    {
-                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
-                    }
-                    
-                    currentClass.AddField(arguments[1],  arguments[2]);
+                    _activeDiagram!.AddField(arguments[0], arguments[1], arguments[2]);
                     
                     PrintColoredLine($"Field {arguments[2]} of type {arguments[1]} " +
                                      $"created in Class {arguments[0]}", SUCCESS_COLOR);
@@ -128,13 +122,7 @@ public class CommandLine
             case ("delete_field"):
                 if (arguments.Count == 2)
                 {
-                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
-                    if (currentClass is null)
-                    {
-                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
-                    }
-                    
-                    currentClass.DeleteField(arguments[1]);
+                    _activeDiagram.RemoveField(arguments[0], arguments[1]);
                     
                     PrintColoredLine($"Field {arguments[1]} deleted in Class {arguments[0]}", SUCCESS_COLOR);
                 }
@@ -160,10 +148,42 @@ public class CommandLine
                 PrintColoredLine($"Field {arguments[0]} successfully renamed to {arguments[1]} in class {arguments[0]}");
                 break;
 
+            case ("change_field_type"):
+            {
+                if (arguments.Count != 3)
+                {
+                    PrintColoredLine("To change the type of an existing Field, please enter \"change_field_type\" " +
+                                     "followed by a class name, the field name to change the type of, and the new type of the field " +
+                                     "into the console and then press enter.", ERROR_COLOR);
+                    break;
+                }
+                
+                _activeDiagram!.ChangeFieldType(arguments[0], arguments[1], arguments[2]);
+                
+                PrintColoredLine($"Field {arguments[1]} in class {arguments[0]} changed to type {arguments[2]}", SUCCESS_COLOR);
+                break;
+            }
+
+            case ("change_method_type"):
+            {
+                if (arguments.Count != 3)
+                {
+                    PrintColoredLine("To change the type of an existing Method, please enter \"change_method_type\" " +
+                                     "followed by a class name, the method name to change the type of, and the new type of the method " +
+                                     "into the console and then press enter.", ERROR_COLOR);
+                    break;
+                }
+                
+                _activeDiagram!.ChangeMethodType(arguments[0], arguments[1], arguments[2]);
+                
+                PrintColoredLine($"Field {arguments[1]} in class {arguments[0]} changed to type {arguments[2]}", SUCCESS_COLOR);
+                break;
+            }
+
             case ("add_method"):
 
                 string syntaxError = "Expected syntax: targetClass returnType methodName *optional parameter list in the form <paramType> <paramName>*\n" +
-                                     "Examples:\n\tadd_method A int B\n\tadd_method A int B int x int y";
+                                     "Examples:\n\tadd_method class1 int methodName\n\tadd_method class1 int methodName int x int y";
                 
                 /* Valid syntax:
                  * add_method <targetClass> <returnType> <methodName> OR
@@ -225,6 +245,8 @@ public class CommandLine
                     }
                     currentClass.DeleteMethod(arguments[1]);
                     
+                    
+                    
                     PrintColoredLine($"Method {arguments[1]} deleted in Class {arguments[0]}", SUCCESS_COLOR);
                 }
 
@@ -256,21 +278,25 @@ public class CommandLine
                                      "parameter name", ERROR_COLOR);
                     break;
                 }
-                
-                _activeDiagram!.RemoveParameter(arguments[2], arguments[1], arguments[0]);
-                PrintColoredLine($"Parameter {arguments[2]} successfully removed from {arguments[1]}");
+
+                if (arguments[2] == "-all")
+                {
+                    _activeDiagram!.ClearParameters(arguments[0], arguments[1]);
+                    PrintColoredLine($"All parameters successfully removed from {arguments[1]}");
+                }
+
+                else
+                {
+                    _activeDiagram!.RemoveParameter(arguments[2], arguments[1], arguments[0]);
+                    PrintColoredLine($"Parameter {arguments[2]} successfully removed from {arguments[1]}");
+                }
+
                 break;
 
             case ("rename_method"):
                 if (arguments.Count == 3)
                 {
-                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
-                    
-                    if (currentClass is null)
-                    {
-                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
-                    }
-                    currentClass.RenameMethod(arguments[1], arguments[2]);
+                    _activeDiagram!.RenameMethod(arguments[0], arguments[1], arguments[2]);
                     
                     PrintColoredLine($"Method {arguments[1]} renamed to {arguments[2]} in Class {arguments[0]}", SUCCESS_COLOR);
                 }
@@ -299,7 +325,7 @@ public class CommandLine
             case ("replace_parameter"):
                 if (arguments.Count != 5)
                 {
-                    PrintColoredLine("To rename an existing parameter, please enter \"rename_parameter\"" +
+                    PrintColoredLine("To replace an existing parameter, please enter \"replace_parameter\"" +
                                      "followed by a class name, the name of the method, the name of the parameter to change," +
                                      "the new parameter type, and the new parameter name");
                     break;
@@ -327,53 +353,12 @@ public class CommandLine
             case ("list_attributes"):
                 if (arguments.Count == 1)
                 {
-                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
-                    if (currentClass is null)
-                    {
-                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
-                    }
-                    PrintColoredLine(currentClass.ListAttributes());
+                    PrintColoredLine(_activeDiagram!.ListAttributes(arguments[0]));
                 }
 
                 else
                 {
                     PrintColoredLine("To list Attributes, please enter \"list_attribute\" " +
-                                     "followed by a class name into the console and then press enter.", ERROR_COLOR);
-                }
-                break;
-            
-            case ("list_methods"):
-                if (arguments.Count == 1)
-                {
-                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
-                    if (currentClass is null)
-                    {
-                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
-                    }
-                    PrintColoredLine(currentClass.ListMethods());
-                }
-
-                else
-                {
-                    PrintColoredLine("To list Methods, please enter \"list_methods\" " +
-                                     "followed by a class name into the console and then press enter.", ERROR_COLOR);
-                }
-                break;
-            
-            case ("list_fields"):
-                if (arguments.Count == 1)
-                {
-                    Class? currentClass = _activeDiagram!.GetClassByName(arguments[0]);
-                    if (currentClass is null)
-                    {
-                        throw new ClassNonexistentException($"Class {arguments[0]} does not exist");
-                    }
-                    PrintColoredLine(currentClass.ListFields());
-                }
-
-                else
-                {
-                    PrintColoredLine("To list Fields, please enter \"list_fields\" " +
                                      "followed by a class name into the console and then press enter.", ERROR_COLOR);
                 }
                 break;
@@ -425,8 +410,16 @@ public class CommandLine
             case ("change_relationship_type"):
                 if (arguments.Count != 3)
                 {
-                    PrintColoredLine("To change the type of an existing relationship, please provide a source and destination" +
-                                     "class and the new relationship type", ERROR_COLOR);
+                    string validRelationshipTypes = "";
+                    foreach (string type in Relationship.ValidTypes)
+                    {
+                        validRelationshipTypes += $"{type} ";
+                    }
+
+                    // Cut off the space from the last type
+                    validRelationshipTypes = validRelationshipTypes.Substring(0, validRelationshipTypes.Length - 1);
+                    PrintColoredLine( "To change the type of an existing relationship, please provide a source and destination " +
+                                     $"class and a new relationship type of a valid type ({validRelationshipTypes})", ERROR_COLOR);
                     break;
                 }
                 
@@ -467,14 +460,17 @@ public class CommandLine
                                  "\ndelete_method: Delete an existing method from a class" +
                                  "\nrename_field: Rename an existing field on a class" +
                                  "\nrename_method: Rename an existing method on a class" +
+                                 "\nchange_field_type: Changes the type of an existing field" +
+                                 "\nchange_method_type: Changes the type of an existing method" +
                                  "\nadd_parameter: Adds a parameter to a method" +
-                                 "\nremove_parameter: Removes an existing parameter from a method"+
+                                 "\nremove_parameter: "+
+                                 "\n\t-Removes an existing parameter from a method."+
+                                 "\n\t-Providing -all for 3rd argument will remove all parameters from a method" +
                                  "\nrename_parameter: Renames an existing parameter in a method"+
                                  "\nsave_diagram: Save your progress" +
                                  "\nload_diagram: Load a previously saved diagram" +
                                  "\nlist_classes: List all existing classes" +
                                  "\nlist_attributes: List all attributes of a class" +
-                                 "\nlist_fields: Lists all fields of a class" +
                                  "\nlist_relationships: List all relationships of a class\n", ConsoleColor.DarkCyan);
                 break;
 

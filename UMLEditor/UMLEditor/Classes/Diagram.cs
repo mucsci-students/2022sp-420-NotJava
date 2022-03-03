@@ -280,7 +280,23 @@ public class Diagram
         {
             currentRel.RenameMember(oldName, newName);
         }
+    }
+
+    /// <summary>
+    /// Renames existing method to newName
+    /// </summary>
+    /// <param name="onClass">Class that method is in</param>
+    /// <param name="oldName">Method to rename</param>
+    /// <param name="newName">New name of method</param>
+    /// <exception cref="ClassNonexistentException">Thrown if the class does not exist</exception>
+    public void RenameMethod(string onClass, string oldName, string newName)
+    {
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class {onClass} does not exist");
+        }
         
+        GetClassByName(onClass)!.RenameMethod(oldName, newName);
     }
     
     
@@ -326,6 +342,22 @@ public class Diagram
         }
 
         return msg;
+    }
+
+    /// <summary>
+    /// Lists attributes of a class
+    /// </summary>
+    /// <param name="onClass">Class to list attributes of</param>
+    /// <returns></returns>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
+    public string ListAttributes(string onClass)
+    {
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class {onClass} does not exist");
+        }
+
+        return GetClassByName(onClass)!.ListAttributes();
     }
     
     /// <summary>
@@ -428,6 +460,34 @@ public class Diagram
     }
 
     /// <summary>
+    /// Change the type of an existing field
+    /// </summary>
+    /// <param name="onClass">The class to change the field on</param>
+    /// <param name="fieldToChange">The field to change the type of</param>
+    /// <param name="newType">The new type of the field</param>
+    public void ChangeFieldType(string onClass, string fieldToChange, string newType)
+    {
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+        
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ChangeFieldType(fieldToChange, newType);
+    }
+    
+    public void ChangeMethodType(string onClass, string onMethod, string newType)
+    {
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
+        }
+        
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ChangeMethodType(onMethod, newType);
+    }
+
+    /// <summary>
     /// Changes the anatomy of the provided field
     /// </summary>
     /// <param name="onClass">The class to change the field on</param>
@@ -442,7 +502,7 @@ public class Diagram
         }
 
         Class? targetClass = GetClassByName(onClass);
-        targetClass.ReplaceField(toRename, newField);
+        targetClass!.ReplaceField(toRename, newField);
 
     }
 
@@ -465,6 +525,22 @@ public class Diagram
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ReplaceParameter(inMethod, toReplace, newParameter);
 
+    }
+
+    /// <summary>
+    /// Clears parameters from a method
+    /// </summary>
+    /// <param name="onClass">Class that method exists in</param>
+    /// <param name="inMethod">Method to clear parameters from</param>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
+    public void ClearParameters(string onClass, string inMethod)
+    {
+        if (!ClassExists(onClass))
+        {
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist"); 
+        }
+
+        GetClassByName(onClass)!.ClearParameters(inMethod);
     }
     
     /// <summary>

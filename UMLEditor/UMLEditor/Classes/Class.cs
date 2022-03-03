@@ -439,6 +439,40 @@ public class Class: ICloneable
     }
 
     /// <summary>
+    /// Changes the type of an existing field
+    /// </summary>
+    /// <param name="fieldName">Field to change type of </param>
+    /// <param name="newType">New type of field</param>
+    /// <exception cref="AttributeNonexistentException">Thrown if the field does not exist</exception>
+    public void ChangeFieldType(string fieldName, string newType)
+    {
+        if (!FieldExists(fieldName))
+        {
+            throw new AttributeNonexistentException($"Field '{fieldName}' does not exist");
+        }
+
+        NameTypeObject? fieldToChange = GetFieldByName(fieldName);
+        ReplaceField(fieldToChange!, new NameTypeObject(fieldName, newType));
+    }
+    
+    /// <summary>
+    /// Changes the type of a method
+    /// </summary>
+    /// <param name="methodName">Method to change the type of</param>
+    /// <param name="newType">New type for method</param>
+    /// <exception cref="AttributeNonexistentException">Thrown if the method does not exist</exception>
+    public void ChangeMethodType(string methodName, string newType)
+    {
+        if (!MethodExists(methodName))
+        {
+            throw new AttributeNonexistentException($"Method '{methodName}' does not exist");
+        }
+
+        Method? methodToChange = GetMethodByName(methodName);
+        methodToChange.ChangeMethodType(newType);
+    }
+
+    /// <summary>
     /// Overwrites a field with a new one.
     /// </summary>
     /// <param name="toReplace">The field to replace</param>
@@ -484,6 +518,17 @@ public class Class: ICloneable
         Method? targetMethod = GetMethodByName(onMethod);
         targetMethod!.ReplaceParam(toReplace, replaceWith);
         
+    }
+
+    public void ClearParameters(string onMethod)
+    {
+        if (!MethodExists(onMethod))
+        {
+            throw new AttributeNonexistentException($"Method '{onMethod}' does not exist");
+        }
+        
+        GetMethodByName(onMethod)!.ClearParameters();
+
     }
     
     /// <summary>

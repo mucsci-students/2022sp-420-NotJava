@@ -70,6 +70,12 @@ public class Method : AttributeObject, ICloneable
         _parameters = Utilities.CloneContainer(m._parameters);
     }
 
+    public void ChangeMethodType(string newType)
+    {
+        CheckValidAttributeName(newType);
+        ReturnType = newType;
+    }
+
     /// <summary>
     /// Checks if given parameter is in the current parameter list using NameTypeObject
     /// </summary>
@@ -260,6 +266,14 @@ public class Method : AttributeObject, ICloneable
     public void ChangeParam(List<NameTypeObject> parameters)
     {
         _parameters = parameters;
+    }
+
+    /// <summary>
+    /// Clears the existing parameter list
+    /// </summary>
+    public void ClearParameters()
+    {
+        _parameters = new List<NameTypeObject>();
     }
     
     /// <summary>
