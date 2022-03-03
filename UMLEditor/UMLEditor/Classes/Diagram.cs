@@ -628,7 +628,7 @@ public class Diagram
         }
 
         Class? targetClass = GetClassByName(inClass);
-        targetClass!.AddParameter(toMethod, parameter);
+        targetClass!.AddParameter(toMethod, parameter.Type, parameter.AttributeName);
 
     }
     
