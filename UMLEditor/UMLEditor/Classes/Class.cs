@@ -529,6 +529,11 @@ public class Class: ICloneable
         
     }
 
+    /// <summary>
+    /// Clears all parameters from a method
+    /// </summary>
+    /// <param name="onMethod">Method to clear parameters from</param>
+    /// <exception cref="AttributeNonexistentException"></exception>
     public void ClearParameters(string onMethod)
     {
         if (!MethodExists(onMethod))
@@ -540,6 +545,13 @@ public class Class: ICloneable
 
     }
     
+    /// <summary>
+    /// Adds parameter to a method
+    /// </summary>
+    /// <param name="methodName">Method to add parameter to</param>
+    /// <param name="paramType">Type of parameter to add</param>
+    /// <param name="paramName">Name of parameter to add</param>
+    /// <exception cref="MethodNonexistentRelationship">Thrown if the method does not exist</exception>
     public void AddParameter(string methodName, string paramType, string paramName)
     {
         if (!MethodExists(methodName))
