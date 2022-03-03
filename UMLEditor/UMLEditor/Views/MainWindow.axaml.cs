@@ -676,6 +676,7 @@ namespace UMLEditor.Views
                             }
                         }
                         _relationshipLines.Remove(currentLine);
+                        RenderLines(_activeDiagram.Relationships);
                         DrawRelationship(sourceClassBox,destClassBox,relationshipType);
                     }
                     // Alert if the change fails.
@@ -740,7 +741,7 @@ namespace UMLEditor.Views
                             }
                         }
                         _relationshipLines.Remove(currentLine);
-
+                        RenderLines(_activeDiagram.Relationships);
                     }
                     // Alert if the delete fails.
                     catch (Exception e)
