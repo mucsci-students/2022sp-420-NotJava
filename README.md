@@ -24,6 +24,39 @@ Cross-platform, GUI-based UML editor written for Millersville University CSCI 42
 _This will run all available unit tests for the code and does nothing else._
 - To build and execute unit tests, run the following from the root of the repo directory (where the .sln is): <br />``dotnet test``
 
+## GUI Mode Help
+- Menu Bar
+  - File
+    - Save: Opens dialog to specify a file to save the current diagram to.
+    - Load: Opens dialog to specify a file to load a diagram from.
+  - Class
+    - Add: Opens dialog to add a class to the diagram.
+  - Relationship:
+    - Add: Opens dialog to add a relationship to the diagram.
+    - Change: Opens dialog to change the relationship type for an existing relationship.
+    - Delete: Opens dialog to delete a relationship from the diagram.
+    - Redraw Lines: Redraws all relationship lines between classes.
+  - Utility:
+    - Help: Displays link to this document.
+    - Exit: Exits program without saving diagram.
+- Canvas
+  - Class Box
+    - Class Name: Shows the name of this class.
+      - ![Edit Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PencilButton.png?raw=true "Edit Button") Edit Class: Opens dialog to rename this class.
+      - ![Delete Button](/UMLEditor/UMLEditor/Assets/CustomIcons/TrashCanButton.png?raw=true "Delete Button") Delete Class: Opens dialog to delete this class from diagram.
+    - Fields: Shows the various fields of the class.
+      - ![Add Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PlusButton.png?raw=true "Add Button") Add Field: Opens dialog to add a field to the class.
+      - ![Edit Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PencilButton.png?raw=true "Edit Button") Edit Field: Opens dialog to change type and/or name of the field.
+      - ![Delete Button](/UMLEditor/UMLEditor/Assets/CustomIcons/TrashCanButton.png?raw=true "Delete Button") Delete Field: Opens dialog to delete this field from the class.
+    - Methods: Shows the various methods of the class.
+      - ![Add Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PlusButton.png?raw=true "Add Button") Add Method: Opens dialog to add a method to the class.
+      - ![Edit Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PencilButton.png?raw=true "Edit Button") Edit Method: Opens dialog to change type and/or name of the field.
+      - ![Delete Button](/UMLEditor/UMLEditor/Assets/CustomIcons/TrashCanButton.png?raw=true "Delete Button") Delete Method: Opens dialog to delete the method from the class.
+      - Parameters: Shows the various parameters of a method.
+        - ![Add Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PlusButton.png?raw=true "Add Button") Add Parameter: Opens dialog to add a parameter to a method.
+        - ![Edit Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PencilButton.png?raw=true "Edit Button") Edit Parameter: Opens dialog to change the type and/or name of a parameter.
+        - ![Delete Button](/UMLEditor/UMLEditor/Assets/CustomIcons/TrashCanButton.png?raw=true "Delete Button") Delete Parameter: Opens dialog to delete the parameter from the method.
+
 ### Team Members
 
 Daniel Foreacre<br />
