@@ -134,19 +134,19 @@ public class Diagram
         if (!ClassExists(sourceClassName))
         {
 
-            throw new ClassNonexistentException($"Nonexistent class name entered ({sourceClassName}).");
+            throw new ClassNonexistentException($"Nonexistent class name entered ('{sourceClassName}').");
             
         }
         
         if (!(ClassExists(destClassName)))
         {
 
-            throw new ClassNonexistentException($"Nonexistent class name entered ({destClassName}).");
+            throw new ClassNonexistentException($"Nonexistent class name entered ('{destClassName}').");
 
         }
         if (RelationshipExists(sourceClassName, destClassName))
         {
-            throw new RelationshipAlreadyExistsException($"Relationship {sourceClassName} => {destClassName} already exists.");
+            throw new RelationshipAlreadyExistsException($"Relationship '{sourceClassName} => {destClassName}' already exists.");
         }
 
         // Create and add the new relationship
@@ -168,14 +168,14 @@ public class Diagram
         //Check if relationship exists at all
         if (!RelationshipExists(sourceClass, destClass))
         {
-            throw new RelationshipNonexistentException($"Relationship {sourceClass} => {destClass} does not exist");
+            throw new RelationshipNonexistentException($"Relationship '{sourceClass} => {destClass}' does not exist");
         }
 
         //Check if the relationship between the two classes is already of type newRelationshipType
         Relationship? r = GetRelationship(sourceClass, destClass);
         if (r!.RelationshipType == newRelationshipType)
         {
-            throw new RelationshipTypeAlreadyExists($"Relationship {sourceClass} => {destClass} is already of type {newRelationshipType}.");
+            throw new RelationshipTypeAlreadyExists($"Relationship '{sourceClass} => {destClass}' is already of type '{newRelationshipType}'.");
         }
         
         r.ChangeType(newRelationshipType);
@@ -191,7 +191,7 @@ public class Diagram
     {
         if (!ClassExists(toClass))
         {
-            throw new ClassNonexistentException($"Class {toClass} does not exist");
+            throw new ClassNonexistentException($"Class '{toClass}' does not exist");
         }
         GetClassByName(toClass)!.AddMethod(returnType, methodName);
     }
@@ -208,7 +208,7 @@ public class Diagram
         
         if (!ClassExists(toClass))
         {
-            throw new ClassNonexistentException($"Class {toClass} does not exist");
+            throw new ClassNonexistentException($"Class '{toClass}' does not exist");
         }
         
         GetClassByName(toClass)!.AddMethod(returnType, methodName, paramList);
@@ -224,7 +224,7 @@ public class Diagram
     {
         if (ClassExists(className))
         {
-            throw new ClassAlreadyExistsException($"Class {className} already exists");
+            throw new ClassAlreadyExistsException($"Class '{className}' already exists");
         }
         
         // Create a new class
@@ -242,12 +242,12 @@ public class Diagram
     {
         if (!ClassExists(className))
         {
-            throw new ClassNonexistentException($"Class {className} does not exist");
+            throw new ClassNonexistentException($"Class '{className}' does not exist");
         }
 
         if (IsClassInRelationship(className))
         {
-            throw new ClassInUseException($"Class {className} is in use by a relationship and cannot be deleted");
+            throw new ClassInUseException($"Class '{className}' is in use by a relationship and cannot be deleted");
         }
         
         _classes.Remove(GetClassByName(className)!);
@@ -264,11 +264,11 @@ public class Diagram
     {
         if (!ClassExists(oldName))
         {
-            throw new ClassNonexistentException($"Class {oldName} does not exist");
+            throw new ClassNonexistentException($"Class '{oldName}' does not exist");
         }
         if (ClassExists(newName))
         {
-            throw new ClassAlreadyExistsException($"Class {newName} already exists");
+            throw new ClassAlreadyExistsException($"Class '{newName}' already exists");
         }
         
         // Rename class
@@ -292,7 +292,7 @@ public class Diagram
     {
         if (!ClassExists(onClass))
         {
-            throw new ClassNonexistentException($"Class {onClass} does not exist");
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
         }
         
         GetClassByName(onClass)!.RenameMethod(oldName, newName);
@@ -353,7 +353,7 @@ public class Diagram
     {
         if (!ClassExists(onClass))
         {
-            throw new ClassNonexistentException($"Class {onClass} does not exist");
+            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
         }
 
         return GetClassByName(onClass)!.ListAttributes();
@@ -369,7 +369,7 @@ public class Diagram
     {
         if (!RelationshipExists(sourceName, destName))
         {
-            throw new RelationshipNonexistentException($"Relationship {sourceName} => {destName} does not exist");
+            throw new RelationshipNonexistentException($"Relationship '{sourceName} => {destName}' does not exist");
         }
         
         // Delete relationship
@@ -601,7 +601,7 @@ public class Diagram
     {
         if (!ClassExists(className))
         {
-            throw new ClassNonexistentException($"Class {className} does not exist");
+            throw new ClassNonexistentException($"Class '{className}' does not exist");
         }
 
         GetClassByName(className)!.AddParameter(methodName, paramType, paramName);

@@ -175,7 +175,7 @@ namespace UMLEditor.Views
             RaiseAlert(
                 "Help", 
                 "",
-                $"For detailed help instructions, see\n {link}", 
+                $"For detailed help instructions, see\n '{link}'", 
                 AlertIcon.INFO
             );
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -215,7 +215,7 @@ namespace UMLEditor.Views
                             RaiseAlert(
                                 "Save Successful",
                                 $"Save Successful",
-                                $"Current diagram saved to {selectedFile}",
+                                $"Current diagram saved to '{selectedFile}'",
                                 AlertIcon.INFO
                             );
                         }

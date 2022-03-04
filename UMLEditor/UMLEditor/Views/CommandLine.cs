@@ -58,7 +58,7 @@ public class CommandLine
                     // Try to create a class with the first provided word as its name
                     _activeDiagram!.AddClass(arguments[0]);
 
-                    PrintColoredLine($"Class {words[1]} created", SUCCESS_COLOR);
+                    PrintColoredLine($"Class '{words[1]}' created", SUCCESS_COLOR);
                 }
 
                 else
@@ -76,7 +76,7 @@ public class CommandLine
                     // Try to Delete a Class with the first provided word as its name
                     _activeDiagram!.DeleteClass(arguments[0]);
 
-                    PrintColoredLine($"Class {arguments[0]} deleted.", SUCCESS_COLOR);
+                    PrintColoredLine($"Class '{arguments[0]}' deleted.", SUCCESS_COLOR);
                 }
 
                 else
@@ -92,7 +92,7 @@ public class CommandLine
                     // Try to Rename a Class with the first provided word as its name
                     _activeDiagram!.RenameClass(arguments[0],  arguments[1]);
 
-                    PrintColoredLine($"Class {arguments[0]} renamed to {arguments[1]}", SUCCESS_COLOR);
+                    PrintColoredLine($"Class '{arguments[0]}' renamed to '{arguments[1]}'", SUCCESS_COLOR);
                 }
 
                 else
@@ -107,8 +107,8 @@ public class CommandLine
                 {
                     _activeDiagram!.AddField(arguments[0], arguments[1], arguments[2]);
                     
-                    PrintColoredLine($"Field {arguments[2]} of type {arguments[1]} " +
-                                     $"created in Class {arguments[0]}", SUCCESS_COLOR);
+                    PrintColoredLine($"Field '{arguments[2]}' of type '{arguments[1]}' " +
+                                     $"created in Class '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
@@ -124,7 +124,7 @@ public class CommandLine
                 {
                     _activeDiagram.RemoveField(arguments[0], arguments[1]);
                     
-                    PrintColoredLine($"Field {arguments[1]} deleted in Class {arguments[0]}", SUCCESS_COLOR);
+                    PrintColoredLine($"Field '{arguments[1]}' deleted in Class '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
@@ -145,7 +145,7 @@ public class CommandLine
                 }
                 
                 _activeDiagram!.RenameField(arguments[0], arguments[1], arguments[2]);
-                PrintColoredLine($"Field {arguments[0]} successfully renamed to {arguments[1]} in class {arguments[0]}");
+                PrintColoredLine($"Field '{arguments[0]}' successfully renamed to '{arguments[1]}' in class '{arguments[0]}'");
                 break;
 
             case ("change_field_type"):
@@ -160,7 +160,7 @@ public class CommandLine
                 
                 _activeDiagram!.ChangeFieldType(arguments[0], arguments[1], arguments[2]);
                 
-                PrintColoredLine($"Field {arguments[1]} in class {arguments[0]} changed to type {arguments[2]}", SUCCESS_COLOR);
+                PrintColoredLine($"Field '{arguments[1]}' in class '{arguments[0]}' changed to type '{arguments[2]}'", SUCCESS_COLOR);
                 break;
             }
 
@@ -176,7 +176,7 @@ public class CommandLine
                 
                 _activeDiagram!.ChangeMethodType(arguments[0], arguments[1], arguments[2]);
                 
-                PrintColoredLine($"Field {arguments[1]} in class {arguments[0]} changed to type {arguments[2]}", SUCCESS_COLOR);
+                PrintColoredLine($"Field '{arguments[1]}' in class '{arguments[0]}' changed to type '{arguments[2]}'", SUCCESS_COLOR);
                 break;
             }
 
@@ -238,7 +238,7 @@ public class CommandLine
                 if (arguments.Count() == 2)
                 {
                     _activeDiagram!.DeleteMethod(arguments[0], arguments[1]);
-                    PrintColoredLine($"Method {arguments[1]} deleted in Class {arguments[0]}", SUCCESS_COLOR);
+                    PrintColoredLine($"Method '{arguments[1]}' deleted in Class '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
@@ -258,7 +258,7 @@ public class CommandLine
                 }
 
                 _activeDiagram!.AddParameter(arguments[0], arguments[1], arguments[2], arguments[3]);
-                PrintColoredLine($"Parameter {arguments[3]} of type {arguments[2]} added to method {arguments[1]}", SUCCESS_COLOR);
+                PrintColoredLine($"Parameter '{arguments[3]}' of type '{arguments[2]}' added to method '{arguments[1]}'", SUCCESS_COLOR);
                 break;
             
             case ("remove_parameter"):
@@ -273,13 +273,13 @@ public class CommandLine
                 if (arguments[2] == "-all")
                 {
                     _activeDiagram!.ClearParameters(arguments[0], arguments[1]);
-                    PrintColoredLine($"All parameters successfully removed from {arguments[1]}");
+                    PrintColoredLine($"All parameters successfully removed from '{arguments[1]}'");
                 }
 
                 else
                 {
                     _activeDiagram!.RemoveParameter(arguments[2], arguments[1], arguments[0]);
-                    PrintColoredLine($"Parameter {arguments[2]} successfully removed from {arguments[1]}");
+                    PrintColoredLine($"Parameter '{arguments[2]}' successfully removed from '{arguments[1]}'");
                 }
 
                 break;
@@ -289,7 +289,7 @@ public class CommandLine
                 {
                     _activeDiagram!.RenameMethod(arguments[0], arguments[1], arguments[2]);
                     
-                    PrintColoredLine($"Method {arguments[1]} renamed to {arguments[2]} in Class {arguments[0]}", SUCCESS_COLOR);
+                    PrintColoredLine($"Method '{arguments[1]}' renamed to '{arguments[2]}' in Class '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
@@ -324,8 +324,8 @@ public class CommandLine
                 
                 _activeDiagram!.ReplaceParameter(arguments[0], arguments[1], 
                     arguments[2], new NameTypeObject(arguments[3], arguments[4]));
-                PrintColoredLine($"Successfully replaced parameter {arguments[2]} with parameter of type" +
-                                 $"{arguments[3]} and name {arguments[4]} in method {arguments[1]}");
+                PrintColoredLine($"Successfully replaced parameter '{arguments[2]}' with parameter of type" +
+                                 $"'{arguments[3]}' and name '{arguments[4]}' in method '{arguments[1]}'");
                 break;
 
             case ("list_classes"):
@@ -361,7 +361,7 @@ public class CommandLine
                     _activeDiagram!.AddRelationship(arguments[0], arguments[1], 
                         arguments[2]);
 
-                    PrintColoredLine($"Relationship {arguments[0]} => {arguments[1]} with type {arguments[2]} "+
+                    PrintColoredLine($"Relationship '{arguments[0]} => {arguments[1]}' with type '{arguments[2]}' "+
                         "successfully created.", SUCCESS_COLOR);
                 }
 
@@ -378,7 +378,7 @@ public class CommandLine
                     
                     PrintColoredLine("To create a new Relationship, please enter \"add_relationship\" " +
                                      "followed by a source class, a destination class, " +
-                                     $"and then the relationship type ({validRelationshipTypes}).", ERROR_COLOR);
+                                     $"and then the relationship type ('{validRelationshipTypes}').", ERROR_COLOR);
                 } 
                 break;
 
@@ -388,7 +388,7 @@ public class CommandLine
                     // Try to delete relationship with the given source and destination classes
                     _activeDiagram!.DeleteRelationship(arguments[0], arguments[1]);
 
-                    PrintColoredLine($"Relationship {arguments[0]} => {arguments[1]} deleted", SUCCESS_COLOR);
+                    PrintColoredLine($"Relationship '{arguments[0]} => {arguments[1]}' deleted", SUCCESS_COLOR);
                 }
 
                 else
@@ -410,13 +410,13 @@ public class CommandLine
                     // Cut off the space from the last type
                     validRelationshipTypes = validRelationshipTypes.Substring(0, validRelationshipTypes.Length - 1);
                     PrintColoredLine( "To change the type of an existing relationship, please provide a source and destination " +
-                                     $"class and a new relationship type of a valid type ({validRelationshipTypes})", ERROR_COLOR);
+                                     $"class and a new relationship type of a valid type ('{validRelationshipTypes}')", ERROR_COLOR);
                     break;
                 }
                 
                 _activeDiagram!.ChangeRelationship(arguments[0], arguments[1], arguments[2]);
                 
-                PrintColoredLine($"Relationship type successfully changed to type {arguments[2]}");
+                PrintColoredLine($"Relationship type successfully changed to type '{arguments[2]}'");
                 break;
             
             case ("list_relationships"):
@@ -478,7 +478,7 @@ public class CommandLine
                     _activeFile!.SaveDiagram(ref _activeDiagram!, arguments[0]);
 
 
-                    PrintColoredLine($"Current diagram saved to {arguments[0]}", SUCCESS_COLOR);
+                    PrintColoredLine($"Current diagram saved to '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
@@ -501,7 +501,7 @@ public class CommandLine
                     _activeDiagram = _activeFile!.LoadDiagram(arguments[0]);
 
 
-                    PrintColoredLine($"Diagram {arguments[0]} loaded.", SUCCESS_COLOR);
+                    PrintColoredLine($"Diagram '{arguments[0]}' loaded.", SUCCESS_COLOR);
                 }
 
                 else
