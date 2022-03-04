@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Classes;
+﻿using System.Diagnostics;
+
+namespace UMLEditor.Classes;
 
 using UMLEditor.Utility;
 using System.Collections.Generic;
@@ -67,6 +69,34 @@ public class Diagram
         }
         return false;
     }
+    /// <summary>
+    /// Checks if the current diagram has the given class
+    /// </summary>
+    /// <param name="className">The name of the class to check</param>
+    /// <exception cref="ClassNonexistentException"></exception>
+    private void HasClass(string className)
+    {
+        
+        if (!ClassExists(className))
+        {
+            throw new ClassNonexistentException($"Class '{className}' does not exist");
+        }
+        
+    }
+    
+    /// <summary>
+    /// Checks if the current diagram has a relationship with the given source / destination
+    /// </summary>
+    /// <param name="sourceClassName">Source class for the relationship</param>
+    /// <param name="destClassName">Destination class for the relationship</param>
+    /// <exception cref="RelationshipAlreadyExistsException"></exception>
+    private void HasRelationship(string sourceClassName, string destClassName)
+    {
+        if (!RelationshipExists(sourceClassName, destClassName))
+        {
+            throw new RelationshipAlreadyExistsException($"Relationship {sourceClassName} => {destClassName} does not exist.");
+        }
+    }
 
     /// <summary>
     /// Checks if a relationship between the two classes.
@@ -131,19 +161,9 @@ public class Diagram
     {
         
         // Ensure the provided classes exist
-        if (!ClassExists(sourceClassName))
-        {
-
-            throw new ClassNonexistentException($"Nonexistent class name entered ({sourceClassName}).");
-            
-        }
+        HasClass(sourceClassName);
+        HasClass(destClassName);
         
-        if (!(ClassExists(destClassName)))
-        {
-
-            throw new ClassNonexistentException($"Nonexistent class name entered ({destClassName}).");
-
-        }
         if (RelationshipExists(sourceClassName, destClassName))
         {
             throw new RelationshipAlreadyExistsException($"Relationship {sourceClassName} => {destClassName} already exists.");
@@ -166,10 +186,7 @@ public class Diagram
     public void ChangeRelationship(string sourceClass, string destClass, string newRelationshipType)
     {
         //Check if relationship exists at all
-        if (!RelationshipExists(sourceClass, destClass))
-        {
-            throw new RelationshipNonexistentException($"Relationship {sourceClass} => {destClass} does not exist");
-        }
+        HasRelationship(sourceClass,destClass);
 
         //Check if the relationship between the two classes is already of type newRelationshipType
         Relationship? r = GetRelationship(sourceClass, destClass);
@@ -189,10 +206,7 @@ public class Diagram
     /// <param name="methodName">Name of method</param>
     public void AddMethod(string toClass, string returnType, string methodName)
     {
-        if (!ClassExists(toClass))
-        {
-            throw new ClassNonexistentException($"Class {toClass} does not exist");
-        }
+        HasClass(toClass);
         GetClassByName(toClass)!.AddMethod(returnType, methodName);
     }
     
@@ -206,11 +220,7 @@ public class Diagram
     public void AddMethod(string toClass, string returnType, string methodName, List<NameTypeObject> paramList)
     {
         
-        if (!ClassExists(toClass))
-        {
-            throw new ClassNonexistentException($"Class {toClass} does not exist");
-        }
-        
+        HasClass(toClass);
         GetClassByName(toClass)!.AddMethod(returnType, methodName, paramList);
         
     }
@@ -222,9 +232,10 @@ public class Diagram
     /// <exception cref="ClassAlreadyExistsException">Ensures there is not already a class by this name</exception>
     public void AddClass(string className)
     {
+
         if (ClassExists(className))
         {
-            throw new ClassAlreadyExistsException($"Class {className} already exists");
+            throw new ClassNonexistentException($"Class '{className}' already exists");
         }
         
         // Create a new class
@@ -240,10 +251,7 @@ public class Diagram
     /// <exception cref="ClassInUseException">If the class is currently involved in a relationship</exception>
     public void DeleteClass(string className)
     {
-        if (!ClassExists(className))
-        {
-            throw new ClassNonexistentException($"Class {className} does not exist");
-        }
+        HasClass(className);
 
         if (IsClassInRelationship(className))
         {
@@ -262,13 +270,11 @@ public class Diagram
     /// <exception cref="ClassAlreadyExistsException">Thrown if the class newName already exists</exception>
     public void RenameClass(string oldName, string newName)
     {
-        if (!ClassExists(oldName))
-        {
-            throw new ClassNonexistentException($"Class {oldName} does not exist");
-        }
+        HasClass(oldName);
+        
         if (ClassExists(newName))
         {
-            throw new ClassAlreadyExistsException($"Class {newName} already exists");
+            throw new ClassNonexistentException($"Class '{newName}' already exists");
         }
         
         // Rename class
@@ -290,10 +296,7 @@ public class Diagram
     /// <exception cref="ClassNonexistentException">Thrown if the class does not exist</exception>
     public void RenameMethod(string onClass, string oldName, string newName)
     {
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class {onClass} does not exist");
-        }
+        HasClass(onClass);
         
         GetClassByName(onClass)!.RenameMethod(oldName, newName);
     }
@@ -351,10 +354,7 @@ public class Diagram
     /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
     public string ListAttributes(string onClass)
     {
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class {onClass} does not exist");
-        }
+        HasClass(onClass);
 
         return GetClassByName(onClass)!.ListAttributes();
     }
@@ -367,9 +367,10 @@ public class Diagram
     /// <exception cref="RelationshipNonexistentException">If the relationship does not exist</exception>
     public void DeleteRelationship(string sourceName, string destName)
     {
+        
         if (!RelationshipExists(sourceName, destName))
         {
-            throw new RelationshipNonexistentException($"Relationship {sourceName} => {destName} does not exist");
+            throw new RelationshipAlreadyExistsException($"Relationship {sourceName} => {destName} does not exists.");
         }
         
         // Delete relationship
@@ -410,10 +411,7 @@ public class Diagram
     public void AddField(string toClass, string withType, string withName)
     {
 
-        if (!ClassExists(toClass))
-        {
-            throw new ClassNonexistentException($"Class '{toClass}' does not exist");
-        }
+        HasClass(toClass);
 
         Class? targetClass = GetClassByName(toClass);
         targetClass!.AddField(withType, withName);
@@ -429,10 +427,7 @@ public class Diagram
     public void RemoveField(string fromClass, string withName)
     {
 
-        if (!ClassExists(fromClass))
-        {
-            throw new ClassNonexistentException($"Class '{fromClass}' does not exist");
-        }
+        HasClass(fromClass);
 
         Class? targetClass = GetClassByName(fromClass);
         targetClass!.DeleteField(withName);
@@ -448,10 +443,7 @@ public class Diagram
     public void RenameField(string onClass, string oldName, string newName)
     {
 
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
-        }
+        HasClass(onClass);
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.RenameField(oldName, newName);
@@ -466,10 +458,7 @@ public class Diagram
     /// <param name="newType">The new type of the field</param>
     public void ChangeFieldType(string onClass, string fieldToChange, string newType)
     {
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
-        }
+        HasClass(onClass);
         
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeFieldType(fieldToChange, newType);
@@ -484,10 +473,7 @@ public class Diagram
     /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
     public void ChangeMethodType(string onClass, string onMethod, string newType)
     {
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
-        }
+        HasClass(onClass);
         
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeMethodType(onMethod, newType);
@@ -501,11 +487,7 @@ public class Diagram
     /// <param name="newField">The new field</param>
     public void ReplaceField(string onClass, NameTypeObject toRename, NameTypeObject newField)
     {
-        
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
-        }
+        HasClass(onClass);
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ReplaceField(toRename, newField);
@@ -522,11 +504,7 @@ public class Diagram
     public void ReplaceParameter(string onClass, string inMethod, string toReplace,
         NameTypeObject newParameter)
     {
-        
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
-        }
+        HasClass(onClass);
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ReplaceParameter(inMethod, toReplace, newParameter);
@@ -541,10 +519,7 @@ public class Diagram
     /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
     public void ClearParameters(string onClass, string inMethod)
     {
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class '{onClass}' does not exist"); 
-        }
+        HasClass(onClass);
 
         GetClassByName(onClass)!.ClearParameters(inMethod);
     }
@@ -557,11 +532,7 @@ public class Diagram
     /// <param name="onClass">The class to delete from</param>
     public void RemoveParameter(string paramName, string inMethod, string onClass)
     {
-
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class '{onClass}' does not exist"); 
-        }
+        HasClass(onClass);
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.DeleteMethodParameter(paramName, inMethod);
@@ -578,11 +549,7 @@ public class Diagram
     /// <exception cref="ClassNonexistentException"></exception>
     public void RenameParameter(string onClass, string onMethod, string oldParamName, string newParamName)
     {
-
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
-        }
+        HasClass(onClass);
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.RenameMethodParameter(onMethod, oldParamName, newParamName);
@@ -599,14 +566,9 @@ public class Diagram
     /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
     public void AddParameter(string className, string methodName, string paramType, string paramName)
     {
-        if (!ClassExists(className))
-        {
-            throw new ClassNonexistentException($"Class {className} does not exist");
-        }
+        HasClass(className);
 
         GetClassByName(className)!.AddParameter(methodName, paramType, paramName);
-
-
     }
 
     /// <summary>
@@ -617,15 +579,10 @@ public class Diagram
     /// <param name="newMethodAnatomy">The new name and type of the method</param>
     public void ChangeMethodNameType(string onClass, string methodName, NameTypeObject newMethodAnatomy)
     {
-        
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
-        }
+        HasClass(onClass);
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeMethodNameType(methodName, newMethodAnatomy);
-
     }
 
     /// <summary>
@@ -636,15 +593,10 @@ public class Diagram
     /// <param name="parameter">The new parameter to add</param>
     public void AddParameter(string inClass, string toMethod, NameTypeObject parameter)
     {
-        
-        if (!ClassExists(inClass))
-        {
-            throw new ClassNonexistentException($"Class '{inClass}' does not exist");
-        }
+        HasClass(inClass);
 
         Class? targetClass = GetClassByName(inClass);
         targetClass!.AddParameter(toMethod, parameter.Type, parameter.AttributeName);
-
     }
     
     /// <summary>
@@ -654,15 +606,10 @@ public class Diagram
     /// <param name="methodName">The name of the method to delete</param>
     public void DeleteMethod(string onClass, string methodName)
     {
-
-        if (!ClassExists(onClass))
-        {
-            throw new ClassNonexistentException($"Class '{onClass}' does not exist");
-        }
+        HasClass(onClass);
 
         Class? targetClass = GetClassByName(onClass);
-        targetClass!.DeleteMethod(methodName);        
-
+        targetClass!.DeleteMethod(methodName);
     }
     
 }
