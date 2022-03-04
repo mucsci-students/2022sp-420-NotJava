@@ -2,11 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
-using DynamicData;
 using UMLEditor.Classes;
-using UMLEditor.Exceptions;
 using UMLEditor.Interfaces;
 
 namespace UMLEditor.Views;

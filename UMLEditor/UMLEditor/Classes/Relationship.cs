@@ -1,6 +1,4 @@
-﻿using Splat.ApplicationPerformanceMonitoring;
-
-namespace UMLEditor.Classes;
+﻿namespace UMLEditor.Classes;
 
 using System;
 using Newtonsoft.Json;
