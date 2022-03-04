@@ -76,12 +76,10 @@ public class Diagram
     /// <exception cref="ClassNonexistentException"></exception>
     private void HasClass(string className)
     {
-        
         if (!ClassExists(className))
         {
             throw new ClassNonexistentException($"Class '{className}' does not exist");
         }
-        
     }
     
     /// <summary>
