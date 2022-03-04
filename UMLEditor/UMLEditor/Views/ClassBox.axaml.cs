@@ -60,7 +60,13 @@ public class ClassBox : UserControl
 
         _titleBar.PointerReleased += (object sender, PointerReleasedEventArgs args) =>
         {
-            _beingDragged = false; // If the mouse button is released, switch off the dragging flag
+            
+            // If the mouse button is released, switch off the dragging flag
+            _beingDragged = false; 
+            
+            // Redraw the lines again (so "flinging" the box doesn't mess up the lines)
+            _parentWindow!.RedrawLines();
+            
         };
 
         PointerMoved += (object sender, PointerEventArgs args) =>
@@ -78,6 +84,8 @@ public class ClassBox : UserControl
                 Canvas.SetTop(this, pointerLocation.Y);
 
                 // TODO: At some point, use smarter math so the movement isn't snapped to the upper left corner of the box
+                
+                _parentWindow!.RedrawLines();
                 
             }
             
