@@ -9,27 +9,11 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Avalonia.Media;
-using Avalonia.Diagnostics;
-using Avalonia.Layout;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
-using Avalonia.Rendering;
-using Avalonia.Styling;
-using Avalonia.VisualTree;
-using Microsoft.CodeAnalysis.Scripting.Hosting;
-using ReactiveUI;
 using UMLEditor.Classes;
-using UMLEditor.Exceptions;
 using UMLEditor.Interfaces;
-using Path = System.IO.Path;
-
-using System.Threading;
-using Avalonia.Animation;
-using DynamicData.Binding;
 
 namespace UMLEditor.Views
 {
