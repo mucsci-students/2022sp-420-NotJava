@@ -86,12 +86,12 @@ public class Diagram
     /// Checks if the current diagram has the given class
     /// </summary>
     /// <param name="className">The name of the class to check</param>
-    /// <exception cref="ClassNonexistentException">Exception if class does not exist</exception>
+    /// <exception cref="ClassAlreadyExistsException">Exception if class already exists</exception>
     private void MustNotHaveClass(string className)
     {
         if (ClassExists(className))
         {
-            throw new ClassNonexistentException($"Class '{className}' already exists");
+            throw new ClassAlreadyExistsException($"Class '{className}' already exists");
         }
     }
     
@@ -114,12 +114,12 @@ public class Diagram
     /// </summary>
     /// <param name="sourceClassName">Source class for the relationship</param>
     /// <param name="destClassName">Destination class for the relationship</param>
-    /// <exception cref="RelationshipNonexistentException">Exception if relationship does not exist</exception>
+    /// <exception cref="RelationshipAlreadyExistsException">Exception if relationship already exists</exception>
     private void MustNotHaveRelationship(string sourceClassName, string destClassName)
     {
         if (RelationshipExists(sourceClassName, destClassName))
         {
-            throw new RelationshipNonexistentException($"Relationship {sourceClassName} => {destClassName} already exists.");
+            throw new RelationshipAlreadyExistsException($"Relationship {sourceClassName} => {destClassName} already exists.");
         }
     }
 
