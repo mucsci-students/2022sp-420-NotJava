@@ -1,10 +1,5 @@
-﻿using System.Reflection;
-using System.Security.Authentication.ExtendedProtection;
-using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 
 namespace UMLEditor.Views;
 

@@ -1,8 +1,5 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using UMLEditor.Classes;
-using System.Collections.Generic;
 
 namespace UMLEditor.Views;
 

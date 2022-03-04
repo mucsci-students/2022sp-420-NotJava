@@ -1,7 +1,6 @@
-﻿using System.Data;
+﻿namespace UMLEditor.Classes;
 
-namespace UMLEditor.Classes;
-
+using System.Data;
 using UMLEditor.Utility;
 using System;
 using System.Collections.Generic;
