@@ -164,8 +164,8 @@ public class ClassBox : UserControl
     {
         
         _parentWindow.RaiseConfirmation(
-            $"Delete class {ClassName}?",
-            $"Delete class {ClassName}?",
+            $"Delete class '{ClassName}'?",
+            $"Delete class '{ClassName}'?",
             $"Are you sure you want to delete the class '{ClassName}'?",
             AlertIcon.QUESTION,
             (selection) =>
@@ -211,7 +211,7 @@ public class ClassBox : UserControl
     private void RenameClass_Button_OnClick(object sender, RoutedEventArgs e)
     {
 
-        ModalDialog dialog = ModalDialog.CreateDialog<AddClassPanel>($"Rename {ClassName}", DialogButtons.OK_CANCEL);
+        ModalDialog dialog = ModalDialog.CreateDialog<AddClassPanel>($"Rename '{ClassName}'", DialogButtons.OK_CANCEL);
         dialog.ShowDialog<DialogButtons>(_parentWindow).ContinueWith((selection) =>
         {
 
@@ -255,7 +255,7 @@ public class ClassBox : UserControl
     private void AddFieldButton_OnClick(object sender, RoutedEventArgs e)
     {
         
-        ModalDialog dialog = ModalDialog.CreateDialog<AddFieldPanel>($"Add Field To {ClassName}", DialogButtons.OK_CANCEL);
+        ModalDialog dialog = ModalDialog.CreateDialog<AddFieldPanel>($"Add Field To '{ClassName}'", DialogButtons.OK_CANCEL);
         dialog.ShowDialog<DialogButtons>(_parentWindow).ContinueWith((selection) =>
         {
 
@@ -361,7 +361,7 @@ public class ClassBox : UserControl
         (
 
             "Confirm Deletion",
-            $"Delete parameter {toDelete.FieldName} from {inMethod.MethodName}?",
+            $"Delete parameter '{toDelete.FieldName}' from '{inMethod.MethodName}'?",
             "Are you sure you want to delete this?",
             AlertIcon.QUESTION,
             (selection) =>

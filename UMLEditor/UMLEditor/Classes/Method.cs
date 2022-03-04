@@ -141,7 +141,7 @@ public class Method : AttributeObject, ICloneable
 
         if (IsParamInList(param))
         {
-            throw new AttributeAlreadyExistsException($"{param} already exists as a parameter.");
+            throw new AttributeAlreadyExistsException($"'{param}' already exists as a parameter.");
         }
         
         _parameters.Add(param);
@@ -159,7 +159,7 @@ public class Method : AttributeObject, ICloneable
         {
             if (IsParamInList(p))
             {
-                throw new AttributeAlreadyExistsException($"{p} already exists as a parameter.");
+                throw new AttributeAlreadyExistsException($"'{p}' already exists as a parameter.");
             }
         }
 
@@ -186,7 +186,7 @@ public class Method : AttributeObject, ICloneable
     {
         if (!(_parameters.Remove(FindParamInList(param)!)))
         {
-            throw new AttributeNonexistentException($"{param} does not exist in the method");
+            throw new AttributeNonexistentException($"'{param}' does not exist in the method");
         }
     }
 
@@ -201,12 +201,12 @@ public class Method : AttributeObject, ICloneable
     {
         if (!IsParamInList(oldParam))
         {
-            throw new AttributeNonexistentException($"{oldParam} does not exist");
+            throw new AttributeNonexistentException($"'{oldParam}' does not exist");
         }
 
         if (IsParamInList(newParam))
         {
-            throw new AttributeAlreadyExistsException($"{newParam} already exists");
+            throw new AttributeAlreadyExistsException($"'{newParam}' already exists");
         }
 
         _parameters[_parameters.IndexOf(oldParam)] = newParam;

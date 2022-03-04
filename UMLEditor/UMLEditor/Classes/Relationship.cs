@@ -74,7 +74,7 @@ public class Relationship : ICloneable
     {
         if (!_validTypes.Contains(type))
         {
-            throw new InvalidRelationshipTypeException($"{type} is not a valid relationship type.");
+            throw new InvalidRelationshipTypeException($"'{type}' is not a valid relationship type.");
         }
         return true;
     }

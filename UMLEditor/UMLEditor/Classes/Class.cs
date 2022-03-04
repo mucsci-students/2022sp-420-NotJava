@@ -76,7 +76,7 @@ public class Class: ICloneable
     {
         if (FieldExists(name))
         {
-            throw new AttributeAlreadyExistsException($"Field {name} already exists");
+            throw new AttributeAlreadyExistsException($"Field '{name}' already exists");
         }
         _fields.Add(new NameTypeObject(type, name));
         
@@ -93,7 +93,7 @@ public class Class: ICloneable
         
         if (MethodExists(name))
         {
-            throw new AttributeAlreadyExistsException($"Method {name} already exists");
+            throw new AttributeAlreadyExistsException($"Method '{name}' already exists");
         }
         
         _methods.Add(new Method(returnType, name));
@@ -112,7 +112,7 @@ public class Class: ICloneable
         
         if (MethodExists(name))
         {
-            throw new AttributeAlreadyExistsException(string.Format("Method {0} already exists", name));
+            throw new AttributeAlreadyExistsException(($"Method '{name}' already exists"));
         }
         
         // Ensure there are no duplicate parameters in the param list
@@ -122,7 +122,7 @@ public class Class: ICloneable
 
             if (seenNames.Contains(param.AttributeName))
             {
-                throw new DuplicateNameException($"Duplicate parameter: {param.ToString()}");
+                throw new DuplicateNameException($"Duplicate parameter: '{param.ToString()}'");
             }
          
             seenNames.Add(param.AttributeName);
@@ -233,7 +233,7 @@ public class Class: ICloneable
     public void DeleteField(string targetFieldName)
     {
         
-        const string NONEXISTENT_NAME_FORMAT = "Nonexistent field name entered ({0}).";
+        const string NONEXISTENT_NAME_FORMAT = "Nonexistent field name entered ('{0}').";
         
         // Ensure the provided classes exist
         bool removeWorked = _fields.Remove(GetFieldByName(targetFieldName));
@@ -254,7 +254,7 @@ public class Class: ICloneable
     public void DeleteMethod(string targetMethodName)
     {
         
-        const string NONEXISTENT_NAME_FORMAT = "Nonexistent method name entered ({0}).";
+        const string NONEXISTENT_NAME_FORMAT = "Nonexistent method name entered ('{0}').";
         
         // Ensure the provided classes exist
         bool removeWorked = _methods.Remove(GetMethodByName(targetMethodName));
@@ -278,7 +278,7 @@ public class Class: ICloneable
 
         if (!MethodExists(onMethod))
         {
-            throw new AttributeNonexistentException($"Method {onMethod} does not exist");
+            throw new AttributeNonexistentException($"Method '{onMethod}' does not exist");
         }
 
         Method targetMtd = GetMethodByName(onMethod)!;
@@ -356,11 +356,11 @@ public class Class: ICloneable
         
         if (!FieldExists(oldName))
         {
-            throw new AttributeNonexistentException($"Field {oldName} does not exist");
+            throw new AttributeNonexistentException($"Field '{oldName}' does not exist");
         }
         if (FieldExists(newName))
         {
-            throw new AttributeAlreadyExistsException($"Field {newName} already exists");
+            throw new AttributeAlreadyExistsException($"Field '{newName}' already exists");
         }
         
         // Rename field
@@ -381,11 +381,11 @@ public class Class: ICloneable
         
         if (!MethodExists(oldName))
         {
-            throw new AttributeNonexistentException($"Method {oldName} does not exist");
+            throw new AttributeNonexistentException($"Method '{oldName}' does not exist");
         }
         if (MethodExists(newName))
         {
-            throw new AttributeAlreadyExistsException($"Method {newName} already exists");
+            throw new AttributeAlreadyExistsException($"Method '{newName}' already exists");
         }
         
         // Rename field
@@ -404,7 +404,7 @@ public class Class: ICloneable
 
         if (!MethodExists(onMethod))
         {
-            throw new AttributeNonexistentException($"Method {onMethod} does not exist");
+            throw new AttributeNonexistentException($"Method '{onMethod}' does not exist");
         }
 
         Method? targetMtd = GetMethodByName(onMethod);
@@ -423,7 +423,7 @@ public class Class: ICloneable
 
         if (!MethodExists(onMethod))
         {
-            throw new AttributeNonexistentException($"Method {onMethod} does not exist");
+            throw new AttributeNonexistentException($"Method '{onMethod}' does not exist");
         }
 
         Method? targetMtd = GetMethodByName(onMethod);
@@ -440,7 +440,7 @@ public class Class: ICloneable
     {
         if (name is null || name.Length == 0 || !Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
         {
-            throw new InvalidNameException($"{name} is an invalid class name.  " +
+            throw new InvalidNameException($"'{name}' is an invalid class name.  " +
                                                                 "Class name must be a single word that starts with an alphabetic " +
                                                                 "character or an underscore.  " +
                                                                 "Please Try again.");
@@ -556,7 +556,7 @@ public class Class: ICloneable
     {
         if (!MethodExists(methodName))
         {
-            throw new MethodNonexistentRelationship($"Method {methodName} does not exist");
+            throw new MethodNonexistentRelationship($"Method '{methodName}' does not exist");
         }
         GetMethodByName(methodName)!.AddParam(new NameTypeObject(paramType, paramName));
     }

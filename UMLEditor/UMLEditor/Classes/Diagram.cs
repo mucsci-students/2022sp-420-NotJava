@@ -186,6 +186,7 @@ public class Diagram
     {
         
         // Ensure the provided classes exist
+
         MustHaveClass(sourceClassName);
         MustHaveClass(destClassName);
         
@@ -215,7 +216,7 @@ public class Diagram
         Relationship? r = GetRelationship(sourceClass, destClass);
         if (r!.RelationshipType == newRelationshipType)
         {
-            throw new RelationshipTypeAlreadyExists($"Relationship {sourceClass} => {destClass} is already of type {newRelationshipType}.");
+            throw new RelationshipTypeAlreadyExists($"Relationship '{sourceClass} => {destClass}' is already of type '{newRelationshipType}'.");
         }
         
         r.ChangeType(newRelationshipType);
@@ -276,7 +277,7 @@ public class Diagram
 
         if (IsClassInRelationship(className))
         {
-            throw new ClassInUseException($"Class {className} is in use by a relationship and cannot be deleted");
+            throw new ClassInUseException($"Class '{className}' is in use by a relationship and cannot be deleted");
         }
         
         _classes.Remove(GetClassByName(className)!);
@@ -291,6 +292,7 @@ public class Diagram
     /// <exception cref="ClassAlreadyExistsException">Thrown if the class newName already exists</exception>
     public void RenameClass(string oldName, string newName)
     {
+
         // Ensure old class exists
         MustHaveClass(oldName);
         
@@ -316,6 +318,7 @@ public class Diagram
     /// <exception cref="ClassNonexistentException">Thrown if the class does not exist</exception>
     public void RenameMethod(string onClass, string oldName, string newName)
     {
+
         // Ensure class exists
         MustHaveClass(onClass);
         
@@ -375,6 +378,7 @@ public class Diagram
     /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
     public string ListAttributes(string onClass)
     {
+
         // Ensure class exists
         MustHaveClass(onClass);
 
@@ -389,6 +393,7 @@ public class Diagram
     /// <exception cref="RelationshipNonexistentException">If the relationship does not exist</exception>
     public void DeleteRelationship(string sourceName, string destName)
     {
+
         // Ensure the relationship exists
         MustHaveRelationship(sourceName, destName);
         
@@ -594,7 +599,6 @@ public class Diagram
     {
         // Ensures the class exists
         MustHaveClass(className);
-
         GetClassByName(className)!.AddParameter(methodName, paramType, paramName);
     }
 
