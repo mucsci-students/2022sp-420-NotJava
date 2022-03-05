@@ -14,9 +14,13 @@ Cross-platform, GUI-based UML editor written for Millersville University CSCI 42
 
 ## Running Instructions
 ### For GUI:
-- To run the native executable in graphical mode: ``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore``
+- To run the native executable in graphical mode: 
+  - In Linux, MacOS, and Windows Powershell: ``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore``
+  - In Windows CMD: ``.\UMLEditor\UMLEditor.NetCore\bin\Debug\net6.0\UMLEditor.NetCore``
 ### For CLI:
-- To run the native executable in CLI mode: <br />``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore -cli``
+- To run the native executable in CLI mode: <br />
+  - In Linux, MacOS, and Windows Powershell: ``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore -cli``
+  - In Windows CMD: ``.\UMLEditor\UMLEditor.NetCore\bin\Debug\net6.0\UMLEditor.NetCore -cli``
 
 
 ## Testing Instructions
