@@ -81,6 +81,9 @@ public class ClassBox : UserControl
             // Redraw the lines again (so "flinging" the box doesn't mess up the lines)
             _parentWindow!.RedrawLines();
             
+            // Save the new location of the class box
+            _activeDiagram!.ChangeBoxLocation(ClassName, this.Bounds.X, this.Bounds.Y);
+            
         };
 
         _titleBar.PointerEnter += (object sender, PointerEventArgs pe) =>
@@ -164,6 +167,10 @@ public class ClassBox : UserControl
         // Render methods and fields
         AddFields(template.Fields);
         AddMethods(template.Methods);
+        
+        // Recall the last position
+        Canvas.SetLeft(this, template.ClassLocation.X);
+        Canvas.SetTop(this, template.ClassLocation.Y);
         
     }
 

@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Classes;
+﻿using System.Runtime.InteropServices.ComTypes;
+
+namespace UMLEditor.Classes;
 
 using System.Data;
 using UMLEditor.Utility;
@@ -14,7 +16,16 @@ public class Class: ICloneable
     
     [JsonProperty("fields")]
     private List<NameTypeObject> _fields;
-    
+
+    [JsonProperty("location")] 
+    private BoxLocation _classLocation;
+
+    [JsonIgnore]
+    public BoxLocation ClassLocation
+    {
+        get => (BoxLocation)_classLocation.Clone();
+    }
+
     // Public accessor for Fields
     // Creates copies to ensure data integrity
     [JsonIgnore]
@@ -39,9 +50,12 @@ public class Class: ICloneable
     /// </summary>
     public Class()
     {
+        
         ClassName = "";
         _fields = new List<NameTypeObject>();
         _methods = new List<Method>();
+        _classLocation = new BoxLocation();
+
     }
 
     /// <summary>
@@ -63,6 +77,7 @@ public class Class: ICloneable
     {
         _fields = Utilities.CloneContainer(c._fields);
         _methods = Utilities.CloneContainer(c._methods);
+        _classLocation = (BoxLocation)c._classLocation.Clone();
     }
 
     /// <summary>
@@ -597,6 +612,16 @@ public class Class: ICloneable
         ClassName = name;
     }
 
+    /// <summary>
+    /// Changes the stored location for this class
+    /// </summary>
+    /// <param name="x">The new x</param>
+    /// <param name="y">The new y</param>
+    public void ChangeLocation(double x, double y)
+    {
+        _classLocation.ChangeXY((int)x, (int)y);
+    }
+    
     public object Clone()
     {
         return new Class(this);
