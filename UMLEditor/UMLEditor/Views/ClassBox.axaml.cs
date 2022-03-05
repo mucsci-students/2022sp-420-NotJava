@@ -389,7 +389,7 @@ public class ClassBox : UserControl
                         try
                         {
 
-                            _activeDiagram.RemoveField(ClassName, toDelete.FieldName);
+                            _activeDiagram.DeleteField(ClassName, toDelete.FieldName);
                             fieldsArea.Children.Remove(toDelete);
 
                         }
@@ -443,7 +443,7 @@ public class ClassBox : UserControl
                         try
                         {
 
-                            _activeDiagram.RemoveParameter(toDelete.NTO_Representation.AttributeName, inMethod.MethodName, ClassName);
+                            _activeDiagram.DeleteParameter(toDelete.NTO_Representation.AttributeName, inMethod.MethodName, ClassName);
                             inMethod.WipeParameter(toDelete);
                         
                         }

@@ -59,8 +59,7 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("To create a new Class, please enter \"add_class\" " +
-                                     "followed by a class name into the console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("add_class [className]", ERROR_COLOR);
                 }
 
                 break;
@@ -77,8 +76,7 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("To delete an existing Class, please enter \"delete_class\" " +
-                                     "followed by a class name into the console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("delete_class [className]", ERROR_COLOR);
                 }
                 break;
                 
@@ -93,8 +91,7 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("To rename a Class, please enter \"rename_class\" " +
-                                     "followed by the class to rename and then the new name.", ERROR_COLOR);
+                    PrintColoredLine("rename_class [oldClassName] [newClassName]", ERROR_COLOR);
                 }
                 break;
 
@@ -109,34 +106,28 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("To create a new Field, please enter \"add_field\" " +
-                                     "followed by class name, field type and field name into the" +
-                                     " console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("add_field [class] [fieldType] [fieldName]", ERROR_COLOR);
                 }
                 break;
 
             case ("delete_field"):
                 if (arguments.Count == 2)
                 {
-                    _activeDiagram.RemoveField(arguments[0], arguments[1]);
+                    _activeDiagram!.DeleteField(arguments[0], arguments[1]);
                     
                     PrintColoredLine($"Field '{arguments[1]}' deleted in Class '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("To delete an existing Field, please enter \"delete_field\" " +
-                                     "followed by a class name and field name " +
-                                     "into the console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("delete_field [class] [fieldName]", ERROR_COLOR);
                 }
                 break;
             
             case ("rename_field"):
                 if (arguments.Count != 3)
                 {
-                    PrintColoredLine("To rename an existing Field, please enter \"rename_field\" " +
-                                     "followed by a class name, the field name to rename, and the new name of the field " +
-                                     "into the console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("rename_field [class] [fieldToRename] [newFieldName]", ERROR_COLOR);
                     break;
                 }
                 
@@ -148,9 +139,7 @@ public class CommandLine
             {
                 if (arguments.Count != 3)
                 {
-                    PrintColoredLine("To change the type of an existing Field, please enter \"change_field_type\" " +
-                                     "followed by a class name, the field name to change the type of, and the new type of the field " +
-                                     "into the console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("change_field_type [class] [fieldToChange] [newType]", ERROR_COLOR);
                     break;
                 }
                 
@@ -164,9 +153,7 @@ public class CommandLine
             {
                 if (arguments.Count != 3)
                 {
-                    PrintColoredLine("To change the type of an existing Method, please enter \"change_method_type\" " +
-                                     "followed by a class name, the method name to change the type of, and the new type of the method " +
-                                     "into the console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("change_method_type [class] [methodName] [newType]", ERROR_COLOR);
                     break;
                 }
                 
@@ -178,7 +165,8 @@ public class CommandLine
 
             case ("add_method"):
 
-                string syntaxError = "Expected syntax: targetClass returnType methodName *optional parameter list in the form <paramType> <paramName>*\n" +
+                string syntaxError = "add_method [class] [returnType] [methodName] " +
+                                     "OR add_method [class] [returnType] [methodName] [paramReturnType1] [paramName1] [paramReturnType2] [paramName2] ...\n" +
                                      "Examples:\n\tadd_method class1 int methodName\n\tadd_method class1 int methodName int x int y";
                 
                 /* Valid syntax:
@@ -217,7 +205,7 @@ public class CommandLine
                     string returnType  = enteredTokens[2];
                     string methodName  = enteredTokens[3];
                     
-                    _activeDiagram.AddMethod(targetClass, returnType, methodName, parameters);
+                    _activeDiagram!.AddMethod(targetClass, returnType, methodName, parameters);
                     PrintColoredLine("Method created", SUCCESS_COLOR);
 
                 }
@@ -239,8 +227,7 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("To delete an existing Method, please enter \"delete_method\" " +
-                                     "followed by a class name and method name into the console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("delete_method [class] [method]", ERROR_COLOR);
 
                 }
                 break;
@@ -248,8 +235,7 @@ public class CommandLine
             case ("add_parameter"):
                 if (arguments.Count != 4)
                 {
-                    PrintColoredLine("To add a parameter to an existing method, please enter \"add_parameter\"" +
-                                     "followed by a class name, a method name, the new parameter type, and the new parameter name", ERROR_COLOR);
+                    PrintColoredLine("add_parameter [class] [method] [paramType] [paramName]", ERROR_COLOR);
                     break;
                 }
 
@@ -257,25 +243,23 @@ public class CommandLine
                 PrintColoredLine($"Parameter '{arguments[3]}' of type '{arguments[2]}' added to method '{arguments[1]}'", SUCCESS_COLOR);
                 break;
             
-            case ("remove_parameter"):
+            case ("delete_parameter"):
                 if (arguments.Count != 3)
                 {
-                    PrintColoredLine("Top remove a parameter from an existing method, please enter " +
-                                     "\"remove_parameter\" followed by a class name, a method name, and the " +
-                                     "parameter name", ERROR_COLOR);
+                    PrintColoredLine("delete_parameter [class] [method] [paramName]", ERROR_COLOR);
                     break;
                 }
 
                 if (arguments[2] == "-all")
                 {
                     _activeDiagram!.ClearParameters(arguments[0], arguments[1]);
-                    PrintColoredLine($"All parameters successfully removed from '{arguments[1]}'");
+                    PrintColoredLine($"All parameters successfully deleted from '{arguments[1]}'");
                 }
 
                 else
                 {
-                    _activeDiagram!.RemoveParameter(arguments[2], arguments[1], arguments[0]);
-                    PrintColoredLine($"Parameter '{arguments[2]}' successfully removed from '{arguments[1]}'");
+                    _activeDiagram!.DeleteParameter(arguments[2], arguments[1], arguments[0]);
+                    PrintColoredLine($"Parameter '{arguments[2]}' successfully deleted from '{arguments[1]}'");
                 }
 
                 break;
@@ -290,18 +274,14 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("To rename an existing method, please enter \"rename_method\" " +
-                                     "followed by a class name, the name of the method to change, and " +
-                                     "a new name for the method and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("rename_method [class] [methodName] [newMethodName]", ERROR_COLOR);
                 }
                 break;
             
             case ("rename_parameter"):
                 if (arguments.Count != 4)
                 {
-                    PrintColoredLine("To rename an existing parameter, please enter \"rename_parameter\"" +
-                                     "followed by a class name, the name of the method, the name of the parameter to change," +
-                                     "and the new parameter name");
+                    PrintColoredLine("rename_parameter [class] [method] [paramNameToChange] [newParamName]", ERROR_COLOR);
                     break;
                 }
                 
@@ -312,9 +292,7 @@ public class CommandLine
             case ("replace_parameter"):
                 if (arguments.Count != 5)
                 {
-                    PrintColoredLine("To replace an existing parameter, please enter \"replace_parameter\"" +
-                                     "followed by a class name, the name of the method, the name of the parameter to change," +
-                                     "the new parameter type, and the new parameter name");
+                    PrintColoredLine("replace_parameter [class] [method] [paramToReplace] [newParamType] [newParamName]", ERROR_COLOR);
                     break;
                 }
                 
@@ -345,8 +323,7 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("To list Attributes, please enter \"list_attribute\" " +
-                                     "followed by a class name into the console and then press enter.", ERROR_COLOR);
+                    PrintColoredLine("list_attributes [class]", ERROR_COLOR);
                 }
                 break;
 
@@ -366,15 +343,13 @@ public class CommandLine
                     string validRelationshipTypes = "";
                     foreach (string type in Relationship.ValidTypes)
                     {
-                        validRelationshipTypes += $"{type} ";
+                        validRelationshipTypes += $"{type}|";
                     }
 
                     // Cut off the space from the last type
                     validRelationshipTypes = validRelationshipTypes.Substring(0, validRelationshipTypes.Length - 1);
                     
-                    PrintColoredLine("To create a new Relationship, please enter \"add_relationship\" " +
-                                     "followed by a source class, a destination class, " +
-                                     $"and then the relationship type ('{validRelationshipTypes}').", ERROR_COLOR);
+                    PrintColoredLine($"add_relationship [sourceClass] [destinationClass] [{validRelationshipTypes}]", ERROR_COLOR);
                 } 
                 break;
 
@@ -389,8 +364,7 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("To delete an existing Relationship, please enter \"delete_relationship\" " +
-                                     "followed by the source class and destination class then press enter.", ERROR_COLOR);
+                    PrintColoredLine("delete_relationship [sourceClass] [destinationClass]", ERROR_COLOR);
                 } 
                 break;
             
@@ -400,13 +374,12 @@ public class CommandLine
                     string validRelationshipTypes = "";
                     foreach (string type in Relationship.ValidTypes)
                     {
-                        validRelationshipTypes += $"{type} ";
+                        validRelationshipTypes += $"{type}|";
                     }
 
                     // Cut off the space from the last type
                     validRelationshipTypes = validRelationshipTypes.Substring(0, validRelationshipTypes.Length - 1);
-                    PrintColoredLine( "To change the type of an existing relationship, please provide a source and destination " +
-                                     $"class and a new relationship type of a valid type ('{validRelationshipTypes}')", ERROR_COLOR);
+                    PrintColoredLine( $"change_relationship_type [sourceClass] [destinationClass] [{validRelationshipTypes}]", ERROR_COLOR);
                     break;
                 }
                 
@@ -450,9 +423,9 @@ public class CommandLine
                                  "\nchange_field_type: Changes the type of an existing field" +
                                  "\nchange_method_type: Changes the type of an existing method" +
                                  "\nadd_parameter: Adds a parameter to a method" +
-                                 "\nremove_parameter: "+
-                                 "\n\t-Removes an existing parameter from a method."+
-                                 "\n\t-Providing -all for 3rd argument will remove all parameters from a method" +
+                                 "\ndelete_parameter: "+
+                                 "\n\t-Deletes an existing parameter from a method."+
+                                 "\n\t-Providing -all for 3rd argument will delete all parameters from a method" +
                                  "\nrename_parameter: Renames an existing parameter in a method"+
                                  "\nsave_diagram: Save your progress" +
                                  "\nload_diagram: Load a previously saved diagram" +
@@ -479,7 +452,7 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("Please provide a file to save the diagram to", ERROR_COLOR);
+                    PrintColoredLine("save_diagram [fileName]", ERROR_COLOR);
                 }
 
                 break;
@@ -502,7 +475,7 @@ public class CommandLine
 
                 else
                 {
-                    PrintColoredLine("Please provide a file to load a diagram from", ERROR_COLOR);
+                    PrintColoredLine("load_diagram [fileName]", ERROR_COLOR);
                 }
 
                 break;
