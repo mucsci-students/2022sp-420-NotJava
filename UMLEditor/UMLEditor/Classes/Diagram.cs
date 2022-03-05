@@ -447,7 +447,7 @@ public class Diagram
     /// <param name="fromClass">The target class to remove the field from</param>
     /// <param name="withName">The name of the field to remove</param>
     /// <exception cref="ClassNonexistentException">If the provided class does not exist</exception>
-    public void RemoveField(string fromClass, string withName)
+    public void DeleteField(string fromClass, string withName)
     {
         // Ensures the class exists
         MustHaveClass(fromClass);
@@ -558,7 +558,7 @@ public class Diagram
     /// <param name="paramName">The parameter to delete</param>
     /// <param name="inMethod">The method to delete from</param>
     /// <param name="onClass">The class to delete from</param>
-    public void RemoveParameter(string paramName, string inMethod, string onClass)
+    public void DeleteParameter(string paramName, string inMethod, string onClass)
     {
         // Ensures the class exists
         MustHaveClass(onClass);

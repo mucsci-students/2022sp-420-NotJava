@@ -113,7 +113,7 @@ public class CommandLine
             case ("delete_field"):
                 if (arguments.Count == 2)
                 {
-                    _activeDiagram!.RemoveField(arguments[0], arguments[1]);
+                    _activeDiagram!.DeleteField(arguments[0], arguments[1]);
                     
                     PrintColoredLine($"Field '{arguments[1]}' deleted in Class '{arguments[0]}'", SUCCESS_COLOR);
                 }
@@ -253,13 +253,13 @@ public class CommandLine
                 if (arguments[2] == "-all")
                 {
                     _activeDiagram!.ClearParameters(arguments[0], arguments[1]);
-                    PrintColoredLine($"All parameters successfully removed from '{arguments[1]}'");
+                    PrintColoredLine($"All parameters successfully deleted from '{arguments[1]}'");
                 }
 
                 else
                 {
-                    _activeDiagram!.RemoveParameter(arguments[2], arguments[1], arguments[0]);
-                    PrintColoredLine($"Parameter '{arguments[2]}' successfully removed from '{arguments[1]}'");
+                    _activeDiagram!.DeleteParameter(arguments[2], arguments[1], arguments[0]);
+                    PrintColoredLine($"Parameter '{arguments[2]}' successfully deleted from '{arguments[1]}'");
                 }
 
                 break;
