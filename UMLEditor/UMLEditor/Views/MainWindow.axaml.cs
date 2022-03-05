@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
@@ -70,6 +71,8 @@ namespace UMLEditor.Views
         private const int _lineThickness = 2;
         private IBrush _brush = Brushes.CornflowerBlue;
 
+        private bool _inEditMode; 
+        
         // Data structure for the display of a Relationship line
         struct RelationshipLine
         {
@@ -115,6 +118,7 @@ namespace UMLEditor.Views
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
 
             _canvas = this.FindControl<Canvas>("MyCanvas");
+            _inEditMode = false;
 
         }
         
@@ -617,12 +621,16 @@ namespace UMLEditor.Views
         /// The rendered classes will be default boxes with only the name being different.</param>
         private void RenderClasses(params string[] withName)
         {
+            
             foreach (string currentClassName in withName)
             {
-                ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this);
+                
+                ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this, _inEditMode);
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
+                
             }
+            
         }
         
         /// <summary>
@@ -631,11 +639,14 @@ namespace UMLEditor.Views
         /// <param name="withClasses">The list of classes to be added to the rendered area</param>
         private void RenderClasses(List<Class> withClasses)
         {
+            
             foreach (Class currentClass in withClasses)
             {
-                ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this);
+                
+                ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this, _inEditMode);
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
+                
             }
 
         }
@@ -944,7 +955,21 @@ namespace UMLEditor.Views
             _canvas.Height = largestY;
 
         }
-        
+
+        private void ViewEditToggle_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            ToggleSwitch viewSwitch = (ToggleSwitch) sender;
+            _inEditMode = (bool)viewSwitch.IsChecked;
+
+            foreach (ClassBox currentBoxes in DrawnClassBoxes)
+            {
+                currentBoxes.ToggleEditMode(_inEditMode);
+            }
+            
+            RedrawLines();
+            
+        }
     }
     
 }

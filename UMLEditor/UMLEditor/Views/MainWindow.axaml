@@ -9,7 +9,7 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="UMLEditor"
         WindowStartupLocation="CenterScreen"
-        >
+        MinWidth="420">
         
         <Grid>
             
@@ -24,8 +24,9 @@
                 <DockPanel
                         Background="Gray"
                         Grid.Column="0"
-                        Grid.Row="0">
-                        <Menu DockPanel.Dock="Top">
+                        Grid.Row="0"
+                        HorizontalAlignment="Stretch">
+                        <Menu DockPanel.Dock="Top" HorizontalAlignment="Stretch">
                                 <MenuItem Header="_File">
                                         <MenuItem Header="_Save"
                                                   Name="SaveDiagramButton"
@@ -64,7 +65,14 @@
                                                   />
                                 </MenuItem>
                         </Menu>
+                      
                 </DockPanel>
+                <ToggleSwitch 
+                    Click="ViewEditToggle_OnClick" 
+                    OnContent="Edit Mode" 
+                    OffContent="View Mode" 
+                    HorizontalAlignment="Right"
+                    Margin="0 0 20 0"></ToggleSwitch>
                 <ScrollViewer 
                     Grid.Column="0"
                     Grid.Row="1"
@@ -77,7 +85,6 @@
                         VerticalAlignment="Top"
                         Name="MyCanvas" 
                         ZIndex="0">
-                                
                     </Canvas>
                 </ScrollViewer>
         </Grid>

@@ -19,13 +19,14 @@ public class ParameterContainer : FieldContainer
     /// <param name="template">A NameTypeObject to use as a template for this method parameter</param>
     /// <param name="inMethod">The MethodContainer that this ParameterContainer sits in</param>
     /// <param name="parentWindow">The parent ClassBox that this ParameterContainer is within</param>
-    public ParameterContainer(NameTypeObject template, MethodContainer inMethod, ClassBox parentWindow)
-        : base(template.Type, template.AttributeName, parentWindow, true)
+    /// <param name="isInEditMode">Indicates if this control is in edit mode</param>
+    public ParameterContainer(NameTypeObject template, MethodContainer inMethod, ClassBox parentWindow, bool isInEditMode = false)
+        : base(template.Type, template.AttributeName, parentWindow, true, isInEditMode)
     {
 
         _parentMethod = inMethod;
         
-        // Install the event hander for method parameters
+        // Install the event handler for method parameters
         _deleteButton.Click += (object sender, RoutedEventArgs args) =>
         {
             parentWindow.RequestParameterDeletion(this, _parentMethod);
