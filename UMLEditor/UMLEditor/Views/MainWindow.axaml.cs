@@ -30,10 +30,6 @@ namespace UMLEditor.Views
         private readonly StackPanel _mainPanel;
         private readonly Canvas _canvas;
         
-        // Used to track where the next ClassBox should be placed
-        private int _classBoxCount = 0;
-        private Point _canvasPointer = new Point(0,0);
-        
         private List<RelationshipLine> _relationshipLines = new List<RelationshipLine>();
 
         private IDiagramFile _activeFile;
@@ -602,17 +598,6 @@ namespace UMLEditor.Views
             foreach (string currentClassName in withName)
             {
                 ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this);
-                Canvas.SetLeft(newClass, _canvasPointer.X);
-                Canvas.SetTop(newClass, _canvasPointer.Y);
-                if (_classBoxCount % 4 <= 2)
-                {
-                    _canvasPointer = new Point(_canvasPointer.X + (450), _canvasPointer.Y);
-                }
-                else
-                {
-                    _canvasPointer = new Point(0, _canvasPointer.Y + 250);
-                }
-                ++_classBoxCount;
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
             }
@@ -627,17 +612,6 @@ namespace UMLEditor.Views
             foreach (Class currentClass in withClasses)
             {
                 ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this);
-                Canvas.SetLeft(newClass, _canvasPointer.X);
-                Canvas.SetTop(newClass, _canvasPointer.Y);
-                if (_classBoxCount % 4 <= 2)
-                {
-                    _canvasPointer = new Point(_canvasPointer.X + (450), _canvasPointer.Y);
-                }
-                else
-                {
-                    _canvasPointer = new Point(0, _canvasPointer.Y + 250);
-                }
-                ++_classBoxCount;
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
             }
@@ -892,8 +866,6 @@ namespace UMLEditor.Views
         /// </summary>
         private void ClearCanvas()
         {
-            _classBoxCount = 0;
-            _canvasPointer = new Point(0, 0);
             _canvas.Children.Clear();
         }
 

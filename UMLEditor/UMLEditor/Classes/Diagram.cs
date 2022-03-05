@@ -644,5 +644,21 @@ public class Diagram
         Class? targetClass = GetClassByName(onClass);
         targetClass!.DeleteMethod(methodName);
     }
+
+    /// <summary>
+    /// Changes the recorded location of the provided class
+    /// </summary>
+    /// <param name="onClass">The class to change</param>
+    /// <param name="x">The new X</param>
+    /// <param name="y">The new Y</param>
+    public void ChangeBoxLocation(string onClass, double x, double y)
+    {
+        
+        MustHaveClass(onClass);
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ChangeLocation(x, y);
+
+    }
     
 }
