@@ -50,6 +50,26 @@ namespace UMLEditor.Views
             
         }
 
+        private string[] ClassNames
+        {
+
+            get
+            {
+                
+                // Get an array of all class names in the diagram
+                List<Class> currentClasses = _activeDiagram!.Classes;
+                string[] classNames = new string[currentClasses.Count];
+                for (int indx = 0; indx < classNames.Length; ++indx)
+                {
+                    classNames[indx] = currentClasses[indx].ClassName;
+                }
+
+                return classNames;
+
+            }
+
+        }
+
         private readonly TextBox _outputBox;
         private readonly TextBox _inputBox;
 
@@ -356,10 +376,15 @@ namespace UMLEditor.Views
         /// <param name="e">Extra arguments sent to the handler</param>
         private void Add_Relationship_OnClick(object sender, RoutedEventArgs e)
         {
+
             // Create a new modal dialogue and wire it up to the 'AddRelationshipPanel'
-            ModalDialog addRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Add New Relationship", DialogButtons.OK_CANCEL);
-            Task<DialogButtons> modalResult = addRelationshipModal.ShowDialog<DialogButtons>(this);
+            ModalDialog addRelationshipModal = 
+                ModalDialog.CreateDialog<AddRelationshipPanel>("Add New Relationship", DialogButtons.OK_CANCEL);
             
+            // Load the class names onto the prompt
+            addRelationshipModal.GetPrompt<AddRelationshipPanel>().LoadClassNames(ClassNames);
+            Task<DialogButtons> modalResult = addRelationshipModal.ShowDialog<DialogButtons>(this);
+
             // Spin up the result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
@@ -368,19 +393,21 @@ namespace UMLEditor.Views
                 {
                     return;
                 }
-                // Dispatching a UIThread to ensure the body is executed in thread-safe manor.
+
+                // Dispatching a UIThread to ensure the body is executed in thread-safe manner.
                 Dispatcher.UIThread.Post(() =>
                 {
                     // Creating the variables that we will be snagging from the 'AddRelationshipPanel'
                     string sourceName = addRelationshipModal.GetPrompt<AddRelationshipPanel>().SourceClass;
-                    string destinationName = addRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
+                    string destinationName =
+                        addRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
                     string relationshipType = addRelationshipModal.GetPrompt<AddRelationshipPanel>().SelectedType;
-                  
-                   try
+
+                    try
                     {
                         // Attempt to create a new relationship with the information given.
-                        _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
-                        
+                        _activeDiagram.AddRelationship(sourceName, destinationName, relationshipType);
+
                         /// TODO Update this class search if a method is created
 
                         ClassBox sourceClassBox = new ClassBox();
@@ -397,6 +424,7 @@ namespace UMLEditor.Views
                                 destClassBox = classBox;
                             }
                         }
+
                         DrawRelationship(sourceClassBox, destClassBox, relationshipType);
                     }
                     // Alert if the add fails.
@@ -411,6 +439,7 @@ namespace UMLEditor.Views
                     }
                 });
             });
+
         }
         
         /// <summary>
@@ -420,8 +449,12 @@ namespace UMLEditor.Views
         /// <param name="e">Extra arguments sent to the handler</param>
         private void Change_Relationship_OnClick(object sender, RoutedEventArgs e)
         {
+            
             // Create a new modal dialogue and wire it up to the 'ChangeRelationshipPanel'
-            ModalDialog changeRelationshipModal = ModalDialog.CreateDialog<ChangeRelationshipPanel>("Change Relationship Type", DialogButtons.OK_CANCEL);
+            ModalDialog changeRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Change Relationship Type", DialogButtons.OK_CANCEL);
+            
+            // Load the class names onto the prompt
+            changeRelationshipModal.GetPrompt<AddRelationshipPanel>().LoadClassNames(ClassNames);
             Task<DialogButtons> modalResult = changeRelationshipModal.ShowDialog<DialogButtons>(this);
             
             // Spin up the result
@@ -432,13 +465,13 @@ namespace UMLEditor.Views
                 {
                     return;
                 }
-                // Dispatching a UIThread to ensure the body is executed in thread-safe manor.
+                // Dispatching a UIThread to ensure the body is executed in thread-safe manner.
                 Dispatcher.UIThread.Post(() =>
                 {
-                    // Creating the variables that we will be snagging from the 'ChangeRelationshipPanel'
-                    string sourceName = changeRelationshipModal.GetPrompt<ChangeRelationshipPanel>().SourceClass;
-                    string destinationName = changeRelationshipModal.GetPrompt<ChangeRelationshipPanel>().DestinationClass;
-                    string relationshipType = changeRelationshipModal.GetPrompt<ChangeRelationshipPanel>().SelectedType;
+                    // Creating the variables that we will be snagging from the 'AddRelationshipPanel'
+                    string sourceName = changeRelationshipModal.GetPrompt<AddRelationshipPanel>().SourceClass;
+                    string destinationName = changeRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
+                    string relationshipType = changeRelationshipModal.GetPrompt<AddRelationshipPanel>().SelectedType;
                   
                    try
                     {
@@ -503,8 +536,13 @@ namespace UMLEditor.Views
         private void Delete_Relationship_OnClick(object sender, RoutedEventArgs e)
         {
             // Create a new modal dialogue and wire it up to the 'DeleteRelationshipPanel'
-            ModalDialog deleteRelationshipModal = ModalDialog.CreateDialog<DeleteRelationshipPanel>("Delete Relationship", DialogButtons.OK_CANCEL);
+            ModalDialog deleteRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Delete Relationship", DialogButtons.OK_CANCEL);
+            
+            // Load class names, disable type selection
+            deleteRelationshipModal.GetPrompt<AddRelationshipPanel>().LoadClassNames(ClassNames);
+            deleteRelationshipModal.GetPrompt<AddRelationshipPanel>().HideTypeSelection();
             Task<DialogButtons> modalResult = deleteRelationshipModal.ShowDialog<DialogButtons>(this);
+            
             // Spin up the result
             modalResult.ContinueWith((Task<DialogButtons> result) =>
             {
@@ -517,8 +555,8 @@ namespace UMLEditor.Views
                 Dispatcher.UIThread.Post(() =>
                 {
                     // Creating the variables that we will be snagging from the 'DeleteRelationshipPanel'
-                    string sourceName = deleteRelationshipModal.GetPrompt<DeleteRelationshipPanel>().SourceClass;
-                    string destinationName = deleteRelationshipModal.GetPrompt<DeleteRelationshipPanel>().DestinationClass;
+                    string sourceName = deleteRelationshipModal.GetPrompt<AddRelationshipPanel>().SourceClass;
+                    string destinationName = deleteRelationshipModal.GetPrompt<AddRelationshipPanel>().DestinationClass;
 
                     try
                     {
