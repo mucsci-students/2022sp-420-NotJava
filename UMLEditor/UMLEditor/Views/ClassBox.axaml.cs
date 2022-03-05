@@ -32,13 +32,18 @@ public class ClassBox : UserControl
         }
     }
 
+    private bool _inEditMode;
+    
     private StackPanel fieldsArea;
     private StackPanel methodsArea;
     private Label _classNameLabel;
     private Grid _titleBar;
     private Point _clickedLocation;
+    
     private Button _editButton;
     private Button _deleteButton;
+    private Button _addFieldButton;
+    private Button _addMethodButton;
     
     private bool _beingDragged; // True if the user is dragging this class
     private Diagram _activeDiagram; // The active diagram this class is a part of
@@ -54,8 +59,13 @@ public class ClassBox : UserControl
         methodsArea = this.FindControl<StackPanel>("MethodsArea");
         _classNameLabel = this.FindControl<Label>("ClassNameLabel");
         _titleBar = this.FindControl<Grid>("TitleBar");
+        
         _editButton = this.FindControl<Button>("EditButton");
         _deleteButton = this.FindControl<Button>("DeleteButton");
+        _addFieldButton = this.FindControl<Button>("AddFieldButton");
+        _addMethodButton = this.FindControl<Button>("AddMethodButton");
+
+        _inEditMode = false;
         
         /////////////////////////////////////////////////////////////////////////////////////////
         /// Mouse clicking/ dragging event handers
@@ -140,6 +150,7 @@ public class ClassBox : UserControl
         };
         
         /////////////////////////////////////////////////////////////////////////////////////////
+        
     }
 
     /// <summary>
@@ -148,13 +159,16 @@ public class ClassBox : UserControl
     /// <param name="withClassName">The name of this class (to be displayed)</param>
     /// <param name="inDiagram">A reference to the diagram this class is from</param>
     /// <param name="parentWindow">A reference to the window this class is shown in</param>
-    public ClassBox(string withClassName, ref Diagram inDiagram, MainWindow parentWindow) : this()
+    /// <param name="inEditMode">Sets whether or not this should default to being in edit mode</param>
+    public ClassBox(string withClassName, ref Diagram inDiagram, MainWindow parentWindow, bool inEditMode = false) : this()
     {
         Name = withClassName;
         ClassName = withClassName;
         _activeDiagram = inDiagram;
         _parentWindow = parentWindow;
 
+        ToggleEditMode(inEditMode);
+        
     }
 
     /// <summary>
@@ -163,7 +177,8 @@ public class ClassBox : UserControl
     /// <param name="template">A class object to base this depiction off of</param>
     /// <param name="inDiagram">A reference to the diagram this class is from</param>
     /// <param name="parentWindow">A reference to the window this class is shown in</param>
-    public ClassBox(Class template, ref Diagram inDiagram, MainWindow parentWindow) : this(template.ClassName, ref inDiagram, parentWindow)
+    /// <param name="inEditMode">Sets whether or not this should default to being in edit mode</param>
+    public ClassBox(Class template, ref Diagram inDiagram, MainWindow parentWindow, bool inEditMode = false) : this(template.ClassName, ref inDiagram, parentWindow, inEditMode)
     {
         
         // Render methods and fields
@@ -185,7 +200,7 @@ public class ClassBox : UserControl
         
         foreach (NameTypeObject currentField in fields)
         {
-            fieldsArea.Children.Add(new FieldContainer(currentField, this));
+            fieldsArea.Children.Add(new FieldContainer(currentField, this, isInEditMode:_inEditMode));
         }
         
     }
@@ -199,7 +214,7 @@ public class ClassBox : UserControl
 
         foreach (Method currentMtd in methods)
         {
-            methodsArea.Children.Add(new MethodContainer(currentMtd, this));
+            methodsArea.Children.Add(new MethodContainer(currentMtd, this, inEditMode:_inEditMode));
         }
         
     }
@@ -324,7 +339,7 @@ public class ClassBox : UserControl
                         NameTypeObject newField = new NameTypeObject(form.FieldType, form.FieldName);
                             
                         _activeDiagram.AddField(ClassName, newField.Type, newField.AttributeName);
-                        fieldsArea.Children.Add(new FieldContainer(newField, this));
+                        fieldsArea.Children.Add(new FieldContainer(newField, this, isInEditMode:_inEditMode));
 
                     }
 
@@ -741,7 +756,7 @@ public class ClassBox : UserControl
 
                         AddFieldPanel form = prompt.GetPrompt<AddFieldPanel>();
                         _activeDiagram.AddMethod(ClassName, form.FieldType, form.FieldName);
-                        methodsArea.Children.Add(new MethodContainer(form.FieldType, form.FieldName, this));
+                        methodsArea.Children.Add(new MethodContainer(form.FieldType, form.FieldName, this, inEditMode:_inEditMode));
 
                     }
                     
@@ -778,6 +793,36 @@ public class ClassBox : UserControl
         inputElement!.Cursor = new Cursor(newCursor); // Change the cursor for the element
         args.Pointer.Capture(null); // Un-capture the cursor (so it can do other things)
 
+    }
+
+    /// <summary>
+    /// Flips this ClassBox in and out of edit mode
+    /// </summary>
+    /// <param name="inEditMode">Sets if the box is in edit mode or not</param>
+    public void ToggleEditMode(bool inEditMode)
+    {
+
+        _inEditMode = inEditMode;
+        
+        _editButton.IsVisible = _inEditMode;
+        _deleteButton.IsVisible = _inEditMode;
+        _addFieldButton.IsVisible = _inEditMode;
+        _addMethodButton.IsVisible = _inEditMode;
+
+        foreach (var currentItem in fieldsArea.Children)
+        {
+            
+            ((FieldContainer)currentItem).ToggleEditMode(_inEditMode);
+            
+        }
+        
+        foreach (var currentItem in methodsArea.Children)
+        {
+            
+            ((MethodContainer)currentItem).ToggleEditMode(_inEditMode);
+            
+        }
+        
     }
     
 }

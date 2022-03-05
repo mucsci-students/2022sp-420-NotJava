@@ -20,6 +20,7 @@ public class FieldContainer : UserControl
     public string Type { get; protected set; }
 
     protected bool _isMethodParam;
+    protected bool _isInEditMode;
     
     /// <summary>
     /// The NameTypeObject representation of this control
@@ -55,7 +56,8 @@ public class FieldContainer : UserControl
     /// <param name="withType">The type of the field</param>
     /// <param name="parentWindow">The parent ClassBox this sits in</param>
     /// <param name="isMethodParam">Indicates whether or not this contains a method parameter</param>
-    public FieldContainer(string withType, string fieldName, ClassBox parentWindow, bool isMethodParam = false) : this()
+    /// <param name="inEditMode">Indicates whether or not this is in edit mode</param>
+    public FieldContainer(string withType, string fieldName, ClassBox parentWindow, bool isMethodParam = false, bool inEditMode = false) : this()
     {
 
         Type = withType;
@@ -87,7 +89,9 @@ public class FieldContainer : UserControl
             };
 
         }
+        
         UpdateNameLabel();
+        ToggleEditMode(inEditMode);
         
     }
 
@@ -97,8 +101,9 @@ public class FieldContainer : UserControl
     /// <param name="template">A NameTypeObject to use as a template for this method</param>
     /// <param name="parentWindow">The parent classbox this is within</param>
     /// <param name="isMethodParam">Indicates whether or not this is a method parameter</param>
-    public FieldContainer(NameTypeObject template, ClassBox parentWindow, bool isMethodParam = false) 
-        : this(template.Type, template.AttributeName, parentWindow, isMethodParam)
+    /// <param name="isInEditMode">Indicates whether or not this is in edit mode</param>
+    public FieldContainer(NameTypeObject template, ClassBox parentWindow, bool isMethodParam = false, bool isInEditMode = false) 
+        : this(template.Type, template.AttributeName, parentWindow, isMethodParam, inEditMode:isInEditMode)
     {  }
 
     /// <summary>
@@ -123,6 +128,24 @@ public class FieldContainer : UserControl
         _display.Content = "_" + (_isMethodParam ? $"     {Type} {FieldName}" : $"{Type} {FieldName}");
     }
 
+    /// <summary>
+    /// Toggles this control into/ out of edit mode
+    /// </summary>
+    /// <param name="inEditMode">The new edit mode setting</param>
+    public void ToggleEditMode(bool inEditMode)
+    {
+
+        _isInEditMode = inEditMode;
+        _editButton.IsVisible = _isInEditMode;
+        _deleteButton.IsVisible = _isInEditMode;
+
+        if (_isMethodParam)
+        {
+            this.IsVisible = inEditMode;
+        }
+        
+    }
+    
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);

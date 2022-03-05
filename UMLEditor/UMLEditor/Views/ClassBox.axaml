@@ -68,7 +68,7 @@
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
             </ScrollViewer>
-            <Button Grid.Column="7" Classes="ControlButton" Click="AddFieldButton_OnClick">
+            <Button Grid.Column="7" Name="AddFieldButton" Classes="ControlButton" Click="AddFieldButton_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>
@@ -92,7 +92,7 @@
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
             </ScrollViewer>
-            <Button Grid.Column="7" Classes="ControlButton" Click="AddMethodButton_OnClick">
+            <Button Grid.Column="7" Name="AddMethodButton" Classes="ControlButton" Click="AddMethodButton_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>
