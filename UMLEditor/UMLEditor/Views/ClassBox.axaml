@@ -44,13 +44,13 @@
                     FontWeight="Bold"/>
             </ScrollViewer>
             <!-- TODO: Flip trash can and double arrow buttons -->
-            <Button Grid.Column="6" Classes="ControlButton" Click="RenameClass_Button_OnClick">
+            <Button Grid.Column="6" Name="EditButton" Classes="ControlButton" Click="RenameClass_Button_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
             </Button>
             <Button Grid.Column="5" Classes="ControlButton" IsVisible="False">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/DoubleArrowButton.png"></Image>
             </Button>
-            <Button Grid.Column="7" Classes="ControlButton" Click="DeleteClass_Button_OnClick">
+            <Button Grid.Column="7" Name="DeleteButton" Classes="ControlButton" Click="DeleteClass_Button_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
             </Button>
         </Grid>
@@ -73,7 +73,7 @@
             </Button>
         </Grid>
         <!-- FIELDS LISTING AREA -->
-        <ScrollViewer HorizontalAlignment="Stretch" MaxHeight="70" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer HorizontalAlignment="Stretch" MaxHeight="140" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto">
             <StackPanel Name="FieldsArea">
                 
             </StackPanel>
@@ -97,7 +97,7 @@
             </Button>
         </Grid>
         <!-- METHODS LISTING AREA -->
-        <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  MaxHeight="140"  VerticalScrollBarVisibility="Auto">
+        <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  MaxHeight="280"  VerticalScrollBarVisibility="Auto">
             <StackPanel Name="MethodsArea">
                 
             </StackPanel>

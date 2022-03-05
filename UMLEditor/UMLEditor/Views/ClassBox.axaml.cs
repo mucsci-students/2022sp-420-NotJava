@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Views;
+﻿using DynamicData.Binding;
+
+namespace UMLEditor.Views;
 
 using System;
 using Avalonia;
@@ -9,6 +11,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using UMLEditor.Classes;
+using System.Runtime.InteropServices;
 
 /// <summary>
 /// A control that is a graphical depiction of a class in the diagram
@@ -33,6 +36,9 @@ public class ClassBox : UserControl
     private StackPanel methodsArea;
     private Label _classNameLabel;
     private Grid _titleBar;
+    private Point _clickedLocation;
+    private Button _editButton;
+    private Button _deleteButton;
     
     private bool _beingDragged; // True if the user is dragging this class
     private Diagram _activeDiagram; // The active diagram this class is a part of
@@ -48,6 +54,8 @@ public class ClassBox : UserControl
         methodsArea = this.FindControl<StackPanel>("MethodsArea");
         _classNameLabel = this.FindControl<Label>("ClassNameLabel");
         _titleBar = this.FindControl<Grid>("TitleBar");
+        _editButton = this.FindControl<Button>("EditButton");
+        _deleteButton = this.FindControl<Button>("DeleteButton");
         
         /////////////////////////////////////////////////////////////////////////////////////////
         /// Mouse clicking/ dragging event handers
@@ -55,7 +63,13 @@ public class ClassBox : UserControl
         _beingDragged = false;
         _titleBar.PointerPressed += (object sender, PointerPressedEventArgs args) =>
         {
-            _beingDragged = true; // If the class title bar is clicked, switch on the dragging flag
+            
+            // If the class title bar is clicked, switch on the dragging flag
+            _beingDragged = true;
+            
+            // Record where the user clicked the title bar
+            _clickedLocation = args.GetPosition(_titleBar);
+
         };
 
         _titleBar.PointerReleased += (object sender, PointerReleasedEventArgs args) =>
@@ -69,6 +83,35 @@ public class ClassBox : UserControl
             
         };
 
+        _titleBar.PointerEnter += (object sender, PointerEventArgs pe) =>
+        {
+
+            StandardCursorType desiredCursor = StandardCursorType.SizeAll;
+            
+            // Change the mouse pointer to the four arrows when hovering over the title bar
+            // Linux has to be special...
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+
+                desiredCursor = StandardCursorType.DragLink;
+
+            }
+            
+            ChangeMousePointer(_titleBar, pe, desiredCursor);            
+
+        };
+
+        // Revert to normal pointer when hovering over buttons
+        _editButton.PointerEnter += (object sender, PointerEventArgs pe) =>
+        {
+            ChangeMousePointer(_editButton, pe, StandardCursorType.Arrow);
+        };
+
+        _deleteButton.PointerEnter += (object sender, PointerEventArgs pe) =>
+        {
+            ChangeMousePointer(_deleteButton, pe, StandardCursorType.Arrow);
+        };
+        
         PointerMoved += (object sender, PointerEventArgs args) =>
         {
 
@@ -78,13 +121,13 @@ public class ClassBox : UserControl
 
                 // Get the position of the cursor relative to the canvas
                 Point pointerLocation = args.GetPosition(this.Parent);
+                double newX = Math.Max(0, (pointerLocation.X - _clickedLocation.X));
+                double newY = Math.Max(0, (pointerLocation.Y - _clickedLocation.Y));
                 
                 // Set the ClassBox's location to the location of the cursor
-                Canvas.SetLeft(this, pointerLocation.X);
-                Canvas.SetTop(this, pointerLocation.Y);
+                Canvas.SetLeft(this, newX);
+                Canvas.SetTop(this, newY);
 
-                // TODO: At some point, use smarter math so the movement isn't snapped to the upper left corner of the box
-                
                 _parentWindow!.RedrawLines();
                 
             }
@@ -710,6 +753,21 @@ public class ClassBox : UserControl
             }
             
         });
+
+    }
+
+    /// <summary>
+    /// Changes the mouse pointer
+    /// </summary>
+    /// <param name="inputElement">The element to focus on to change the pointer</param>
+    /// <param name="args">Arguments from the pointer event</param>
+    /// <param name="newCursor">The new cursor to show</param>
+    private void ChangeMousePointer(InputElement? inputElement, PointerEventArgs args, StandardCursorType newCursor)
+    {
+
+        args.Pointer.Capture(inputElement); // Capture the UI element (so you can change the cursor)
+        inputElement!.Cursor = new Cursor(newCursor); // Change the cursor for the element
+        args.Pointer.Capture(null); // Un-capture the cursor (so it can do other things)
 
     }
     
