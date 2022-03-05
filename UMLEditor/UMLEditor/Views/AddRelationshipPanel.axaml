@@ -10,14 +10,14 @@
         
         <Label
             Margin="0 10 0 5"
-            Content = "Enter source class name:">
+            Content = "Select source class name:">
         </Label>
         
         <ComboBox SelectedIndex="0" Name="SourceClassSelector" HorizontalAlignment="Stretch" />
         
         <Label
             Margin="0 10 0 5"
-            Content = "Enter destination class name:">
+            Content = "Select destination class name:">
         </Label>
         
         <ComboBox SelectedIndex="0" Name="DestClassSelector" HorizontalAlignment="Stretch" />
