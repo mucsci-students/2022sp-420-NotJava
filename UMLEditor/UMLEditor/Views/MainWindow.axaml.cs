@@ -21,13 +21,37 @@ namespace UMLEditor.Views
     {
 
         private Diagram _activeDiagram;
-
         private List<ClassBox> _classBoxes;
-        
+
+        private List<ClassBox> DrawnClassBoxes
+        {
+
+            get
+            {
+
+                List<ClassBox> result = new List<ClassBox>();
+
+                foreach (var child in _canvas.Children)
+                {
+
+                    if (child.GetType() == typeof(ClassBox))
+                    {
+                        
+                        result.Add((ClassBox)child);
+                        
+                    }
+                    
+                }
+                
+                return result;
+
+            }
+            
+        }
+
         private readonly TextBox _outputBox;
         private readonly TextBox _inputBox;
 
-        private readonly StackPanel _mainPanel;
         private readonly Canvas _canvas;
         
         private List<RelationshipLine> _relationshipLines = new List<RelationshipLine>();
@@ -89,9 +113,6 @@ namespace UMLEditor.Views
             SaveDiagramButton = this.FindControl<MenuItem>("SaveDiagramButton");
             LoadDiagramButton = this.FindControl<MenuItem>("LoadDiagramButton");
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
-
-            // Get size of StackPanel
-            _mainPanel = this.FindControl<StackPanel>("MainPanel");
 
             _canvas = this.FindControl<Canvas>("MyCanvas");
 
@@ -244,6 +265,7 @@ namespace UMLEditor.Views
                             RenderClasses(_activeDiagram.Classes);
                             Dispatcher.UIThread.RunJobs();
                             RenderLines(_activeDiagram.Relationships);
+                            ReconsiderCanvasSize();
                         }
             
                         catch (Exception exception)
@@ -859,6 +881,7 @@ namespace UMLEditor.Views
         public void UnrenderClass(ClassBox toUnrender)
         {
             _canvas.Children.Remove(toUnrender);
+            ReconsiderCanvasSize();
         }
         
         /// <summary>
@@ -883,6 +906,43 @@ namespace UMLEditor.Views
                 
             });
             
+        }
+
+        public void ReconsiderCanvasSize()
+        {
+
+            // Make sure all classes are sized
+            Dispatcher.UIThread.RunJobs();
+
+            // Added to calculations to make canvas slightly larger
+            double bias = 20.0;
+            
+            // Iterate over all classboxes, find the most distant ones
+            double largestX = 0;
+            double largestY = 0;
+
+            foreach (ClassBox currentClass in DrawnClassBoxes)
+            {
+
+                double candidateX = currentClass.Bounds.X + currentClass.Bounds.Width + bias;
+                double candidateY = currentClass.Bounds.Y + currentClass.Bounds.Height + bias;
+
+                if (candidateX > largestX)
+                {
+                    largestX = candidateX;
+                }
+
+                if (candidateY > largestY)
+                {
+                    largestY = candidateY;
+                }
+                
+            }
+
+            // Resize the canvas to fit all children
+            _canvas.Width = largestX;
+            _canvas.Height = largestY;
+
         }
         
     }

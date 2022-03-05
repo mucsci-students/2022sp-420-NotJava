@@ -83,6 +83,7 @@ public class ClassBox : UserControl
             
             // Save the new location of the class box
             _activeDiagram!.ChangeBoxLocation(ClassName, this.Bounds.X, this.Bounds.Y);
+            _parentWindow!.ReconsiderCanvasSize();
             
         };
 
@@ -132,6 +133,7 @@ public class ClassBox : UserControl
                 Canvas.SetTop(this, newY);
 
                 _parentWindow!.RedrawLines();
+                _parentWindow!.ReconsiderCanvasSize();
                 
             }
             

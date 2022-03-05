@@ -11,10 +11,20 @@
         WindowStartupLocation="CenterScreen"
         >
         
-        <StackPanel>
-                
+        <Grid>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            
                 <DockPanel
-                        Background="Gray">
+                        Background="Gray"
+                        Grid.Column="0"
+                        Grid.Row="0">
                         <Menu DockPanel.Dock="Top">
                                 <MenuItem Header="_File">
                                         <MenuItem Header="_Save"
@@ -55,9 +65,24 @@
                                 </MenuItem>
                         </Menu>
                 </DockPanel>
-                <Canvas Name="MyCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ZIndex="0">
-                       
-                </Canvas>
-        </StackPanel>
+                <ScrollViewer 
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    HorizontalAlignment="Stretch" 
+                    VerticalAlignment="Stretch" 
+                    VerticalScrollBarVisibility="Auto" 
+                    HorizontalScrollBarVisibility="Auto">
+                    <Canvas
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Name="MyCanvas" 
+                        ZIndex="0">
+                                
+                    </Canvas>
+                </ScrollViewer>
+        </Grid>
+    <!--
+    
+    -->
         
 </Window>
