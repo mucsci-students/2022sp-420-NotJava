@@ -616,23 +616,8 @@ namespace UMLEditor.Views
         {
             foreach (Relationship currentRelation in withRelationships)
             {
-                ClassBox sourceClassBox = new ClassBox();
-                ClassBox destClassBox = new ClassBox();
-                foreach (var classBox in _canvas.Children)
-                {
-                    if (classBox.GetType() == typeof(ClassBox))
-                    {
-                        if (classBox.Name == currentRelation.SourceClass)
-                        {
-                            sourceClassBox = (ClassBox) classBox;
-                        }
-
-                        if (classBox.Name == currentRelation.DestinationClass)
-                        {
-                            destClassBox = (ClassBox) classBox;
-                        }
-                    }
-                }
+                ClassBox sourceClassBox = GetClassBoxByName(currentRelation.SourceClass);
+                ClassBox destClassBox = GetClassBoxByName(currentRelation.DestinationClass);
 
                 DrawRelationship(sourceClassBox, destClassBox, currentRelation.RelationshipType);
             }
