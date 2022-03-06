@@ -52,9 +52,6 @@
                                         <MenuItem Header="_Delete"
                                                   Click="Delete_Relationship_OnClick"
                                         />
-                                        <MenuItem Header="_Redraw Lines"
-                                                  Click="Redraw_Relationship_OnClick"
-                                        />
                                 </MenuItem>
                                 <MenuItem Header="Utility">
                                         <MenuItem Header="_Help"
