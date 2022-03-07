@@ -2,28 +2,13 @@
 
 using System;
 using Newtonsoft.Json;
-using UMLEditor.Exceptions;
+using Exceptions;
 
-public class AttributeObject
+public abstract class AttributeObject
 {
     // Used for JSON serialization  and deserialization
-    [JsonProperty("attributename")]
-    public string AttributeName { get; private set; }
-
-    public AttributeObject()
-    {
-        AttributeName = "";
-    }
-
-    /// <summary>
-    /// Constructs Attribute object.  Ensures name is valid
-    /// </summary>
-    /// <param name="name">Name of attribute</param>
-    public AttributeObject(string name)
-    {
-        CheckValidAttributeName(name);
-        AttributeName = name;
-    }
+    [JsonProperty("name")]
+    public string AttributeName { get; protected set; }
 
     /// <summary>
     /// Stringifies Attribute
@@ -31,7 +16,7 @@ public class AttributeObject
     /// <returns>Formatted string of attribute</returns>
     public override string ToString()
     {
-        return string.Format("Attribute: {0}", AttributeName);
+        return ($"Attribute: {AttributeName}");
     }
     
     /// <summary>
@@ -50,14 +35,14 @@ public class AttributeObject
     /// </summary>
     /// <param name="name">The name to test.</param>
     /// <exception cref="InvalidNameException">If the provided name is invalid.</exception>
-    private void CheckValidAttributeName(string name)
+    protected void CheckValidAttributeName(string name)
     {
-        if (!Char.IsLetter(name[0]) && name[0] != '_')
+        if (name is null || name.Length == 0 || !Char.IsLetter(name[0]) && name[0] != '_' || name.Contains(" "))
         {
-            throw new InvalidNameException(String.Format("{0} is an invalid attribute name.  " +
-                                                         "Attribute name must be a single word that starts with an alphabetic " +
+            throw new InvalidNameException($"'{name}' is an invalid attribute name or type.  " +
+                                                         "Attribute name/type must be a single word that starts with an alphabetic " +
                                                          "character or an underscore.  " +
-                                                         "Please Try again.", name));
+                                                         "Please Try again.");
         }
     }
 }

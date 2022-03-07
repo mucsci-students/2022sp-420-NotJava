@@ -1,0 +1,49 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="UMLEditor.Views.MethodContainer">
+
+    <UserControl.Styles>
+        <Style Selector="Button.ControlButton">
+            <Setter Property="Padding" Value="2" />
+            <Setter Property="MinHeight" Value="30" />
+            <Setter Property="MaxHeight" Value="30" />
+            <Setter Property="MinWidth" Value="30" />
+            <Setter Property="MaxWidth" Value="30" />
+        </Style>
+    </UserControl.Styles>
+    
+    <StackPanel Orientation="Vertical">
+        <Grid 
+            RowDefinitions="*" 
+            ColumnDefinitions="* * * * * * * *" 
+            HorizontalAlignment="Stretch" 
+            Background="#FF6A00">
+            <ScrollViewer Grid.ColumnSpan="5" HorizontalScrollBarVisibility="Auto">
+                <Label
+                    Name="MethodSignature"
+                    Content="double getArea()" 
+                    FontStyle="Italic"
+                    FontSize="16" 
+                    VerticalAlignment="Center"
+                    Margin="5 5 0 5 "/>
+            </ScrollViewer>
+            <Button Grid.Column="5" Name="EditButton" Classes="ControlButton" Click="RenameMtdButton_OnClick">
+                <Image Source="../Assets/CustomIcons/PencilButton.png"></Image>
+            </Button>
+            <Button Grid.Column="6" Name="DeleteButton" Classes="ControlButton" Click="DeleteButton_OnClick">
+                <Image Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
+            </Button>
+            <Button Grid.Column="7" Name="AddButton" Classes="ControlButton" Click="AddParamButton_OnClick">
+                <Image Source="../Assets/CustomIcons/PlusButton.png"></Image>
+            </Button>
+        </Grid>
+        <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel Name="ParamsArea">
+            </StackPanel>
+        </ScrollViewer>
+    </StackPanel>
+    
+</UserControl>

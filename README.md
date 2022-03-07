@@ -14,15 +14,52 @@ Cross-platform, GUI-based UML editor written for Millersville University CSCI 42
 
 ## Running Instructions
 ### For GUI:
-- To run the native executable in graphical mode: ``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore``
+- To run the native executable in graphical mode: 
+  - In Linux, MacOS, and Windows Powershell: ``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore``
+  - In Windows CMD: ``.\UMLEditor\UMLEditor.NetCore\bin\Debug\net6.0\UMLEditor.NetCore``
 ### For CLI:
-_**WARNING:** CLI is not yet available, but it will be coming in a future update. Running in CLI mode right now does nothing._
+- To run the native executable in CLI mode: <br />
+  - In Linux, MacOS, and Windows Powershell: ``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore -cli``
+  - In Windows CMD: ``.\UMLEditor\UMLEditor.NetCore\bin\Debug\net6.0\UMLEditor.NetCore -cli``
 
-- To run the native executable in CLI mode: <br />``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore -cli``
 
-### For Test Mode:
-_Test mode runs all available unit tests for the code and does nothing else._
-- To run the native executable in test mode: <br />``./UMLEditor/UMLEditor.NetCore/bin/Debug/net6.0/UMLEditor.NetCore -test``
+## Testing Instructions
+### Build And Run Unit Tests:
+_This will run all available unit tests for the code and does nothing else._
+- To build and execute unit tests, run the following from the root of the repo directory (where the .sln is): <br />``dotnet test``
+
+## GUI Mode Help
+- Menu Bar
+  - File
+    - Save: Opens dialog to specify a file to save the current diagram to.
+    - Load: Opens dialog to specify a file to load a diagram from.
+  - Class
+    - Add: Opens dialog to add a class to the diagram.
+  - Relationship:
+    - Add: Opens dialog to add a relationship to the diagram.
+    - Change: Opens dialog to change the relationship type for an existing relationship.
+    - Delete: Opens dialog to delete a relationship from the diagram.
+    - Redraw Lines: Redraws all relationship lines between classes.
+  - Utility:
+    - Help: Displays link to this document.
+    - Exit: Exits program without saving diagram.
+- Canvas
+  - Class Box
+    - Class Name: Shows the name of this class.
+      - ![Edit Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PencilButton.png?raw=true "Edit Button") Edit Class: Opens dialog to rename this class.
+      - ![Delete Button](/UMLEditor/UMLEditor/Assets/CustomIcons/TrashCanButton.png?raw=true "Delete Button") Delete Class: Opens dialog to delete this class from diagram.
+    - Fields: Shows the various fields of the class.
+      - ![Add Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PlusButton.png?raw=true "Add Button") Add Field: Opens dialog to add a field to the class.
+      - ![Edit Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PencilButton.png?raw=true "Edit Button") Edit Field: Opens dialog to change type and/or name of the field.
+      - ![Delete Button](/UMLEditor/UMLEditor/Assets/CustomIcons/TrashCanButton.png?raw=true "Delete Button") Delete Field: Opens dialog to delete this field from the class.
+    - Methods: Shows the various methods of the class.
+      - ![Add Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PlusButton.png?raw=true "Add Button") Add Method: Opens dialog to add a method to the class.
+      - ![Edit Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PencilButton.png?raw=true "Edit Button") Edit Method: Opens dialog to change type and/or name of the field.
+      - ![Delete Button](/UMLEditor/UMLEditor/Assets/CustomIcons/TrashCanButton.png?raw=true "Delete Button") Delete Method: Opens dialog to delete the method from the class.
+      - Parameters: Shows the various parameters of a method.
+        - ![Add Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PlusButton.png?raw=true "Add Button") Add Parameter: Opens dialog to add a parameter to a method.
+        - ![Edit Button](/UMLEditor/UMLEditor/Assets/CustomIcons/PencilButton.png?raw=true "Edit Button") Edit Parameter: Opens dialog to change the type and/or name of a parameter.
+        - ![Delete Button](/UMLEditor/UMLEditor/Assets/CustomIcons/TrashCanButton.png?raw=true "Delete Button") Delete Parameter: Opens dialog to delete the parameter from the method.
 
 ### Team Members
 

@@ -1,6 +1,6 @@
 ﻿namespace UMLEditor.Interfaces;
 
-using UMLEditor.Classes;
+using Classes;
 
 public interface IDiagramFile
 {

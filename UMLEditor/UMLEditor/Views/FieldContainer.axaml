@@ -1,0 +1,29 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="UMLEditor.Views.FieldContainer">
+    <Grid 
+        Name="Backing"
+        RowDefinitions="*" 
+        ColumnDefinitions="* * * * * * * *" 
+        HorizontalAlignment="Stretch" 
+        Background="#FF6A00">
+        <ScrollViewer Grid.ColumnSpan="6" HorizontalScrollBarVisibility="Auto">
+            <Label
+                Name="ParamDisplay"
+                Content="int fieldOne" 
+                FontStyle="Italic"
+                FontSize="16" 
+                VerticalAlignment="Center"
+                Margin="5 5 0 5 "/>
+        </ScrollViewer>
+        <Button Grid.Column="6" Classes="ControlButton" Name="EditButton">
+            <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
+        </Button>
+        <Button Grid.Column="7" Classes="ControlButton" Name="DeleteButton">
+            <Image Classes="ControlIcon" Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
+        </Button>
+    </Grid>
+</UserControl>

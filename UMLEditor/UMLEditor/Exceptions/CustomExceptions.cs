@@ -42,8 +42,38 @@ public class RelationshipNonexistentException : Exception
     {  }
 }
 
+public class RelationshipAlreadyExistsException : Exception
+{
+    public RelationshipAlreadyExistsException(string message) : base(message)
+    {  }
+}
+
+public class RelationshipTypeAlreadyExists : Exception
+{
+    public RelationshipTypeAlreadyExists(string message) : base(message)
+    {  }
+}
+
+public class InvalidRelationshipTypeException : Exception
+{
+    public InvalidRelationshipTypeException(string message) : base(message)
+    {  }
+}
+
 public class InvalidNameException : Exception
 {
     public InvalidNameException(string message) : base(message)
+    { }
+}
+
+public class MethodAlreadyExistsException : Exception
+{
+    public MethodAlreadyExistsException(string message) : base(message)
+    { }
+}
+
+public class MethodNonexistentRelationship : Exception
+{
+    public MethodNonexistentRelationship(string message) : base(message)
     { }
 }

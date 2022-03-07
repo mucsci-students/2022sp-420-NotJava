@@ -1,26 +1,44 @@
-﻿namespace UMLEditor.Classes;
+﻿using System.Diagnostics;
 
-using System;
+namespace UMLEditor.Classes;
+
+using UMLEditor.Utility;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using UMLEditor.Exceptions;
+using Exceptions;
 
 public class Diagram
 {
-    // Used for JSON serialization  and deserialization
-    [JsonProperty("classes")]
-    public List<Class> Classes { get; private set; }
     
-    [JsonProperty("relationships")]
-    public List<Relationship> Relationships { get; private set; }
+    [JsonProperty("classes", Required = Required.Always)]
+    private List<Class> _classes;
+
+    [JsonProperty("relationships", Required = Required.Always)]
+    private List<Relationship> _relationships;
+
+    // Public accessor for Classes
+    // Creates copies to ensure data integrity
+    [JsonIgnore]
+    public List<Class> Classes
+    {
+        get => Utilities.CloneContainer(_classes);
+    }
+
+    // Public accessor for Relationships
+    // Creates copies to ensure data integrity
+    [JsonIgnore]
+    public List<Relationship> Relationships
+    {
+        get => Utilities.CloneContainer(_relationships);
+    }
 
     /// <summary>
     /// Default constructor for a new Diagram.
     /// </summary>
     public Diagram()
     {
-        Classes = new List<Class>();
-        Relationships = new List<Relationship>();
+        _classes = new List<Class>();
+        _relationships = new List<Relationship>();
     }
 
     /// <summary>
@@ -28,10 +46,10 @@ public class Diagram
     /// </summary>
     /// <param name="name">Name of the class you are checking</param>
     /// <returns>Returns true if exists, false if not.</returns>
-    public bool ClassExists (string name)
+    private bool ClassExists (string name)
     {
 
-        return GetClassByName(name) != null;
+        return GetClassByName(name) is not null;
 
     }
 
@@ -40,9 +58,9 @@ public class Diagram
     /// </summary>
     /// <param name="name">Name of the class you are checking</param>
     /// <returns>Returns true if class is in a relationship in the diagram, false if not.</returns>
-    public bool ClassIsInRelationship(string name)
+    private bool IsClassInRelationship(string name)
     {
-        foreach (Relationship r in Relationships)
+        foreach (Relationship r in _relationships)
         {
             if (r.SourceClass == name || r.DestinationClass == name)
             {
@@ -51,6 +69,59 @@ public class Diagram
         }
         return false;
     }
+    /// <summary>
+    /// Checks if the current diagram has the given class
+    /// </summary>
+    /// <param name="className">The name of the class to check</param>
+    /// <exception cref="ClassNonexistentException">Exception if class does not exist</exception>
+    private void MustHaveClass(string className)
+    {
+        if (!ClassExists(className))
+        {
+            throw new ClassNonexistentException($"Class '{className}' does not exist");
+        }
+    }
+    
+    /// <summary>
+    /// Checks if the current diagram has the given class
+    /// </summary>
+    /// <param name="className">The name of the class to check</param>
+    /// <exception cref="ClassAlreadyExistsException">Exception if class already exists</exception>
+    private void MustNotHaveClass(string className)
+    {
+        if (ClassExists(className))
+        {
+            throw new ClassAlreadyExistsException($"Class '{className}' already exists");
+        }
+    }
+    
+    /// <summary>
+    /// Checks if the current diagram has a relationship with the given source / destination
+    /// </summary>
+    /// <param name="sourceClassName">Source class for the relationship</param>
+    /// <param name="destClassName">Destination class for the relationship</param>
+    /// <exception cref="RelationshipNonexistentException">Exception if relationship does not exist</exception>
+    private void MustHaveRelationship(string sourceClassName, string destClassName)
+    {
+        if (!RelationshipExists(sourceClassName, destClassName))
+        {
+            throw new RelationshipNonexistentException($"Relationship {sourceClassName} => {destClassName} does not exist.");
+        }
+    }
+    
+    /// <summary>
+    /// Checks if the current diagram has a relationship with the given source / destination
+    /// </summary>
+    /// <param name="sourceClassName">Source class for the relationship</param>
+    /// <param name="destClassName">Destination class for the relationship</param>
+    /// <exception cref="RelationshipAlreadyExistsException">Exception if relationship already exists</exception>
+    private void MustNotHaveRelationship(string sourceClassName, string destClassName)
+    {
+        if (RelationshipExists(sourceClassName, destClassName))
+        {
+            throw new RelationshipAlreadyExistsException($"Relationship {sourceClassName} => {destClassName} already exists.");
+        }
+    }
 
     /// <summary>
     /// Checks if a relationship between the two classes.
@@ -58,10 +129,10 @@ public class Diagram
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
     /// <returns>True if the relationship exists, false otherwise</returns>
-    public bool RelationshipExists (string sourceName, string destName)
+    private bool RelationshipExists (string sourceName, string destName)
     {
 
-        return GetRelationshipByName(sourceName, destName) != null;
+        return GetRelationship(sourceName, destName) is not null;
 
     }
     
@@ -71,9 +142,9 @@ public class Diagram
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
     /// <returns>The found relationship object, or null if none exists</returns>
-    public Relationship? GetRelationshipByName(string sourceName, string destName)
+    private Relationship? GetRelationship(string sourceName, string destName)
     {
-        foreach (Relationship r in Relationships)
+        foreach (Relationship r in _relationships)
         {
             if (r.SourceClass == sourceName && r.DestinationClass == destName)
             {
@@ -90,7 +161,10 @@ public class Diagram
     /// <returns>Returns the class if exists, or null if it does not</returns>
     public Class? GetClassByName(string name)
     {
-        foreach (Class currentClass in Classes)
+        
+        // TODO: GetClassByName should be made private
+        
+        foreach (Class currentClass in _classes)
         {
             if (currentClass.ClassName == name)
             {
@@ -105,29 +179,73 @@ public class Diagram
     /// </summary>
     /// <param name="sourceClassName">The source class for the relationship</param>
     /// <param name="destClassName">The destination class for the relationship</param>
+    /// <param name="relationshipType">The type of relationship</param>
     /// <exception cref="ClassNonexistentException">If either class does not exist</exception>
-    public void AddRelationship(string sourceClassName, string destClassName)
+    /// <exception cfef="InvalidRelationshipTypeException">If the given relationship type is not valid</exception>
+    public void AddRelationship(string sourceClassName, string destClassName, string relationshipType)
     {
         
-        const string NONEXISTENT_NAME_FORMAT = "Nonexistent class name entered ({0}).";
         // Ensure the provided classes exist
-        if (!ClassExists(sourceClassName))
-        {
 
-            throw new ClassNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, sourceClassName));
-            
-        }
+        MustHaveClass(sourceClassName);
+        MustHaveClass(destClassName);
         
-        else if (!(ClassExists(destClassName)))
-        {
-
-            throw new ClassNonexistentException(string.Format(NONEXISTENT_NAME_FORMAT, destClassName));
-
-        }
+        // Ensure the provided relationship does not exist
+        MustNotHaveRelationship(sourceClassName, destClassName);
 
         // Create and add the new relationship
-        Relationship newRel = new Relationship(sourceClassName, destClassName);
-        Relationships.Add(newRel);
+        Relationship newRel = new Relationship(sourceClassName, destClassName, relationshipType);
+        _relationships.Add(newRel);
+        
+    }
+    
+    /// <summary>
+    /// Changes type of existing relationship
+    /// </summary>
+    /// <param name="sourceClass">Name of source class</param>
+    /// <param name="destClass">Name of destination class</param>
+    /// <param name="newRelationshipType">Type to change relationship into</param>
+    /// <exception cref="RelationshipNonexistentException">Thrown if the relationship already exists</exception>
+    /// <exception cref="RelationshipTypeAlreadyExists">Thrown if the existing relationship is already of type newRelationshipType</exception>
+    public void ChangeRelationship(string sourceClass, string destClass, string newRelationshipType)
+    {
+        //Check if relationship exists at all
+        MustHaveRelationship(sourceClass,destClass);
+
+        //Check if the relationship between the two classes is already of type newRelationshipType
+        Relationship? r = GetRelationship(sourceClass, destClass);
+        if (r!.RelationshipType == newRelationshipType)
+        {
+            throw new RelationshipTypeAlreadyExists($"Relationship '{sourceClass} => {destClass}' is already of type '{newRelationshipType}'.");
+        }
+        
+        r.ChangeType(newRelationshipType);
+    }
+
+    /// <summary>
+    /// Adds a method to a class
+    /// </summary>
+    /// <param name="toClass">Class to add method to</param>
+    /// <param name="returnType">Return type of method</param>
+    /// <param name="methodName">Name of method</param>
+    public void AddMethod(string toClass, string returnType, string methodName)
+    {
+        MustHaveClass(toClass);
+        GetClassByName(toClass)!.AddMethod(returnType, methodName);
+    }
+    
+    /// <summary>
+    /// Adds a method to a class
+    /// </summary>
+    /// <param name="toClass">Class to add method to</param>
+    /// <param name="returnType">Return type of method</param>
+    /// <param name="methodName">Name of method</param>
+    /// <param name="paramList">A list of parameters</param>
+    public void AddMethod(string toClass, string returnType, string methodName, List<NameTypeObject> paramList)
+    {
+        
+        MustHaveClass(toClass);
+        GetClassByName(toClass)!.AddMethod(returnType, methodName, paramList);
         
     }
 
@@ -138,30 +256,31 @@ public class Diagram
     /// <exception cref="ClassAlreadyExistsException">Ensures there is not already a class by this name</exception>
     public void AddClass(string className)
     {
-        if (ClassExists(className))
-        {
-            throw new ClassAlreadyExistsException(string.Format("Class {0} already exists", className));
-        }
+
+        // Ensure class does not already exist
+        MustNotHaveClass(className);
         
         // Create a new class
-        Classes.Add(new Class(className));
+        _classes.Add(new Class(className));
 
     }
     
+    /// <summary>
+    /// Deletes the class that has the provided name
+    /// </summary>
+    /// <param name="className">The name of the class to delete</param>
+    /// <exception cref="ClassNonexistentException">If the provided class does not exist</exception>
+    /// <exception cref="ClassInUseException">If the class is currently involved in a relationship</exception>
     public void DeleteClass(string className)
     {
-        if (!ClassExists(className))
-        {
-            throw new ClassNonexistentException(string.Format("Class {0} does not exist", className));
-        }
+        MustHaveClass(className);
 
-        if (ClassIsInRelationship(className))
+        if (IsClassInRelationship(className))
         {
-            throw new ClassInUseException(string.Format("Class {0} is in use by a relationship and cannot be deleted",
-                className));
+            throw new ClassInUseException($"Class '{className}' is in use by a relationship and cannot be deleted");
         }
         
-        Classes.Remove(GetClassByName(className));
+        _classes.Remove(GetClassByName(className)!);
     }
     
     /// <summary>
@@ -173,26 +292,38 @@ public class Diagram
     /// <exception cref="ClassAlreadyExistsException">Thrown if the class newName already exists</exception>
     public void RenameClass(string oldName, string newName)
     {
-        if (!ClassExists(oldName))
-        {
-            throw new ClassNonexistentException(string.Format("Class {0} does not exist", oldName));
-        }
-        if (ClassExists(newName))
-        {
-            throw new ClassAlreadyExistsException(string.Format("Class {0} already exists", newName));
-        }
+
+        // Ensure old class exists
+        MustHaveClass(oldName);
+        
+        // Ensure new class does not already exist
+        MustNotHaveClass(newName);
         
         // Rename class
-        Class foundClass = GetClassByName(oldName); 
-        foundClass.Rename(newName);
+        Class? foundClass = GetClassByName(oldName); 
+        foundClass!.Rename(newName);
 
         foreach (Relationship currentRel in GetInvolvedRelationships(oldName))
         {
             currentRel.RenameMember(oldName, newName);
         }
-        
     }
-    
+
+    /// <summary>
+    /// Renames existing method to newName
+    /// </summary>
+    /// <param name="onClass">Class that method is in</param>
+    /// <param name="oldName">Method to rename</param>
+    /// <param name="newName">New name of method</param>
+    /// <exception cref="ClassNonexistentException">Thrown if the class does not exist</exception>
+    public void RenameMethod(string onClass, string oldName, string newName)
+    {
+
+        // Ensure class exists
+        MustHaveClass(onClass);
+        
+        GetClassByName(onClass)!.RenameMethod(oldName, newName);
+    }
     
     /// <summary>
     /// List all classes of the current diagram, or a message that there are no classes.
@@ -201,15 +332,15 @@ public class Diagram
     public string ListClasses()
     {
         string msg = "";
-        if (Classes.Count == 0)
+        if (_classes.Count == 0)
         {
             msg = "There are no classes currently.";
         }
         else
         {
-            foreach (Class c in Classes)
+            foreach (Class c in _classes)
             {
-                msg += string.Format("{0}\n", c.ClassName);
+                msg += $"{c.ClassName}\n";
             }
         }
 
@@ -222,23 +353,36 @@ public class Diagram
     /// <returns>A string containing all relationships of the given diagram, separated by new lines.</returns>
     public string ListRelationships()
     {
-        Console.Write("In method");
         string msg = "";
-        if (Relationships.Count == 0)
+        if (_relationships.Count == 0)
         {
             msg = "There are no relationships currently.";
         }
         else
         {
-            foreach (Relationship r in Relationships)
+            foreach (Relationship r in _relationships)
             {
-                msg += string.Format("{0}\n", r.ToString());
+                msg += $"{r}\n";
             }
         }
 
         return msg;
     }
 
+    /// <summary>
+    /// Lists attributes of a class
+    /// </summary>
+    /// <param name="onClass">Class to list attributes of</param>
+    /// <returns></returns>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
+    public string ListAttributes(string onClass)
+    {
+
+        // Ensure class exists
+        MustHaveClass(onClass);
+
+        return GetClassByName(onClass)!.ListAttributes();
+    }
     
     /// <summary>
     /// Deletes the provided relationship, if it exists
@@ -248,26 +392,25 @@ public class Diagram
     /// <exception cref="RelationshipNonexistentException">If the relationship does not exist</exception>
     public void DeleteRelationship(string sourceName, string destName)
     {
-        if (!RelationshipExists(sourceName, destName))
-        {
-            throw new RelationshipNonexistentException(string.Format("Relationship {0} -> {1} does not exist", sourceName, destName));
-        }
+
+        // Ensure the relationship exists
+        MustHaveRelationship(sourceName, destName);
         
         // Delete relationship
-        Relationships.Remove(GetRelationshipByName(sourceName, destName));
+        _relationships.Remove(GetRelationship(sourceName, destName)!);
     }
 
     /// <summary>
     /// Returns a list of all relationships the provided class is involved with
     /// </summary>
     /// <param name="onClassName">The class to find relationships for</param>
-    /// <returns></returns>
-    public List<Relationship> GetInvolvedRelationships(string onClassName)
+    /// <returns>A list containing all relationships the provided class is involved with</returns>
+    private List<Relationship> GetInvolvedRelationships(string onClassName)
     {
 
         List<Relationship> result = new List<Relationship>();
 
-        foreach (Relationship currentRel in Relationships)
+        foreach (Relationship currentRel in _relationships)
         {
 
             if (currentRel.SourceClass == onClassName || currentRel.DestinationClass == onClassName)
@@ -278,6 +421,243 @@ public class Diagram
         }
         
         return result;
+
+    }
+
+    /// <summary>
+    /// Adds a field to a class in the diagram
+    /// </summary>
+    /// <param name="toClass">The target class to add the field to</param>
+    /// <param name="withType">The type of the field to add</param>
+    /// <param name="withName">The name of the field to add</param>
+    /// <exception cref="ClassNonexistentException">If the provided class does not exist</exception>
+    public void AddField(string toClass, string withType, string withName)
+    {
+        // Ensure the class exists
+        MustHaveClass(toClass);
+
+        Class? targetClass = GetClassByName(toClass);
+        targetClass!.AddField(withType, withName);
+
+    }
+
+    /// <summary>
+    /// Deletes a field from a class in the diagram
+    /// </summary>
+    /// <param name="fromClass">The target class to remove the field from</param>
+    /// <param name="withName">The name of the field to remove</param>
+    /// <exception cref="ClassNonexistentException">If the provided class does not exist</exception>
+    public void DeleteField(string fromClass, string withName)
+    {
+        // Ensures the class exists
+        MustHaveClass(fromClass);
+
+        Class? targetClass = GetClassByName(fromClass);
+        targetClass!.DeleteField(withName);
+
+    }
+
+    /// <summary>
+    /// Renames a field on a given class
+    /// </summary>
+    /// <param name="onClass">The class to rename the field on</param>
+    /// <param name="oldName">The current (old) name of the field to be renamed</param>
+    /// <param name="newName">The new name for the field</param>
+    public void RenameField(string onClass, string oldName, string newName)
+    {
+        // Ensures the class exists
+        MustHaveClass(onClass);
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.RenameField(oldName, newName);
+
+    }
+
+    /// <summary>
+    /// Change the type of an existing field
+    /// </summary>
+    /// <param name="onClass">The class to change the field on</param>
+    /// <param name="fieldToChange">The field to change the type of</param>
+    /// <param name="newType">The new type of the field</param>
+    public void ChangeFieldType(string onClass, string fieldToChange, string newType)
+    {
+        // Ensures the class exists
+        MustHaveClass(onClass);
+        
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ChangeFieldType(fieldToChange, newType);
+    }
+    
+    /// <summary>
+    /// Changes type of method
+    /// </summary>
+    /// <param name="onClass">Class method exists in</param>
+    /// <param name="onMethod">Method to change type of</param>
+    /// <param name="newType">New type of method</param>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
+    public void ChangeMethodType(string onClass, string onMethod, string newType)
+    {
+        // Ensures the class exists
+        MustHaveClass(onClass);
+        
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ChangeMethodType(onMethod, newType);
+    }
+
+    /// <summary>
+    /// Changes the anatomy of the provided field
+    /// </summary>
+    /// <param name="onClass">The class to change the field on</param>
+    /// <param name="toRename">The field to rename</param>
+    /// <param name="newField">The new field</param>
+    public void ReplaceField(string onClass, NameTypeObject toRename, NameTypeObject newField)
+    {
+        // Ensures the class exists
+        MustHaveClass(onClass);
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ReplaceField(toRename, newField);
+
+    }
+
+    /// <summary>
+    /// Changes the anatomy of the provided parameter
+    /// </summary>
+    /// <param name="onClass">The class to change the parameter on</param>
+    /// <param name="inMethod">The method that the parameter belongs to</param>
+    /// <param name="toReplace">The parameter to replace</param>
+    /// <param name="newParameter">The new parameter</param>
+    public void ReplaceParameter(string onClass, string inMethod, string toReplace,
+        NameTypeObject newParameter)
+    {
+        // Ensures the class exists
+        MustHaveClass(onClass);
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ReplaceParameter(inMethod, toReplace, newParameter);
+
+    }
+
+    /// <summary>
+    /// Clears parameters from a method
+    /// </summary>
+    /// <param name="onClass">Class that method exists in</param>
+    /// <param name="inMethod">Method to clear parameters from</param>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
+    public void ClearParameters(string onClass, string inMethod)
+    {
+        // Ensures the class exists
+        MustHaveClass(onClass);
+
+        GetClassByName(onClass)!.ClearParameters(inMethod);
+    }
+    
+    /// <summary>
+    /// Deletes a parameter from a provided method on a provided class
+    /// </summary>
+    /// <param name="paramName">The parameter to delete</param>
+    /// <param name="inMethod">The method to delete from</param>
+    /// <param name="onClass">The class to delete from</param>
+    public void DeleteParameter(string paramName, string inMethod, string onClass)
+    {
+        // Ensures the class exists
+        MustHaveClass(onClass);
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.DeleteMethodParameter(paramName, inMethod);
+
+    }
+
+    /// <summary>
+    /// Renames a specific parameter on a provided method
+    /// </summary>
+    /// <param name="onClass">The class the method is within</param>
+    /// <param name="onMethod">The name of the method the parameter is in</param>
+    /// <param name="oldParamName">The current (old) name of the parameter</param>
+    /// <param name="newParamName">The new name for the parameter</param>
+    /// <exception cref="ClassNonexistentException"></exception>
+    public void RenameParameter(string onClass, string onMethod, string oldParamName, string newParamName)
+    {
+        // Ensures the class exists
+        MustHaveClass(onClass);
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.RenameMethodParameter(onMethod, oldParamName, newParamName);
+
+    }
+
+    /// <summary>
+    /// Adds parameter to an existing method
+    /// </summary>
+    /// <param name="className">Name of class method is in</param>
+    /// <param name="methodName">Method to add parameter to</param>
+    /// <param name="paramType">Return type of parameter</param>
+    /// <param name="paramName">Name of parameter</param>
+    /// <exception cref="ClassNonexistentException">Thrown if class does not exist</exception>
+    public void AddParameter(string className, string methodName, string paramType, string paramName)
+    {
+        // Ensures the class exists
+        MustHaveClass(className);
+        GetClassByName(className)!.AddParameter(methodName, paramType, paramName);
+    }
+
+    /// <summary>
+    /// Change the name and type of the provided method
+    /// </summary>
+    /// <param name="onClass">The class the method is on</param>
+    /// <param name="methodName">The name of the method to change</param>
+    /// <param name="newMethodAnatomy">The new name and type of the method</param>
+    public void ChangeMethodNameType(string onClass, string methodName, NameTypeObject newMethodAnatomy)
+    {
+        // Ensures the class exists
+        MustHaveClass(onClass);
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ChangeMethodNameType(methodName, newMethodAnatomy);
+    }
+
+    /// <summary>
+    /// Adds a new parameter to the provided method
+    /// </summary>
+    /// <param name="inClass">The class the method is on</param>
+    /// <param name="toMethod">The method to add a parameter to</param>
+    /// <param name="parameter">The new parameter to add</param>
+    public void AddParameter(string inClass, string toMethod, NameTypeObject parameter)
+    {
+        // Ensures the class exists
+        MustHaveClass(inClass);
+
+        Class? targetClass = GetClassByName(inClass);
+        targetClass!.AddParameter(toMethod, parameter.Type, parameter.AttributeName);
+    }
+    
+    /// <summary>
+    /// Deletes the provided method on the provided class
+    /// </summary>
+    /// <param name="onClass">The class the method is on</param>
+    /// <param name="methodName">The name of the method to delete</param>
+    public void DeleteMethod(string onClass, string methodName)
+    {
+        // Ensures the class exists
+        MustHaveClass(onClass);
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.DeleteMethod(methodName);
+    }
+
+    /// <summary>
+    /// Changes the recorded location of the provided class
+    /// </summary>
+    /// <param name="onClass">The class to change</param>
+    /// <param name="x">The new X</param>
+    /// <param name="y">The new Y</param>
+    public void ChangeBoxLocation(string onClass, double x, double y)
+    {
+        
+        MustHaveClass(onClass);
+
+        Class? targetClass = GetClassByName(onClass);
+        targetClass!.ChangeLocation(x, y);
 
     }
     
