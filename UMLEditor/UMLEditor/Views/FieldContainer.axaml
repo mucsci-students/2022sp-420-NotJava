@@ -19,10 +19,14 @@
                 VerticalAlignment="Center"
                 Margin="5 5 0 5 "/>
         </ScrollViewer>
+        <!-- ReSharper disable once Xaml.StyleClassNotFound -->
         <Button Grid.Column="6" Classes="ControlButton" Name="EditButton">
+            <!-- ReSharper disable once Xaml.StyleClassNotFound -->
             <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
         </Button>
+        <!-- ReSharper disable once Xaml.StyleClassNotFound -->
         <Button Grid.Column="7" Classes="ControlButton" Name="DeleteButton">
+            <!-- ReSharper disable once Xaml.StyleClassNotFound -->
             <Image Classes="ControlIcon" Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
         </Button>
     </Grid>

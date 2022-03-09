@@ -2,6 +2,9 @@
 
 using Classes;
 
+/// <summary>
+/// IDiagramFile
+/// </summary>
 public interface IDiagramFile
 {
 

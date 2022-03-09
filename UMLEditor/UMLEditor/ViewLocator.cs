@@ -5,8 +5,16 @@ using UMLEditor.ViewModels;
 
 namespace UMLEditor
 {
+    /// <summary>
+    /// View Locator
+    /// </summary>
     public class ViewLocator : IDataTemplate
     {
+        /// <summary>
+        /// Build
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public IControl Build(object data)
         {
             var name = data.GetType().FullName!.Replace("ViewModel", "View");
@@ -22,6 +30,11 @@ namespace UMLEditor
             }
         }
 
+        /// <summary>
+        /// Match
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public bool Match(object data)
         {
             return data is ViewModelBase;

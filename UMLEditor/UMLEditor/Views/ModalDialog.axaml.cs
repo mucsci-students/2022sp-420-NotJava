@@ -1,8 +1,10 @@
-﻿namespace UMLEditor.Views;
+﻿using Avalonia.Interactivity;
+// ReSharper disable UnusedParameter.Local
+
+namespace UMLEditor.Views;
 
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 
 /// <summary>
@@ -11,6 +13,7 @@ using Avalonia.Markup.Xaml;
 public enum DialogButtons
 {
     
+    #pragma warning disable CS1591
     OKAY = 1,
     CANCEL = 2,
     YES = 4,
@@ -18,7 +21,7 @@ public enum DialogButtons
     OK_CANCEL = 3,
     YES_NO = 12,
     YES_NO_CANCEL = 14
-    
+    #pragma warning restore CS1591
 }
 /// <summary>
 /// Default ctor for a ModalDialog
@@ -38,6 +41,9 @@ public class ModalDialog: Window
         set => _contentArea.Content = value;
     }
 
+    /// <summary>
+    /// Initializer for ModalDialog
+    /// </summary>
     public ModalDialog()
     {
         
@@ -119,7 +125,7 @@ public class ModalDialog: Window
     /// <summary>
     /// The various 'resolutions' for a modal dialog based on which button was selected.
     /// </summary>
-    private void OnModalResolved(object sender, RoutedEventArgs e)
+    private void OnModalResolved(object sender, RoutedEventArgs routedEventArgs)
     {
         
         if (sender.Equals(_yesButton))

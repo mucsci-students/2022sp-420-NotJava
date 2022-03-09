@@ -5,8 +5,14 @@ using System.Collections.Generic;
 
 namespace UMLEditor.Views;
 
+/// <summary>
+/// AddRelationshipPanel.cs
+/// </summary>
 public class AddRelationshipPanel : UserControl
 {
+    /// <summary>
+    /// Getter for SourceClass
+    /// </summary>
     public string SourceClass
     {
         
@@ -26,6 +32,9 @@ public class AddRelationshipPanel : UserControl
         
     }
     
+    /// <summary>
+    /// Getter for DestinationClass
+    /// </summary>
     public string DestinationClass
     {
         
@@ -45,6 +54,9 @@ public class AddRelationshipPanel : UserControl
         
     }
 
+    /// <summary>
+    /// Getter for SelectedType
+    /// </summary>
     public string SelectedType
     {
 
@@ -66,6 +78,9 @@ public class AddRelationshipPanel : UserControl
     private readonly ComboBox _sourceSelector;
     private readonly ComboBox _destSelector;
     
+    /// <summary>
+    /// Initializer for AddRelationshipPanel
+    /// </summary>
     public AddRelationshipPanel()
     {
         

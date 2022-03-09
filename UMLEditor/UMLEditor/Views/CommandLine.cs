@@ -7,6 +7,9 @@ using UMLEditor.Interfaces;
 
 namespace UMLEditor.Views;
 
+/// <summary>
+/// CommandLine.cs
+/// </summary>
 public class CommandLine
 {
     private Diagram? _activeDiagram;
@@ -14,6 +17,9 @@ public class CommandLine
     private static readonly ConsoleColor ERROR_COLOR = ConsoleColor.Red;
     private static readonly ConsoleColor SUCCESS_COLOR = ConsoleColor.DarkGreen;
     
+    /// <summary>
+    /// RunCLI function
+    /// </summary>
     [SuppressMessage("ReSharper", "FunctionNeverReturns")]
     public void RunCli()
     {

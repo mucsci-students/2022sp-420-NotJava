@@ -6,13 +6,22 @@ using UMLEditor.Views;
 
 namespace UMLEditor
 {
+    /// <summary>
+    /// Application class
+    /// </summary>
     public class App : Application
     {
+        /// <summary>
+        /// Initialization
+        /// </summary>
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
         }
 
+        /// <summary>
+        /// On Initializattion
+        /// </summary>
         public override void OnFrameworkInitializationCompleted()
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

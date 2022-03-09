@@ -80,6 +80,7 @@ public class AttributeUnitTests
     [Test]
     public void CreateInvalidParamObjectTest()
     {
+        // ReSharper disable once ObjectCreationAsStatement
         Assert.Throws<InvalidNameException>(delegate { new NameTypeObject(validType, invalidParamName); });
     }
 
@@ -137,6 +138,7 @@ public class AttributeUnitTests
         Method testMethod = new Method(validType, methodName1);
         NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
         NameTypeObject testParam2 = new NameTypeObject(validType, paramName2);
+        // ReSharper disable once UnusedVariable
         List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1, testParam2};
         testMethod.AddParam(testParam1);
 
@@ -215,6 +217,7 @@ public class AttributeUnitTests
     private string validType = "";
     private string paramName1 = "";
     private string paramName2 = "";
+    // ReSharper disable once NotAccessedField.Local
     private string sameParamName = "";
     private string invalidParamName = "";
 }
