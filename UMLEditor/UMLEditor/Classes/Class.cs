@@ -1,16 +1,21 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-
+﻿
 namespace UMLEditor.Classes;
 
 using System.Data;
-using UMLEditor.Utility;
+using Utility;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Exceptions;
 
+/// <summary>
+/// 'Class' Class
+/// </summary>
 public class Class: ICloneable
 {
+    /// <summary>
+    /// ClassName property
+    /// </summary>
     [JsonProperty("name")]
     public string ClassName { get; private set; }
     
@@ -20,14 +25,19 @@ public class Class: ICloneable
     [JsonProperty("location")] 
     private BoxLocation _classLocation;
 
+    /// <summary>
+    /// Class Location property
+    /// </summary>
     [JsonIgnore]
     public BoxLocation ClassLocation
     {
         get => (BoxLocation)_classLocation.Clone();
     }
-
-    // Public accessor for Fields
-    // Creates copies to ensure data integrity
+    
+    /// <summary>
+    /// Public accessor for Fields
+    /// Creates copies to ensure data integrity
+    /// </summary>
     [JsonIgnore]
     public List<NameTypeObject> Fields
     {
@@ -37,8 +47,10 @@ public class Class: ICloneable
     [JsonProperty("methods")]
     private List<Method> _methods;
     
-    // Public accessor for Methods
-    // Creates copies to ensure data integrity
+    /// <summary>
+    /// Public accessor for Methods
+    /// Creates copies to ensure data integrity
+    /// </summary>
     [JsonIgnore]
     public List<Method> Methods
     {
@@ -136,7 +148,7 @@ public class Class: ICloneable
 
             if (seenNames.Contains(param.AttributeName))
             {
-                throw new DuplicateNameException($"Duplicate parameter: '{param.ToString()}'");
+                throw new DuplicateNameException($"Duplicate parameter: '{param}'");
             }
          
             seenNames.Add(param.AttributeName);
@@ -250,7 +262,7 @@ public class Class: ICloneable
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent field name entered ('{0}').";
         
         // Ensure the provided classes exist
-        bool removeWorked = _fields.Remove(GetFieldByName(targetFieldName));
+        bool removeWorked = _fields.Remove(GetFieldByName(targetFieldName)!);
         if (!removeWorked)
         {
 
@@ -271,7 +283,7 @@ public class Class: ICloneable
         const string NONEXISTENT_NAME_FORMAT = "Nonexistent method name entered ('{0}').";
         
         // Ensure the provided classes exist
-        bool removeWorked = _methods.Remove(GetMethodByName(targetMethodName));
+        bool removeWorked = _methods.Remove(GetMethodByName(targetMethodName)!);
         if (!removeWorked)
         {
 
@@ -326,7 +338,7 @@ public class Class: ICloneable
         {
             foreach (NameTypeObject a in _fields)
             {
-                msg += $"    {a.ToString()}\n";
+                msg += $"    {a}\n";
             }
         }
 
@@ -350,7 +362,7 @@ public class Class: ICloneable
         {
             foreach (Method a in _methods)
             {
-                msg += $"    {a.ToString()}\n";
+                msg += $"    {a}\n";
             }
         }
 
@@ -492,7 +504,7 @@ public class Class: ICloneable
         }
 
         Method? methodToChange = GetMethodByName(methodName);
-        methodToChange.ChangeMethodType(newType);
+        methodToChange!.ChangeMethodType(newType);
     }
     
     /// <summary>
@@ -513,14 +525,14 @@ public class Class: ICloneable
         // Check that the target field exists
         if (!FieldExists(toReplace))
         {
-            throw new AttributeNonexistentException($"Field '{toReplace.ToString()}' does not exist");
+            throw new AttributeNonexistentException($"Field '{toReplace}' does not exist");
         }
 
         /* - Get a reference to the Field to be changed (which is a NameTypeObject)
          * - Apply the new name and type to the Field */
         NameTypeObject? target = GetField(toReplace);
         target!.AttRename(replaceWith.AttributeName);
-        target!.ChangeType(replaceWith.Type);
+        target.ChangeType(replaceWith.Type);
 
     }
 
@@ -597,7 +609,7 @@ public class Class: ICloneable
         
         Method? targetMethod = GetMethodByName(onMethod);
         targetMethod!.AttRename(newMethodAnatomy.AttributeName);
-        targetMethod!.ChangeReturnType(newMethodAnatomy.Type);
+        targetMethod.ChangeReturnType(newMethodAnatomy.Type);
         
     }
     
@@ -622,6 +634,10 @@ public class Class: ICloneable
         _classLocation.ChangeXY((int)x, (int)y);
     }
     
+    /// <summary>
+    /// Clone
+    /// </summary>
+    /// <returns></returns>
     public object Clone()
     {
         return new Class(this);

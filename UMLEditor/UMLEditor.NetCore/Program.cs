@@ -7,17 +7,6 @@ namespace UMLEditor.NetCore
 {
     class Program
     {
-        
-        /// <summary>
-        /// Custom defined exit codes
-        /// </summary>
-        private enum CustomExitCodes
-        {
-            
-            ERROR_UNIMPLEMENTED = 5,
-
-        }
-
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.

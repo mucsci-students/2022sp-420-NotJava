@@ -55,8 +55,11 @@ public class RelationshipUnitTests
     [Test]
     public void InvalidTypeTest()
     {
+        // ReSharper disable once ObjectCreationAsStatement
         Assert.Throws<InvalidRelationshipTypeException>(delegate { new Relationship(class2Name, class1Name, types[2]); });
+        // ReSharper disable once ObjectCreationAsStatement
         Assert.Throws<InvalidRelationshipTypeException>(delegate { new Relationship(class2Name, class1Name, types[3]); });
+        // ReSharper disable once ObjectCreationAsStatement
         Assert.Throws<InvalidRelationshipTypeException>(delegate { new Relationship(class2Name, class1Name, types[4]); });
     }
 

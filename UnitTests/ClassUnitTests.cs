@@ -31,6 +31,7 @@ public class ClassUnitTests
     [Test]
     public void CreateInvalidClassTest()
     {
+        // ReSharper disable once ObjectCreationAsStatement
         Assert.Throws<InvalidNameException>(delegate { new Class("%#0923"); });
     }
     

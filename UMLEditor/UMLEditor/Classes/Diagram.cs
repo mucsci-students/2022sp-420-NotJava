@@ -1,12 +1,13 @@
-﻿using System.Diagnostics;
+﻿namespace UMLEditor.Classes;
 
-namespace UMLEditor.Classes;
-
-using UMLEditor.Utility;
+using Utility;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Exceptions;
 
+/// <summary>
+/// Diagram Class
+/// </summary>
 public class Diagram
 {
     
@@ -15,17 +16,21 @@ public class Diagram
 
     [JsonProperty("relationships", Required = Required.Always)]
     private List<Relationship> _relationships;
-
-    // Public accessor for Classes
-    // Creates copies to ensure data integrity
+    
+    /// <summary>
+    /// Public accessor for Classes
+    /// Creates copies to ensure data integrity
+    /// </summary>
     [JsonIgnore]
     public List<Class> Classes
     {
         get => Utilities.CloneContainer(_classes);
     }
-
-    // Public accessor for Relationships
-    // Creates copies to ensure data integrity
+    
+    /// <summary>
+    /// Public accessor for Relationships
+    /// Creates copies to ensure data integrity
+    /// </summary>
     [JsonIgnore]
     public List<Relationship> Relationships
     {

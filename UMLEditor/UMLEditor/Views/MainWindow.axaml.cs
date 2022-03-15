@@ -14,9 +14,13 @@ using Avalonia.Threading;
 using Avalonia.Media;
 using UMLEditor.Classes;
 using UMLEditor.Interfaces;
+// ReSharper disable UnusedParameter.Local
 
 namespace UMLEditor.Views
 {
+    /// <summary>
+    /// MainWindow.cs
+    /// </summary>
     public class MainWindow : Window
     {
 
@@ -56,7 +60,7 @@ namespace UMLEditor.Views
             {
                 
                 // Get an array of all class names in the diagram
-                List<Class> currentClasses = _activeDiagram!.Classes;
+                List<Class> currentClasses = _activeDiagram.Classes;
                 string[] classNames = new string[currentClasses.Count];
                 for (int indx = 0; indx < classNames.Length; ++indx)
                 {
@@ -91,6 +95,7 @@ namespace UMLEditor.Views
         {
             public UserControl SourceClass;
             public UserControl DestClass;
+            // ReSharper disable once NotAccessedField.Local
             public string RelationshipType;
             public Line StartLine;
             public Line MidLine;
@@ -168,13 +173,13 @@ namespace UMLEditor.Views
                 
             }
         }
-
-        private void ExitB_OnClick(object sender, RoutedEventArgs e)
+        
+        private void ExitB_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             Environment.Exit(0);
         }
 
-        private void HelpB_OnClick(object sender, RoutedEventArgs e)
+        private void HelpB_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             string link = "https://github.com/mucsci-students/2022sp-420-NotJava#gui-mode-help";
             RaiseAlert(
@@ -198,12 +203,12 @@ namespace UMLEditor.Views
             }
         }
 
-        private void Save_Button_OnClick(object sender, RoutedEventArgs e)
+        private void Save_Button_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             /* Open the file save dialog on its own thread
              * Obtain a future from this action */
             Task<string?> saveTask = _saveFileDialog.ShowAsync(this);
-            saveTask.ContinueWith((Task<string?> finishedTask) =>
+            saveTask.ContinueWith(finishedTask =>
             {
                 
                 Dispatcher.UIThread.Post(() => { 
@@ -241,12 +246,12 @@ namespace UMLEditor.Views
             });
         }
 
-        private void LoadButton_OnClick(object sender, RoutedEventArgs e)
+        private void LoadButton_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             /* Open the file selection dialog on its own thread
              * Obtain a future from this action */
             Task<string[]?> loadTask = _openFileDialog.ShowAsync(this);
-            loadTask.ContinueWith((Task<string[]?> taskResult) =>
+            loadTask.ContinueWith(taskResult =>
             {
                 // Called when the future is resolved
                 Dispatcher.UIThread.Post(() =>
@@ -264,7 +269,7 @@ namespace UMLEditor.Views
                     
                         try
                         {
-                            _activeDiagram = _activeFile.LoadDiagram(chosenFile);
+                            _activeDiagram = _activeFile.LoadDiagram(chosenFile)!;
                             ClearCanvas();
                             RenderClasses(_activeDiagram.Classes);
                             Dispatcher.UIThread.RunJobs();
@@ -289,14 +294,14 @@ namespace UMLEditor.Views
                 
             });
         }
-        private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
+        private void Class_AddClass_OnClick (object sender, RoutedEventArgs routedEventArgs)
         {
             // Create and wire up a new modal dialogue to the 'AddClassPanel'
             ModalDialog addClassModal = ModalDialog.CreateDialog<AddClassPanel>("Add New Class", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = addClassModal.ShowDialog<DialogButtons>(this);
             
             // Spin up a result
-            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            modalResult.ContinueWith(result =>
             {
                 
                 // Case in which 'OKAY' is not selected.
@@ -362,9 +367,7 @@ namespace UMLEditor.Views
         /// <summary>
         /// Event handler to add a relationship
         /// </summary>
-        /// <param name="sender">Object that generated the event</param>
-        /// <param name="e">Extra arguments sent to the handler</param>
-        private void Add_Relationship_OnClick(object sender, RoutedEventArgs e)
+        private void Add_Relationship_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
 
             // Create a new modal dialogue and wire it up to the 'AddRelationshipPanel'
@@ -376,7 +379,7 @@ namespace UMLEditor.Views
             Task<DialogButtons> modalResult = addRelationshipModal.ShowDialog<DialogButtons>(this);
 
             // Spin up the result
-            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            modalResult.ContinueWith(result =>
             {
                 // Case where user does not select OKAY button.
                 if (result.Result != DialogButtons.OKAY)
@@ -415,13 +418,11 @@ namespace UMLEditor.Views
             });
 
         }
-        
+
         /// <summary>
         ///  Event handler to change a relationship's type
         /// </summary>
-        /// <param name="sender">Object that generated the event</param>
-        /// <param name="e">Extra arguments sent to the handler</param>
-        private void Change_Relationship_OnClick(object sender, RoutedEventArgs e)
+        private void Change_Relationship_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             
             // Create a new modal dialogue and wire it up to the 'ChangeRelationshipPanel'
@@ -432,7 +433,7 @@ namespace UMLEditor.Views
             Task<DialogButtons> modalResult = changeRelationshipModal.ShowDialog<DialogButtons>(this);
             
             // Spin up the result
-            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            modalResult.ContinueWith(result =>
             {
                 // Case where user does not select OKAY button.
                 if (result.Result != DialogButtons.OKAY)
@@ -472,13 +473,11 @@ namespace UMLEditor.Views
                 });
             });
         }
-        
+
         /// <summary>
         ///  Event handler to delete a relationship
         /// </summary>
-        /// <param name="sender">Object that generated the event</param>
-        /// <param name="e">Extra arguments sent to the handler</param>
-        private void Delete_Relationship_OnClick(object sender, RoutedEventArgs e)
+        private void Delete_Relationship_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             // Create a new modal dialogue and wire it up to the 'DeleteRelationshipPanel'
             ModalDialog deleteRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Delete Relationship", DialogButtons.OK_CANCEL);
@@ -489,7 +488,7 @@ namespace UMLEditor.Views
             Task<DialogButtons> modalResult = deleteRelationshipModal.ShowDialog<DialogButtons>(this);
             
             // Spin up the result
-            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            modalResult.ContinueWith(result =>
             {
                 // Case where user does not select OKAY button.
                 if (result.Result != DialogButtons.OKAY)
@@ -908,9 +907,11 @@ namespace UMLEditor.Views
         /// <param name="e">Extra arguments sent to the handler</param>
         private void ViewEditToggle_OnClick(object sender, RoutedEventArgs e)
         {
-
+            #pragma warning disable CS8629
             ToggleSwitch viewSwitch = (ToggleSwitch) sender;
-            _inEditMode = (bool)viewSwitch.IsChecked;
+
+            _inEditMode = ((bool)viewSwitch.IsChecked);
+
 
             foreach (ClassBox currentBoxes in DrawnClassBoxes)
             {
@@ -918,7 +919,7 @@ namespace UMLEditor.Views
             }
             
             RedrawLines();
-            
+            #pragma warning restore CS8629
         }
     }
     
