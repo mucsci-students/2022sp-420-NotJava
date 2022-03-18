@@ -1,4 +1,7 @@
-﻿namespace UMLEditor.Classes;
+﻿using System;
+using DynamicData;
+
+namespace UMLEditor.Classes;
 
 using Utility;
 using System.Collections.Generic;
@@ -8,7 +11,7 @@ using Exceptions;
 /// <summary>
 /// Diagram Class
 /// </summary>
-public class Diagram
+public class Diagram : ICloneable
 {
     
     [JsonProperty("classes", Required = Required.Always)]
@@ -44,6 +47,23 @@ public class Diagram
     {
         _classes = new List<Class>();
         _relationships = new List<Relationship>();
+    }
+
+    /// <summary>
+    /// Copy constructor for a diagram
+    /// </summary>
+    /// <param name="d">diagram to copy</param>
+    public Diagram(Diagram d) : this()
+    {
+        foreach (var item in d._classes)
+        {
+            _classes.Add((Class) item.Clone());
+        }
+        
+        foreach (var item in d._relationships)
+        {
+            _relationships.Add((Relationship) item.Clone());
+        }
     }
 
     /// <summary>
@@ -665,5 +685,13 @@ public class Diagram
         targetClass!.ChangeLocation(x, y);
 
     }
-    
+
+    /// <summary>
+    /// Clones a diagram
+    /// </summary>
+    /// <returns>A clone of the diagram</returns>
+    public object Clone()
+    {
+        return new Diagram(this);
+    }
 }
