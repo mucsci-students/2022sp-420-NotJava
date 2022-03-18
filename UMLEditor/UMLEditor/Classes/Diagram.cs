@@ -50,7 +50,7 @@ public class Diagram : ICloneable
     }
 
     /// <summary>
-    /// Copy constructor for a diagram
+    /// Copy constructor for a Diagram
     /// </summary>
     /// <param name="d">diagram to copy</param>
     public Diagram(Diagram d) : this()
