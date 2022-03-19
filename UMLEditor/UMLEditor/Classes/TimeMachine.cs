@@ -48,21 +48,6 @@ public static class TimeMachine
     /// <param name="d">Diagram to add</param>
     public static void AddState(Diagram d)
     {
-        // If in the middle of the list clears out all future nodes
-        if (Current?.NextNode is not null)
-        {
-            Node? temp = Current.NextNode;
-            while (temp is not null)
-            {
-                Node? next = temp.NextNode;
-                temp.StateDiagram = null;
-                temp.PrevNode = null;
-                temp.NextNode = null;
-                temp = next;
-                Size--;
-            }
-        }
-        
         // Add new node to end of list
         Node newNode = new Node();
         newNode.StateDiagram = new Diagram(d);
@@ -134,16 +119,6 @@ public static class TimeMachine
     /// </summary>
     public static void ClearTimeMachine()
     {
-        Current = Head;
-        // Clear out all nodes
-        while (Current is not null)
-        {
-            Node? next = Current.NextNode;
-            Current.StateDiagram = null;
-            Current.PrevNode = null;
-            Current.NextNode = null;
-            Current = next;
-        }
         Head = null;
         Tail = Head;
         Current = Tail;
