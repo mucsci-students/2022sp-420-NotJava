@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Classes;
+﻿using System.Dynamic;
+
+namespace UMLEditor.Classes;
 
 /// <summary>
 /// Class to represent the action history of the UML program
@@ -24,24 +26,21 @@ public static class TimeMachine
         public Node? NextNode;
     }
     /// <summary>
-    /// References to the beginning, end, and current state of the time machine
+    /// Reference to the beginning state of the time machine
     /// </summary>
-    public static Node? Head, Tail, Current;
+    public static Node? Head { get; private set; }
+    /// <summary>
+    /// Reference to the end state of the time machine
+    /// </summary>
+    public static Node? Tail { get; private set; }
+    /// <summary>
+    /// Reference to the current state of the time machine
+    /// </summary>
+    public static Node? Current { get; private set; }
     /// <summary>
     /// Counter for number of states in the time machine
     /// </summary>
-    public static int? Size;
-
-    /// <summary>
-    /// Initializes the time machine to an empty list
-    /// </summary>
-    public static void Initialize()
-    {
-        Head = null;
-        Tail = Head;
-        Current = Tail;
-        Size = 0;
-    }
+    public static int Size { get; private set; }
 
     /// <summary>
     /// Adds a new diagram to the end of the list. Erases redo history if diagram is added to middle of list.
@@ -86,7 +85,7 @@ public static class TimeMachine
     /// Moves to next state in the time machine (redo)
     /// </summary>
     /// <returns>The next diagram, or null if there are none</returns>
-    public static Diagram? NextState()
+    public static Diagram? MoveToNextState()
     {
         if (Current != Tail)
         {
@@ -101,7 +100,7 @@ public static class TimeMachine
     /// Moves to previous state in the time machine (undo)
     /// </summary>
     /// <returns>The previous diagram, or null if there are none</returns>
-    public static Diagram? PreviousState()
+    public static Diagram? MoveToPreviousState()
     {
         if (Current != Head)
         {
@@ -113,11 +112,30 @@ public static class TimeMachine
     }
 
     /// <summary>
+    /// Checks if there is a next state to move to without moving to it
+    /// </summary>
+    /// <returns>True if a state exists, false otherwise</returns>
+    public static bool NextStateExists()
+    {
+        return (Current is not null) && (Current.NextNode is not null);
+    }
+
+    /// <summary>
+    /// Checks if there is a previous state to move to without moving to it
+    /// </summary>
+    /// <returns>True if a state exists, false otherwise</returns>
+    public static bool PreviousStateExists()
+    {
+        return (Current is not null) && (Current.PrevNode is not null);
+    }
+
+    /// <summary>
     /// Clears entire history. Dereferences all nodes.
     /// </summary>
     public static void ClearTimeMachine()
     {
         Current = Head;
+        // Clear out all nodes
         while (Current is not null)
         {
             Node? next = Current.NextNode;
