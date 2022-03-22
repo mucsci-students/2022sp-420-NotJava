@@ -1,5 +1,4 @@
 ﻿using System;
-using DynamicData;
 
 namespace UMLEditor.Classes;
 
@@ -746,13 +745,13 @@ public class Diagram : ICloneable
     /// <summary>
     /// Diagram changed event
     /// </summary>
-    public static event EventHandler DiagramChanged;
+    public static event EventHandler DiagramChanged = null!;
 
     /// <summary>
     /// Invokes the DiagramChanged Event
     /// </summary>
     public void NotifyChanged()
     {
-        DiagramChanged?.Invoke(this, EventArgs.Empty);
+        DiagramChanged(this, EventArgs.Empty);
     }
 }

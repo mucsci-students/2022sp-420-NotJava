@@ -15,10 +15,10 @@ namespace UMLEditor.NetCore
         public static void Main(string[] args)
         {
             int counter = 0;
-            Diagram.DiagramChanged += (object sender, EventArgs args) =>
+            Diagram.DiagramChanged += (sender, _) =>
             {
                 Console.WriteLine($"Diagram Changed {counter++}");
-                TimeMachine.AddState((Diagram)sender);
+                TimeMachine.AddState((Diagram)sender!);
             };
             // Ensure at least one arg is provided
             if (args.Length >= 1)
