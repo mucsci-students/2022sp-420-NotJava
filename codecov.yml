@@ -6,6 +6,23 @@ coverage:
   round: down
   range: "70...100"
 
+ignore:
+  - ".github/workflows"  # ignore folders and all its contents
+  - ".idea/.idea.UMLEditor/.idea"  # ignore folders and all its contents
+  - "UnitTests"  # ignore folders and all its contents
+  - "/UMLEditor/.idea/.idea.UMLEdito/.idea"  # ignore folders and all its contents
+  - "UMLEditor.NetCore"  # ignore folders and all its contents
+  - "UMLEditor/UMLEditor/Assets"  # ignore folders and all its contents
+  - "UMLEditor/UMLEditor/Exceptions"  # ignore folders and all its contents
+  - "UMLEditor/UMLEditor/Interfaces"  # ignore folders and all its contents
+  - "UMLEditor/UMLEditor/Utility"  # ignore folders and all its contents
+  - "UMLEditor/UMLEditor/ViewModels"  # ignore folders and all its contents
+  - "UMLEditor/UMLEditor/Views"  # ignore folders and all its contents
+  - "UMLEditor/UMLEditor/App.axaml"  # ignore folders and all its contents
+  - "UMLEditor/UMLEditor/App.axaml.cs"  # ignore folders and all its contents
+  - "UMLEditor/UMLEditor/UMLEditor.csproj"  # ignore folders and all its contents
+  - "UMLEditor/UMLEditor/ViewLocator.cs"  # ignore folders and all its contents
+
 parsers:
   gcov:
     branch_detection:
