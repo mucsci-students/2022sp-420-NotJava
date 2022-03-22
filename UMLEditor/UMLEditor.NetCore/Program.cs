@@ -18,6 +18,7 @@ namespace UMLEditor.NetCore
             Diagram.DiagramChanged += (object sender, EventArgs args) =>
             {
                 Console.WriteLine($"Diagram Changed {counter++}");
+                TimeMachine.AddState((Diagram)sender);
             };
             // Ensure at least one arg is provided
             if (args.Length >= 1)
