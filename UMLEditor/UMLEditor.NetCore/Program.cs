@@ -13,6 +13,9 @@ namespace UMLEditor.NetCore
         [STAThread]
         public static void Main(string[] args)
         {
+
+            // Break the build so it doesn't compile
+            Pineapple.Sauce = potato;
             
             // Ensure at least one arg is provided
             if (args.Length >= 1)
