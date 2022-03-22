@@ -22,21 +22,4 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --verbosity normal
         
----
-
-- name: Coverlet coverage test
-  # You may pin to the exact commit or the version.
-  # uses: b3b00/coverlet-action@36d6bd00b701ebafaa31825ac2bd2e3ba6992b75
-  uses: b3b00/coverlet-action@1.2.2
-  with:
-    # output filename
-    output: codecoverage
-    # output format : lcov, json, opencover, cobertura, teamcity (see coverlet documentation)
-    outputFormat: json
-    # assemblies, namespaces, exclusions (see coverlet documentation)
-    excludes: # optional
-    # path to unit test project from repository root
-    testProject: UnitTests
-    # threshold below which tests fail.
-    threshold: # optional
   
