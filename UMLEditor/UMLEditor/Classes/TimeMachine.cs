@@ -20,8 +20,7 @@ public static class TimeMachine
     {
         if (_current != _tail)
         {
-            _diagramList.RemoveRange(_current + 1, _tail);
-        }
+            _diagramList.RemoveRange(_current + 1, _tail - _current); }
         _diagramList.Add(new Diagram(d));
         _current++;
         _tail = _current;
