@@ -28,7 +28,9 @@ jobs:
       run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
     - name: Codecov
       uses: codecov/codecov-action@v1.5.2
-    - name: Codecov upload
-      run: curl -Os https://uploader.codecov.io/latest/linux/codecov 
-          chmod +x codecov
-          ./codecov -t ${b54207e1-0b6a-497a-93ea-cdf05d2a129e}
+    - name: CodecovUpload
+      uses: codecov/codecov-action@v2.1.0
+      with:
+        token: b54207e1-0b6a-497a-93ea-cdf05d2a129e
+      
+    
