@@ -22,6 +22,9 @@ ignore:
   - "UMLEditor/UMLEditor/App.axaml.cs"
   - "UMLEditor/UMLEditor/UMLEditor.csproj"
   - "UMLEditor/UMLEditor/ViewLocator.cs"
+  - "UMLEditor/UMLEditor/Classes/JSONDiagramFile.cs"
+  - "UMLEditor/UMLEditor/Classes/Diagram.cs"
+  - "UMLEditor/UMLEditor/Classes/JSONDiagramFile.cs"
 
 parsers:
   gcov:
