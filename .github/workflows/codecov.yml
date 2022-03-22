@@ -29,6 +29,6 @@ jobs:
     - name: Codecov
       uses: codecov/codecov-action@v1.5.2
     - name: Codecov upload
-      run: Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe 
-          -Outfile codecov.exe 
-          .\codecov.exe -t ${b54207e1-0b6a-497a-93ea-cdf05d2a129e}
+      run: curl -Os https://uploader.codecov.io/latest/linux/codecov 
+          chmod +x codecov
+          ./codecov -t ${b54207e1-0b6a-497a-93ea-cdf05d2a129e}
