@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v2
+#     - uses: actions/checkout@v2
     - name: Run Coverage Report
-      uses: ab3b00/coverlet-action@1.2.git
+      uses: ab3b00/coverlet-action@1.2
       with:
         dotnet-version: 6.0.x
          # output filename
