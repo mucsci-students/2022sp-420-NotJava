@@ -745,13 +745,13 @@ public class Diagram : ICloneable
     /// <summary>
     /// Diagram changed event
     /// </summary>
-    public static event EventHandler DiagramChanged = null!;
+    public static event EventHandler? DiagramChanged;
 
     /// <summary>
     /// Invokes the DiagramChanged Event
     /// </summary>
     public void NotifyChanged()
     {
-        DiagramChanged(this, EventArgs.Empty);
+        DiagramChanged?.Invoke(this, EventArgs.Empty);
     }
 }
