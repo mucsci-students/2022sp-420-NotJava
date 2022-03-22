@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
 
@@ -13,30 +14,22 @@ public class TimeMachineUnitTests
     { }
 
     [Test]
-    public void ClearTest()
+    public void AddStateTest()
     {
-        Diagram d1 = new Diagram();
-        TimeMachine.AddState(d1);
-        TimeMachine.ClearTimeMachine();
-        Assert.AreEqual(null, TimeMachine.Head);
-        Assert.AreEqual(null, TimeMachine.Current);
-        Assert.AreEqual(null, TimeMachine.Tail);
-        Assert.AreEqual(0, TimeMachine.Size);
+        TimeMachine.AddState(_d1);
+        TimeMachine.AddState(_d2);
+        Assert.AreEqual(true, TimeMachine.PreviousStateExists());
+        Assert.AreEqual(false, TimeMachine.NextStateExists());
     }
     
     [Test]
-    public void AddStateTest()
+    public void ClearTest()
     {
+        Diagram d1 = new Diagram(); 
+        TimeMachine.AddState(d1);
         TimeMachine.ClearTimeMachine();
-        TimeMachine.AddState(_d1);
-        Assert.AreEqual(1, TimeMachine.Size);
-        Assert.AreEqual(TimeMachine.Current, TimeMachine.Head);
-        Assert.AreEqual(TimeMachine.Current, TimeMachine.Tail);
-        TimeMachine.AddState(_d2);
-        Assert.AreEqual(2,TimeMachine.Size);
-        Assert.AreEqual(TimeMachine.Head, TimeMachine.Current.PrevNode);
-        Assert.AreEqual(TimeMachine.Tail, TimeMachine.Current);
-        Assert.AreEqual(null, TimeMachine.Current.NextNode);
+        Assert.AreEqual(false, TimeMachine.PreviousStateExists());
+        Assert.AreEqual(false, TimeMachine.NextStateExists());
     }
 
     [Test]
@@ -49,27 +42,13 @@ public class TimeMachineUnitTests
         TimeMachine.AddState(_d1);
         TimeMachine.AddState(_d2);
         // Go back one step
-        Assert.AreEqual(TimeMachine.Head.StateDiagram, TimeMachine.MoveToPreviousState());
+        Assert.AreEqual("Diagram1Class", TimeMachine.MoveToPreviousState().GetClassByName("Diagram1Class").ClassName);
         // Try to go back another, but at beginning of list
-        Assert.AreEqual(null, TimeMachine.MoveToPreviousState());
+        Assert.Throws<InvalidOperationException>(delegate { TimeMachine.MoveToPreviousState(); });
         // Create new future
         TimeMachine.AddState(_d3);
         Assert.AreEqual("Diagram1Class", TimeMachine.MoveToPreviousState().GetClassByName("Diagram1Class").ClassName);
         Assert.AreEqual("Diagram3Class",TimeMachine.MoveToNextState().GetClassByName("Diagram3Class").ClassName);
-        Assert.AreEqual(null, TimeMachine.MoveToNextState());
-    }
-
-    [Test]
-    public void StateCheckTest()
-    {
-        TimeMachine.ClearTimeMachine();
-        Assert.AreEqual(false,TimeMachine.NextStateExists());
-        Assert.AreEqual(false,TimeMachine.PreviousStateExists());
-        TimeMachine.AddState(_d1);
-        TimeMachine.AddState(_d2);
-        TimeMachine.AddState(_d3);
-        TimeMachine.MoveToPreviousState();
-        Assert.AreEqual(true, TimeMachine.NextStateExists());
-        Assert.AreEqual(true,TimeMachine.PreviousStateExists());
+        Assert.Throws<InvalidOperationException>(delegate { TimeMachine.MoveToNextState(); });
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Dynamic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace UMLEditor.Classes;
 
@@ -7,40 +8,9 @@ namespace UMLEditor.Classes;
 /// </summary>
 public static class TimeMachine
 {
-    /// <summary>
-    /// Node class to represent a single state in the time machine history.
-    /// </summary>
-    public class Node
-    {
-        /// <summary>
-        /// Reference to previous node
-        /// </summary>
-        public Node? PrevNode;
-        /// <summary>
-        /// Diagram at this node
-        /// </summary>
-        public Diagram? StateDiagram;
-        /// <summary>
-        /// Reference to next node
-        /// </summary>
-        public Node? NextNode;
-    }
-    /// <summary>
-    /// Reference to the beginning state of the time machine
-    /// </summary>
-    public static Node? Head { get; private set; }
-    /// <summary>
-    /// Reference to the end state of the time machine
-    /// </summary>
-    public static Node? Tail { get; private set; }
-    /// <summary>
-    /// Reference to the current state of the time machine
-    /// </summary>
-    public static Node? Current { get; private set; }
-    /// <summary>
-    /// Counter for number of states in the time machine
-    /// </summary>
-    public static int Size { get; private set; }
+    private static List<Diagram> _diagramList = new List<Diagram>();
+
+    private static int _head = -1, _current = -1, _tail = -1;
 
     /// <summary>
     /// Adds a new diagram to the end of the list. Erases redo history if diagram is added to middle of list.
@@ -48,52 +18,47 @@ public static class TimeMachine
     /// <param name="d">Diagram to add</param>
     public static void AddState(Diagram d)
     {
-        // Add new node to end of list
-        Node newNode = new Node();
-        newNode.StateDiagram = new Diagram(d);
-        newNode.PrevNode = Current;
-        newNode.NextNode = null;
-        if (Current is not null)
+        if (_current != _tail)
         {
-            Current.NextNode = newNode;
-        }
-        Tail = newNode;
-        Size++;
-        Current = Tail;
-        if (Size == 1)
+            _diagramList.RemoveRange(_current + 1, _tail - _current); }
+        _diagramList.Add(new Diagram(d));
+        _current++;
+        _tail = _current;
+
+        if (_diagramList.Count == 1)
         {
-            Head = newNode;
+            _head = _current;
         }
     }
 
     /// <summary>
     /// Moves to next state in the time machine (redo)
     /// </summary>
-    /// <returns>The next diagram, or null if there are none</returns>
-    public static Diagram? MoveToNextState()
+    /// <exception cref="InvalidOperationException">If next state does not exist</exception>
+    /// <returns>The next diagram</returns>
+    public static Diagram MoveToNextState()
     {
-        if (Current != Tail)
+        if (_current == _tail)
         {
-            Current = Current?.NextNode;
-            return Current?.StateDiagram;
+            throw new InvalidOperationException("Next state does not exist");
         }
-
-        return null;
+        _current++;
+        return _diagramList[_current];
     }
 
     /// <summary>
     /// Moves to previous state in the time machine (undo)
     /// </summary>
-    /// <returns>The previous diagram, or null if there are none</returns>
-    public static Diagram? MoveToPreviousState()
+    /// <exception cref="InvalidOperationException">If previous state does not exist</exception>
+    /// <returns>The previous diagram</returns>
+    public static Diagram MoveToPreviousState()
     {
-        if (Current != Head)
+        if (_current == _head)
         {
-            Current = Current?.PrevNode;
-            return Current?.StateDiagram;
+            throw new InvalidOperationException("Previous state does not exist");
         }
-
-        return null;
+        _current--;
+        return _diagramList[_current];
     }
 
     /// <summary>
@@ -102,7 +67,7 @@ public static class TimeMachine
     /// <returns>True if a state exists, false otherwise</returns>
     public static bool NextStateExists()
     {
-        return (Current is not null) && (Current.NextNode is not null);
+        return _current != _tail;
     }
 
     /// <summary>
@@ -111,17 +76,17 @@ public static class TimeMachine
     /// <returns>True if a state exists, false otherwise</returns>
     public static bool PreviousStateExists()
     {
-        return (Current is not null) && (Current.PrevNode is not null);
+        return _current != _head;
     }
 
     /// <summary>
-    /// Clears entire history. Dereferences all nodes.
+    /// Clears entire history
     /// </summary>
     public static void ClearTimeMachine()
     {
-        Head = null;
-        Tail = Head;
-        Current = Tail;
-        Size = 0;
+        _diagramList.Clear();
+        _head = -1;
+        _current = -1;
+        _tail = -1;
     }
 }
