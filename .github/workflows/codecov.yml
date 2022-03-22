@@ -1,0 +1,29 @@
+name: .NET Core
+
+on:
+  push:
+  pull_request:
+  
+jobs:
+  build:
+  
+    runs-on: ubuntu-latest
+    
+    steps:
+#     - uses: actions/checkout@v2
+    - name: Run Coverage Report
+      uses: codecov/codecov-action@v1
+      with:
+        dotnet-version: 6.0.x
+         # output filename
+        output: ./codecoverage.info
+        # output format : lcov, json, opencover, cobertura, teamcity (see coverlet documentation)
+        outputFormat: lcov
+        # assemblies, namespaces, exclusions (see coverlet documentation)
+#         excludes: # optional
+        # path to unit test project from repository root
+        testProject: UnitTests
+        # threshold below which tests fail.
+#         threshold: # optional        
+
+  
