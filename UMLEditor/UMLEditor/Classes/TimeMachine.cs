@@ -22,7 +22,7 @@ public static class TimeMachine
         {
             _diagramList.RemoveRange(_current + 1, _tail);
         }
-        _diagramList.Add(d);
+        _diagramList.Add(new Diagram(d));
         _current++;
         _tail = _current;
 
