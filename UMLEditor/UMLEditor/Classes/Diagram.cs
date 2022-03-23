@@ -1,5 +1,4 @@
 ﻿using System;
-using DynamicData;
 
 namespace UMLEditor.Classes;
 
@@ -217,10 +216,12 @@ public class Diagram : ICloneable
         
         // Ensure the provided relationship does not exist
         MustNotHaveRelationship(sourceClassName, destClassName);
-
+        
         // Create and add the new relationship
         Relationship newRel = new Relationship(sourceClassName, destClassName, relationshipType);
         _relationships.Add(newRel);
+        
+        NotifyChanged();
         
     }
     
@@ -243,8 +244,10 @@ public class Diagram : ICloneable
         {
             throw new RelationshipTypeAlreadyExists($"Relationship '{sourceClass} => {destClass}' is already of type '{newRelationshipType}'.");
         }
-        
+
         r.ChangeType(newRelationshipType);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -257,6 +260,8 @@ public class Diagram : ICloneable
     {
         MustHaveClass(toClass);
         GetClassByName(toClass)!.AddMethod(returnType, methodName);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -271,6 +276,8 @@ public class Diagram : ICloneable
         
         MustHaveClass(toClass);
         GetClassByName(toClass)!.AddMethod(returnType, methodName, paramList);
+        
+        NotifyChanged();
         
     }
 
@@ -287,6 +294,8 @@ public class Diagram : ICloneable
         
         // Create a new class
         _classes.Add(new Class(className));
+        
+        NotifyChanged();
 
     }
     
@@ -306,6 +315,8 @@ public class Diagram : ICloneable
         }
         
         _classes.Remove(GetClassByName(className)!);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -332,6 +343,8 @@ public class Diagram : ICloneable
         {
             currentRel.RenameMember(oldName, newName);
         }
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -348,6 +361,8 @@ public class Diagram : ICloneable
         MustHaveClass(onClass);
         
         GetClassByName(onClass)!.RenameMethod(oldName, newName);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -423,6 +438,8 @@ public class Diagram : ICloneable
         
         // Delete relationship
         _relationships.Remove(GetRelationship(sourceName, destName)!);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -463,6 +480,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(toClass);
         targetClass!.AddField(withType, withName);
+        
+        NotifyChanged();
 
     }
 
@@ -479,6 +498,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(fromClass);
         targetClass!.DeleteField(withName);
+        
+        NotifyChanged();
 
     }
 
@@ -495,6 +516,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.RenameField(oldName, newName);
+        
+        NotifyChanged();
 
     }
 
@@ -511,6 +534,8 @@ public class Diagram : ICloneable
         
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeFieldType(fieldToChange, newType);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -527,6 +552,8 @@ public class Diagram : ICloneable
         
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeMethodType(onMethod, newType);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -542,6 +569,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ReplaceField(toRename, newField);
+        
+        NotifyChanged();
 
     }
 
@@ -560,6 +589,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ReplaceParameter(inMethod, toReplace, newParameter);
+        
+        NotifyChanged();
 
     }
 
@@ -575,6 +606,8 @@ public class Diagram : ICloneable
         MustHaveClass(onClass);
 
         GetClassByName(onClass)!.ClearParameters(inMethod);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -590,6 +623,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.DeleteMethodParameter(paramName, inMethod);
+        
+        NotifyChanged();
 
     }
 
@@ -608,6 +643,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.RenameMethodParameter(onMethod, oldParamName, newParamName);
+        
+        NotifyChanged();
 
     }
 
@@ -624,6 +661,8 @@ public class Diagram : ICloneable
         // Ensures the class exists
         MustHaveClass(className);
         GetClassByName(className)!.AddParameter(methodName, paramType, paramName);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -639,6 +678,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeMethodNameType(methodName, newMethodAnatomy);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -654,6 +695,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(inClass);
         targetClass!.AddParameter(toMethod, parameter.Type, parameter.AttributeName);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -668,6 +711,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.DeleteMethod(methodName);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -683,6 +728,8 @@ public class Diagram : ICloneable
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeLocation(x, y);
+        
+        NotifyChanged();
 
     }
 
@@ -693,5 +740,18 @@ public class Diagram : ICloneable
     public object Clone()
     {
         return new Diagram(this);
+    }
+
+    /// <summary>
+    /// Diagram changed event
+    /// </summary>
+    public static event EventHandler? DiagramChanged;
+
+    /// <summary>
+    /// Invokes the DiagramChanged Event
+    /// </summary>
+    public void NotifyChanged()
+    {
+        DiagramChanged?.Invoke(this, EventArgs.Empty);
     }
 }

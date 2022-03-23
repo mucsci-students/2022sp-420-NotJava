@@ -1,6 +1,7 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
+using UMLEditor.Classes;
 using UMLEditor.Views;
 
 namespace UMLEditor.NetCore
@@ -13,7 +14,12 @@ namespace UMLEditor.NetCore
         [STAThread]
         public static void Main(string[] args)
         {
-            
+            int counter = 0;
+            Diagram.DiagramChanged += (sender, _) =>
+            {
+                Console.WriteLine($"Diagram Changed {counter++}");
+                TimeMachine.AddState((Diagram)sender!);
+            };
             // Ensure at least one arg is provided
             if (args.Length >= 1)
             {
