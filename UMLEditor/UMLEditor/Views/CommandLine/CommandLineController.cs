@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UMLEditor.Classes;
 using UMLEditor.Interfaces;
+#pragma warning disable CS0162
 
 namespace UMLEditor.Views.CommandLine;
 
+/// <summary>
+/// Controller for the Command Line View
+/// </summary>
 public class CommandLineController
 {
 
@@ -29,14 +34,13 @@ public class CommandLineController
     /// Executes command
     /// </summary>
     /// <param name="input">command to execute</param>
-     private void ExecuteCommand(string input)
+    [SuppressMessage("ReSharper", "HeuristicUnreachableCode")]
+    public StringColorStruct ExecuteCommand(string input)
     {
-        //TODO if we want to seperate the view and the controller, put this function in a controller class and have it return a struct that contains a string message and a console color.
-
         // In the case no input was provided, do nothing
         if (input.Length == 0)
         {
-            return;
+            return new StringColorStruct("");
         }
 
         List<string> words = (input.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)).ToList();
@@ -50,12 +54,12 @@ public class CommandLineController
                     // Try to create a class with the first provided word as its name
                     _activeDiagram!.AddClass(arguments[0]);
 
-                    PrintColoredLine($"Class '{words[1]}' created", SUCCESS_COLOR);
+                    return new StringColorStruct($"Class '{words[1]}' created", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("add_class [className]", ERROR_COLOR);
+                    return new StringColorStruct("add_class [className]", ERROR_COLOR);
                 }
 
                 break;
@@ -67,12 +71,12 @@ public class CommandLineController
                     // Try to Delete a Class with the first provided word as its name
                     _activeDiagram!.DeleteClass(arguments[0]);
 
-                    PrintColoredLine($"Class '{arguments[0]}' deleted.", SUCCESS_COLOR);
+                    return new StringColorStruct($"Class '{arguments[0]}' deleted.", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("delete_class [className]", ERROR_COLOR);
+                    return new StringColorStruct("delete_class [className]", ERROR_COLOR);
                 }
                 break;
                 
@@ -82,12 +86,12 @@ public class CommandLineController
                     // Try to Rename a Class with the first provided word as its name
                     _activeDiagram!.RenameClass(arguments[0],  arguments[1]);
 
-                    PrintColoredLine($"Class '{arguments[0]}' renamed to '{arguments[1]}'", SUCCESS_COLOR);
+                    return new StringColorStruct($"Class '{arguments[0]}' renamed to '{arguments[1]}'", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("rename_class [oldClassName] [newClassName]", ERROR_COLOR);
+                    return new StringColorStruct("rename_class [oldClassName] [newClassName]", ERROR_COLOR);
                 }
                 break;
 
@@ -96,13 +100,13 @@ public class CommandLineController
                 {
                     _activeDiagram!.AddField(arguments[0], arguments[1], arguments[2]);
                     
-                    PrintColoredLine($"Field '{arguments[2]}' of type '{arguments[1]}' " +
+                    return new StringColorStruct($"Field '{arguments[2]}' of type '{arguments[1]}' " +
                                      $"created in Class '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("add_field [class] [fieldType] [fieldName]", ERROR_COLOR);
+                    return new StringColorStruct("add_field [class] [fieldType] [fieldName]", ERROR_COLOR);
                 }
                 break;
 
@@ -111,37 +115,37 @@ public class CommandLineController
                 {
                     _activeDiagram!.DeleteField(arguments[0], arguments[1]);
                     
-                    PrintColoredLine($"Field '{arguments[1]}' deleted in Class '{arguments[0]}'", SUCCESS_COLOR);
+                    return new StringColorStruct($"Field '{arguments[1]}' deleted in Class '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("delete_field [class] [fieldName]", ERROR_COLOR);
+                    return new StringColorStruct("delete_field [class] [fieldName]", ERROR_COLOR);
                 }
                 break;
             
             case ("rename_field"):
                 if (arguments.Count != 3)
                 {
-                    PrintColoredLine("rename_field [class] [fieldToRename] [newFieldName]", ERROR_COLOR);
+                    return new StringColorStruct("rename_field [class] [fieldToRename] [newFieldName]", ERROR_COLOR);
                     break;
                 }
                 
                 _activeDiagram!.RenameField(arguments[0], arguments[1], arguments[2]);
-                PrintColoredLine($"Field '{arguments[0]}' successfully renamed to '{arguments[1]}' in class '{arguments[0]}'");
+                return new StringColorStruct($"Field '{arguments[0]}' successfully renamed to '{arguments[1]}' in class '{arguments[0]}'");
                 break;
 
             case ("change_field_type"):
             {
                 if (arguments.Count != 3)
                 {
-                    PrintColoredLine("change_field_type [class] [fieldToChange] [newType]", ERROR_COLOR);
+                    return new StringColorStruct("change_field_type [class] [fieldToChange] [newType]", ERROR_COLOR);
                     break;
                 }
                 
                 _activeDiagram!.ChangeFieldType(arguments[0], arguments[1], arguments[2]);
                 
-                PrintColoredLine($"Field '{arguments[1]}' in class '{arguments[0]}' changed to type '{arguments[2]}'", SUCCESS_COLOR);
+                return new StringColorStruct($"Field '{arguments[1]}' in class '{arguments[0]}' changed to type '{arguments[2]}'", SUCCESS_COLOR);
                 break;
             }
 
@@ -149,13 +153,13 @@ public class CommandLineController
             {
                 if (arguments.Count != 3)
                 {
-                    PrintColoredLine("change_method_type [class] [methodName] [newType]", ERROR_COLOR);
+                    return new StringColorStruct("change_method_type [class] [methodName] [newType]", ERROR_COLOR);
                     break;
                 }
                 
                 _activeDiagram!.ChangeMethodType(arguments[0], arguments[1], arguments[2]);
                 
-                PrintColoredLine($"Field '{arguments[1]}' in class '{arguments[0]}' changed to type '{arguments[2]}'", SUCCESS_COLOR);
+                return new StringColorStruct($"Field '{arguments[1]}' in class '{arguments[0]}' changed to type '{arguments[2]}'", SUCCESS_COLOR);
                 break;
             }
 
@@ -180,8 +184,7 @@ public class CommandLineController
                     {
                         
                         // Syntax error
-                        PrintColoredLine(syntaxError, ERROR_COLOR);
-                        return;
+                        return new StringColorStruct(syntaxError, ERROR_COLOR);
 
                     }
 
@@ -202,14 +205,14 @@ public class CommandLineController
                     string methodName  = enteredTokens[3];
                     
                     _activeDiagram!.AddMethod(targetClass, returnType, methodName, parameters);
-                    PrintColoredLine("Method created", SUCCESS_COLOR);
+                    return new StringColorStruct("Method created", SUCCESS_COLOR);
 
                 }
 
                 else
                 {
                     // Syntax error
-                    PrintColoredLine(syntaxError, ERROR_COLOR);
+                    return new StringColorStruct(syntaxError, ERROR_COLOR);
                 }
                 
                 break;
@@ -218,12 +221,12 @@ public class CommandLineController
                 if (arguments.Count() == 2)
                 {
                     _activeDiagram!.DeleteMethod(arguments[0], arguments[1]);
-                    PrintColoredLine($"Method '{arguments[1]}' deleted in Class '{arguments[0]}'", SUCCESS_COLOR);
+                    return new StringColorStruct($"Method '{arguments[1]}' deleted in Class '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("delete_method [class] [method]", ERROR_COLOR);
+                    return new StringColorStruct("delete_method [class] [method]", ERROR_COLOR);
 
                 }
                 break;
@@ -231,31 +234,31 @@ public class CommandLineController
             case ("add_parameter"):
                 if (arguments.Count != 4)
                 {
-                    PrintColoredLine("add_parameter [class] [method] [paramType] [paramName]", ERROR_COLOR);
+                    return new StringColorStruct("add_parameter [class] [method] [paramType] [paramName]", ERROR_COLOR);
                     break;
                 }
 
                 _activeDiagram!.AddParameter(arguments[0], arguments[1], arguments[2], arguments[3]);
-                PrintColoredLine($"Parameter '{arguments[3]}' of type '{arguments[2]}' added to method '{arguments[1]}'", SUCCESS_COLOR);
+                return new StringColorStruct($"Parameter '{arguments[3]}' of type '{arguments[2]}' added to method '{arguments[1]}'", SUCCESS_COLOR);
                 break;
             
             case ("delete_parameter"):
                 if (arguments.Count != 3)
                 {
-                    PrintColoredLine("delete_parameter [class] [method] [paramName]", ERROR_COLOR);
+                    return new StringColorStruct("delete_parameter [class] [method] [paramName]", ERROR_COLOR);
                     break;
                 }
 
                 if (arguments[2] == "-all")
                 {
                     _activeDiagram!.ClearParameters(arguments[0], arguments[1]);
-                    PrintColoredLine($"All parameters successfully deleted from '{arguments[1]}'");
+                    return new StringColorStruct($"All parameters successfully deleted from '{arguments[1]}'");
                 }
 
                 else
                 {
                     _activeDiagram!.DeleteParameter(arguments[2], arguments[1], arguments[0]);
-                    PrintColoredLine($"Parameter '{arguments[2]}' successfully deleted from '{arguments[1]}'");
+                    return new StringColorStruct($"Parameter '{arguments[2]}' successfully deleted from '{arguments[1]}'");
                 }
 
                 break;
@@ -265,19 +268,19 @@ public class CommandLineController
                 {
                     _activeDiagram!.RenameMethod(arguments[0], arguments[1], arguments[2]);
                     
-                    PrintColoredLine($"Method '{arguments[1]}' renamed to '{arguments[2]}' in Class '{arguments[0]}'", SUCCESS_COLOR);
+                    return new StringColorStruct($"Method '{arguments[1]}' renamed to '{arguments[2]}' in Class '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("rename_method [class] [methodName] [newMethodName]", ERROR_COLOR);
+                    return new StringColorStruct("rename_method [class] [methodName] [newMethodName]", ERROR_COLOR);
                 }
                 break;
             
             case ("rename_parameter"):
                 if (arguments.Count != 4)
                 {
-                    PrintColoredLine("rename_parameter [class] [method] [paramNameToChange] [newParamName]", ERROR_COLOR);
+                    return new StringColorStruct("rename_parameter [class] [method] [paramNameToChange] [newParamName]", ERROR_COLOR);
                     break;
                 }
                 
@@ -288,25 +291,25 @@ public class CommandLineController
             case ("replace_parameter"):
                 if (arguments.Count != 5)
                 {
-                    PrintColoredLine("replace_parameter [class] [method] [paramToReplace] [newParamType] [newParamName]", ERROR_COLOR);
+                    return new StringColorStruct("replace_parameter [class] [method] [paramToReplace] [newParamType] [newParamName]", ERROR_COLOR);
                     break;
                 }
                 
                 _activeDiagram!.ReplaceParameter(arguments[0], arguments[1], 
                     arguments[2], new NameTypeObject(arguments[3], arguments[4]));
-                PrintColoredLine($"Successfully replaced parameter '{arguments[2]}' with parameter of type" +
+                return new StringColorStruct($"Successfully replaced parameter '{arguments[2]}' with parameter of type" +
                                  $"'{arguments[3]}' and name '{arguments[4]}' in method '{arguments[1]}'");
                 break;
 
             case ("list_classes"):
                 if (arguments.Count == 0)
                 {
-                    PrintColoredLine(_activeDiagram!.ListClasses());
+                    return new StringColorStruct(_activeDiagram!.ListClasses());
                 }
 
                 else
                 {
-                    PrintColoredLine("Invalid command: list classes does not take any arguments", ERROR_COLOR);
+                    return new StringColorStruct("Invalid command: list classes does not take any arguments", ERROR_COLOR);
                 }    
 
                 break;
@@ -314,12 +317,12 @@ public class CommandLineController
             case ("list_attributes"):
                 if (arguments.Count == 1)
                 {
-                    PrintColoredLine(_activeDiagram!.ListAttributes(arguments[0]));
+                    return new StringColorStruct(_activeDiagram!.ListAttributes(arguments[0]));
                 }
 
                 else
                 {
-                    PrintColoredLine("list_attributes [class]", ERROR_COLOR);
+                    return new StringColorStruct("list_attributes [class]", ERROR_COLOR);
                 }
                 break;
 
@@ -330,7 +333,7 @@ public class CommandLineController
                     _activeDiagram!.AddRelationship(arguments[0], arguments[1], 
                         arguments[2]);
 
-                    PrintColoredLine($"Relationship '{arguments[0]} => {arguments[1]}' with type '{arguments[2]}' "+
+                    return new StringColorStruct($"Relationship '{arguments[0]} => {arguments[1]}' with type '{arguments[2]}' "+
                         "successfully created.", SUCCESS_COLOR);
                 }
 
@@ -345,7 +348,7 @@ public class CommandLineController
                     // Cut off the space from the last type
                     validRelationshipTypes = validRelationshipTypes.Substring(0, validRelationshipTypes.Length - 1);
                     
-                    PrintColoredLine($"add_relationship [sourceClass] [destinationClass] [{validRelationshipTypes}]", ERROR_COLOR);
+                    return new StringColorStruct($"add_relationship [sourceClass] [destinationClass] [{validRelationshipTypes}]", ERROR_COLOR);
                 } 
                 break;
 
@@ -355,12 +358,12 @@ public class CommandLineController
                     // Try to delete relationship with the given source and destination classes
                     _activeDiagram!.DeleteRelationship(arguments[0], arguments[1]);
 
-                    PrintColoredLine($"Relationship '{arguments[0]} => {arguments[1]}' deleted", SUCCESS_COLOR);
+                    return new StringColorStruct($"Relationship '{arguments[0]} => {arguments[1]}' deleted", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("delete_relationship [sourceClass] [destinationClass]", ERROR_COLOR);
+                    return new StringColorStruct("delete_relationship [sourceClass] [destinationClass]", ERROR_COLOR);
                 } 
                 break;
             
@@ -375,25 +378,25 @@ public class CommandLineController
 
                     // Cut off the space from the last type
                     validRelationshipTypes = validRelationshipTypes.Substring(0, validRelationshipTypes.Length - 1);
-                    PrintColoredLine( $"change_relationship_type [sourceClass] [destinationClass] [{validRelationshipTypes}]", ERROR_COLOR);
+                    return new StringColorStruct( $"change_relationship_type [sourceClass] [destinationClass] [{validRelationshipTypes}]", ERROR_COLOR);
                     break;
                 }
                 
                 _activeDiagram!.ChangeRelationship(arguments[0], arguments[1], arguments[2]);
                 
-                PrintColoredLine($"Relationship type successfully changed to type '{arguments[2]}'");
+                return new StringColorStruct($"Relationship type successfully changed to type '{arguments[2]}'");
                 break;
             
             case ("list_relationships"):
                 if (arguments.Count == 0)
                 {
                     // Try to add relationship with the first provided word as its name
-                    PrintColoredLine(_activeDiagram!.ListRelationships());
+                    return new StringColorStruct(_activeDiagram!.ListRelationships());
                 }
 
                 else
                 {
-                    PrintColoredLine("Invalid command: list relationships does not take any arguments", ERROR_COLOR);
+                    return new StringColorStruct("Invalid command: list relationships does not take any arguments", ERROR_COLOR);
                 } 
                 break;
 
@@ -401,10 +404,10 @@ public class CommandLineController
             case ("help"):
                 if (arguments.Count > 0)
                 {
-                    PrintColoredLine("Invalid command: help does not take any arguments", ERROR_COLOR);
+                    return new StringColorStruct("Invalid command: help does not take any arguments", ERROR_COLOR);
                     break;
                 }
-                PrintColoredLine("\nadd_class: Add a new class to the diagram" +
+                return new StringColorStruct("\nadd_class: Add a new class to the diagram" +
                                  "\ndelete_class: Delete an existing class" +
                                  "\nrename_class: Rename an existing class" +
                                  "\nadd_relationship: Add a relationship between classes" +
@@ -436,19 +439,19 @@ public class CommandLineController
                     string fileString = arguments.ElementAt(0);
                     if (!fileString.EndsWith(".json"))
                     {
-                        PrintColoredLine("Please use .json file extension", ERROR_COLOR);
+                        return new StringColorStruct("Please use .json file extension", ERROR_COLOR);
                         break;
                     }
 
                     _activeFile!.SaveDiagram(ref _activeDiagram!, arguments[0]);
 
 
-                    PrintColoredLine($"Current diagram saved to '{arguments[0]}'", SUCCESS_COLOR);
+                    return new StringColorStruct($"Current diagram saved to '{arguments[0]}'", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("save_diagram [fileName]", ERROR_COLOR);
+                    return new StringColorStruct("save_diagram [fileName]", ERROR_COLOR);
                 }
 
                 break;
@@ -459,19 +462,19 @@ public class CommandLineController
                     string fileString = arguments[0];
                     if (!fileString.EndsWith(".json"))
                     {
-                        PrintColoredLine("Please provide a file with a .json file extension", ERROR_COLOR);
+                        return new StringColorStruct("Please provide a file with a .json file extension", ERROR_COLOR);
                         break;
                     }
 
                     _activeDiagram = _activeFile!.LoadDiagram(arguments[0]);
 
 
-                    PrintColoredLine($"Diagram '{arguments[0]}' loaded.", SUCCESS_COLOR);
+                    return new StringColorStruct($"Diagram '{arguments[0]}' loaded.", SUCCESS_COLOR);
                 }
 
                 else
                 {
-                    PrintColoredLine("load_diagram [fileName]", ERROR_COLOR);
+                    return new StringColorStruct("load_diagram [fileName]", ERROR_COLOR);
                 }
 
                 break;
@@ -481,8 +484,10 @@ public class CommandLineController
                 break;
 
             default:
-                PrintColoredLine("Please provide a valid command", ERROR_COLOR);
+                return new StringColorStruct("Please provide a valid command", ERROR_COLOR);
                 break;
         }
+
+        return new StringColorStruct("");
     }
 }
