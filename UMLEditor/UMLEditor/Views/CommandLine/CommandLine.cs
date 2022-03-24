@@ -8,8 +8,16 @@ namespace UMLEditor.Views.CommandLine;
 /// </summary>
 public class CommandLine
 {
-    private CommandLineController? _controller;
+    private CommandLineController _controller;
     private static readonly ConsoleColor ERROR_COLOR = ConsoleColor.Red;
+
+    /// <summary>
+    /// Default Constructor for CommandLine
+    /// </summary>
+    public CommandLine()
+    {
+        _controller = new CommandLineController();
+    }
     
     /// <summary>
     /// RunCLI function
@@ -17,9 +25,6 @@ public class CommandLine
     [SuppressMessage("ReSharper", "FunctionNeverReturns")]
     public void RunCli()
     {
-        _controller = new CommandLineController();
-        
-        
         while (true)
         {
             Console.Write("Enter Command: ");
