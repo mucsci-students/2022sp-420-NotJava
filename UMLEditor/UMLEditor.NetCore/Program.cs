@@ -2,7 +2,7 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
 using UMLEditor.Classes;
-using UMLEditor.Views;
+using UMLEditor.Views.CommandLine;
 
 namespace UMLEditor.NetCore
 {
