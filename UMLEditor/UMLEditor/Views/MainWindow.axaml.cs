@@ -919,6 +919,7 @@ namespace UMLEditor.Views
             }
             
             RedrawLines();
+            ReconsiderCanvasSize();
             #pragma warning restore CS8629
         }
     }

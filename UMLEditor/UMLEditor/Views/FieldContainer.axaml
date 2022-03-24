@@ -7,20 +7,19 @@
     <Grid 
         Name="Backing"
         RowDefinitions="*" 
-        ColumnDefinitions="* * * * * * * *" 
+        ColumnDefinitions="* * * * * * Auto Auto" 
         HorizontalAlignment="Stretch" 
         Background="#FF6A00">
-        <ScrollViewer Grid.ColumnSpan="6" HorizontalScrollBarVisibility="Auto">
             <Label
+                Grid.ColumnSpan="6"
                 Name="ParamDisplay"
                 Content="int fieldOne" 
                 FontStyle="Italic"
                 FontSize="16" 
                 VerticalAlignment="Center"
                 Margin="5 5 0 5 "/>
-        </ScrollViewer>
         <!-- ReSharper disable once Xaml.StyleClassNotFound -->
-        <Button Grid.Column="6" Classes="ControlButton" Name="EditButton">
+        <Button Grid.Column="6" Classes="ControlButton" Name="EditButton" Margin="0 0 5 0">
             <!-- ReSharper disable once Xaml.StyleClassNotFound -->
             <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
         </Button>
