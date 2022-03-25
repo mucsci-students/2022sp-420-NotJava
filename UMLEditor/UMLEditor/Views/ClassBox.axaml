@@ -4,8 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UMLEditor.Views.ClassBox"
-             MinWidth="300" MaxWidth="300"
-             MaxHeight="600"
+             MinWidth="300"
              Background="#963E00"
              CornerRadius="5"
              ZIndex="99999">
@@ -31,10 +30,10 @@
         <Grid 
             Name="TitleBar"
             RowDefinitions="*" 
-            ColumnDefinitions="* * * * * * * *" 
+            ColumnDefinitions="* * * * * Auto Auto" 
             HorizontalAlignment="Stretch"
             Margin="0 0 0 10">
-            <ScrollViewer Grid.ColumnSpan="5" HorizontalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.ColumnSpan="5" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">    
                 <Label
                     Name= "ClassNameLabel"
                     Content="className" 
@@ -42,38 +41,33 @@
                     FontSize="18" 
                     VerticalAlignment="Center"
                     FontWeight="Bold"/>
-            </ScrollViewer>
-            <!-- TODO: Flip trash can and double arrow buttons -->
-            <Button Grid.Column="6" Name="EditButton" Classes="ControlButton" Click="RenameClass_Button_OnClick">
+                </ScrollViewer>
+            <Button Grid.Column="5" Name="EditButton" Classes="ControlButton" Click="RenameClass_Button_OnClick" Margin="0 0 5 0" HorizontalAlignment="Right">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
             </Button>
-            <Button Grid.Column="5" Classes="ControlButton" IsVisible="False">
-                <Image Classes="ControlIcon" Source="../Assets/CustomIcons/DoubleArrowButton.png"></Image>
-            </Button>
-            <Button Grid.Column="7" Name="DeleteButton" Classes="ControlButton" Click="DeleteClass_Button_OnClick">
+            <Button Grid.Column="6" Name="DeleteButton" Classes="ControlButton" Click="DeleteClass_Button_OnClick" HorizontalAlignment="Right">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
             </Button>
         </Grid>
         <!-- FIELDS TITLE ROW -->
         <Grid 
             RowDefinitions="*" 
-            ColumnDefinitions="* * * * * * * *" 
+            ColumnDefinitions="* * * * * * * Auto" 
             HorizontalAlignment="Stretch" 
             Background="#D85A00">
-            <ScrollViewer Grid.ColumnSpan="7" HorizontalScrollBarVisibility="Auto">
                 <Label
+                    Grid.ColumnSpan="7"
                     Content="Fields" 
                     FontStyle="Italic"
                     FontSize="16" 
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
-            </ScrollViewer>
             <Button Grid.Column="7" Name="AddFieldButton" Classes="ControlButton" Click="AddFieldButton_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>
         <!-- FIELDS LISTING AREA -->
-        <ScrollViewer HorizontalAlignment="Stretch" MaxHeight="140" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto">
             <StackPanel Name="FieldsArea">
                 
             </StackPanel>
@@ -81,23 +75,22 @@
         <!-- METHODS TITLE ROW -->
         <Grid 
             RowDefinitions="*" 
-            ColumnDefinitions="* * * * * * * *" 
+            ColumnDefinitions="* * * * * * * Auto" 
             HorizontalAlignment="Stretch" 
             Background="#D85A00">
-            <ScrollViewer Grid.ColumnSpan="7" HorizontalScrollBarVisibility="Auto">
                 <Label
+                    Grid.ColumnSpan="7"
                     Content="Methods" 
                     FontStyle="Italic"
                     FontSize="16" 
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
-            </ScrollViewer>
             <Button Grid.Column="7" Name="AddMethodButton" Classes="ControlButton" Click="AddMethodButton_OnClick">
                 <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>
         <!-- METHODS LISTING AREA -->
-        <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  MaxHeight="280"  VerticalScrollBarVisibility="Auto">
+        <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  VerticalScrollBarVisibility="Auto">
             <StackPanel Name="MethodsArea">
                 
             </StackPanel>
