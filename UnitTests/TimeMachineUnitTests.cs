@@ -1,14 +1,13 @@
 ﻿using System;
 using NUnit.Framework;
 using UMLEditor.Classes;
-using UMLEditor.Exceptions;
 
 namespace UnitTests;
 
 [TestFixture]
 public class TimeMachineUnitTests
 {
-    private readonly Diagram? _d1 = new(), _d2 = new(), _d3 = new();
+    private readonly Diagram _d1 = new(), _d2 = new(), _d3 = new();
     [SetUp] 
     public void Setup()
     { }
