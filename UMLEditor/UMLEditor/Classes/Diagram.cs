@@ -70,7 +70,7 @@ public class Diagram : ICloneable
     /// </summary>
     /// <param name="name">Name of the class you are checking</param>
     /// <returns>Returns true if exists, false if not.</returns>
-    private bool ClassExists (string name)
+    public bool ClassExists (string name)
     {
 
         return GetClassByName(name) is not null;
@@ -153,7 +153,7 @@ public class Diagram : ICloneable
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
     /// <returns>True if the relationship exists, false otherwise</returns>
-    private bool RelationshipExists (string sourceName, string destName)
+    public bool RelationshipExists (string sourceName, string destName)
     {
 
         return GetRelationship(sourceName, destName) is not null;
