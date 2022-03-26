@@ -208,6 +208,13 @@ public class AttributeUnitTests
         
         Assert.AreEqual(true, testMethod.IsParamInList("wackus"));
     }
+    [Test]
+    public void RenameParameterNotInMethodTest()
+    {
+        Method testMethod = new Method("String", "TestName");
+
+        Assert.Throws<AggregateException>(delegate { testMethod.RenameParam("paramName1", "wackus");});
+    }
     
     [Test]
     public void ChangeReturnTypeTest()
@@ -245,11 +252,12 @@ public class AttributeUnitTests
     public void ParamToStringTest()
     {
         NameTypeObject testParam1 = new NameTypeObject("String", "paramName1");
-        List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1};
+        NameTypeObject testParam2 = new NameTypeObject("String", "paramName2");
+        List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1, testParam2};
 
         Method testMethod = new Method("String", "TestName", testParams );
 
-        Assert.AreEqual("String paramName1", testMethod.ParamsToString());
+        Assert.AreEqual("String paramName1, String paramName2", testMethod.ParamsToString());
     }
     
     [Test]
@@ -271,6 +279,17 @@ public class AttributeUnitTests
         
 
         Assert.AreEqual(true, testParam1 == testParam2);
+    }
+    
+    [Test]
+    public void NameTypeEqualityNullTest()
+    {
+        NameTypeObject testParam1 = null;
+        NameTypeObject testParam2 = null;
+        NameTypeObject testParam3 = new NameTypeObject("Test", "Test");
+
+        Assert.AreEqual(true, testParam1 == testParam2);
+        Assert.AreEqual(false, testParam1 == testParam3);
     }
     
     [Test]
@@ -306,6 +325,18 @@ public class AttributeUnitTests
         NameTypeObject testParam1 = new NameTypeObject("String", "paramName1");
 
         Assert.AreEqual(true, (NameTypeObject) testParam1.Clone() == testParam1);
+    }
+    
+    [Test]
+    public void MethodCopyCtorTest()
+    {
+        NameTypeObject testParam1 = new NameTypeObject("String", "paramName1");
+        List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1};
+
+        Method testMethod = new Method("String", "TestName", testParams );
+        Method copyMethod = new Method(testMethod);
+
+        Assert.AreEqual("TestName", copyMethod.AttributeName);
     }
 
     [Test]

@@ -76,8 +76,10 @@ public class RelationshipUnitTests
     {
         Relationship testRel = new Relationship(class1Name, class2Name, types[0]);
         testRel.RenameMember(class1Name, "Wackus");
+        testRel.RenameMember(class2Name, "Bonkus");
         
         Assert.AreEqual("Wackus", testRel.SourceClass);
+        Assert.AreEqual("Bonkus", testRel.DestinationClass);
     }
 
     [Test]
