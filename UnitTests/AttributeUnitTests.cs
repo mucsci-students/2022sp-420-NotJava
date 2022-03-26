@@ -299,6 +299,14 @@ public class AttributeUnitTests
         
         Assert.AreEqual(true, testParam2 == testParam1);
     }
+    
+    [Test]
+    public void NameTypeCloneTest()
+    {
+        NameTypeObject testParam1 = new NameTypeObject("String", "paramName1");
+
+        Assert.AreEqual(true, (NameTypeObject) testParam1.Clone() == testParam1);
+    }
 
     [Test]
     public void InvalidRemoveParamTest()
