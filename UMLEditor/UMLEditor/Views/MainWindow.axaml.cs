@@ -103,6 +103,10 @@ namespace UMLEditor.Views
             public Polyline Symbol;
         }
         
+        // The undo and redo buttons
+        private readonly Button _undoButton;
+        private readonly Button _redoButton;
+        
         /// <summary>
         /// Main method to create the window
         /// </summary>
@@ -124,6 +128,21 @@ namespace UMLEditor.Views
 
             _canvas = this.FindControl<Canvas>("MyCanvas");
             _inEditMode = false;
+
+            // Grab the undo and redo buttons
+            _undoButton = this.FindControl<Button>("UndoButton");
+            _redoButton = this.FindControl<Button>("RedoButton");
+
+            // Push initial state to the TimeMachine
+            TimeMachine.AddState(_activeDiagram);
+            
+            // Bind to the Diagram changed event to enable/ disable buttons from diagram changes
+            Diagram.DiagramChanged += (sender, _) =>
+            {
+
+                ReconsiderUndoRedoVisibility();
+
+            };
 
         }
         
@@ -269,12 +288,15 @@ namespace UMLEditor.Views
                     
                         try
                         {
+                            
                             _activeDiagram = _activeFile.LoadDiagram(chosenFile)!;
-                            ClearCanvas();
-                            RenderClasses(_activeDiagram.Classes);
-                            Dispatcher.UIThread.RunJobs();
-                            RenderLines(_activeDiagram.Relationships);
-                            ReconsiderCanvasSize();
+                            RedrawEverything();
+                            
+                            // Reset TM & push new state
+                            TimeMachine.ClearTimeMachine();
+                            TimeMachine.AddState(_activeDiagram);
+                            ReconsiderUndoRedoVisibility();
+                            
                         }
             
                         catch (Exception exception)
@@ -921,6 +943,52 @@ namespace UMLEditor.Views
             RedrawLines();
             ReconsiderCanvasSize();
             #pragma warning restore CS8629
+        }
+
+        /// <summary>
+        /// Enables or disables the undo/ redo buttons based on if the TM has a prev or next state
+        /// </summary>
+        private void ReconsiderUndoRedoVisibility()
+        {
+            
+            _undoButton.IsEnabled = TimeMachine.PreviousStateExists();
+            _redoButton.IsEnabled = TimeMachine.NextStateExists();
+            
+        }
+
+        /// <summary>
+        /// Wipes the canvas and redraws everything
+        /// </summary>
+        private void RedrawEverything()
+        {
+            
+            ClearCanvas();
+            RenderClasses(_activeDiagram.Classes);
+                            
+            Dispatcher.UIThread.RunJobs();
+            RenderLines(_activeDiagram.Relationships);
+            ReconsiderCanvasSize();
+            
+        }
+        
+        private void UndoButton_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            _activeDiagram = TimeMachine.MoveToPreviousState();
+            
+            ReconsiderUndoRedoVisibility();
+            RedrawEverything();
+
+        }
+
+        private void RedoButton_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            _activeDiagram = TimeMachine.MoveToNextState();
+            
+            ReconsiderUndoRedoVisibility();
+            RedrawEverything();
+
         }
     }
     
