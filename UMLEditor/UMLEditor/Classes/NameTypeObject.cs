@@ -63,7 +63,7 @@ public class NameTypeObject : AttributeObject, ICloneable
     }
     
     /// <summary>
-    /// Equals operation for NameTYpeObject
+    /// Equals operation for NameTypeObject
     /// </summary>
     /// <param name="a">The first argument given</param>
     /// <param name="b">The second argument given</param>

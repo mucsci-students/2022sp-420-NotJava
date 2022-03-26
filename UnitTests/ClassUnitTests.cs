@@ -21,7 +21,7 @@ public class ClassUnitTests
     [Test]
     public void CreateClassTest()
     {
-        Class newClass = new Class();
+        Class newClass;
 
         // Make sure we can instantiate a test class
         newClass = new Class("TestClass1");
@@ -36,18 +36,20 @@ public class ClassUnitTests
     }
     
     [Test]
+    public void ChangeClassBoxLocationTest()
+    {
+        Class newClass = new Class();
+        newClass.ChangeLocation(100,100);
+        
+        Assert.AreEqual(100, newClass.ClassLocation.X);
+        Assert.AreEqual(100, newClass.ClassLocation.Y);
+    }
+    
+    [Test]
     public void RenameClassToInvalidClassTest()
     {
         Class c = new Class("TestClass");
         Assert.Throws<InvalidNameException>(delegate { c.Rename("%#0923"); });
     }
-
-    //TODO Do we have / want a toString() method for the Class type?
-    // [Test]
-    // public void TestToString()
-    // {
-    //     Class newClass = new Class("toString");
-    //     Assert.Equals(newClass.ToString(), "Class toString");
-    //     TestingSled.PrintColoredLine("Class toString: " + newClass.ToString(), TestingSled.SUCCESS_COLOR);
-    // }
+    
 }
