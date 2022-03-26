@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
 
@@ -229,7 +228,7 @@ public class AttributeUnitTests
     public void ReplaceParamDoesNotExistTest()
     {
         NameTypeObject testParam1 = new NameTypeObject(validType, "paramName1");
-        List<NameTypeObject> testParams = new List<NameTypeObject>{};
+        List<NameTypeObject> testParams = new List<NameTypeObject>();
         Method testMethod = new Method("String", "TestName", testParams );
 
         Assert.Throws<AttributeNonexistentException>(delegate { testMethod.ReplaceParam("Param1",testParam1 );});
@@ -284,8 +283,8 @@ public class AttributeUnitTests
     [Test]
     public void NameTypeEqualityNullTest()
     {
-        NameTypeObject testParam1 = null;
-        NameTypeObject testParam2 = null;
+        NameTypeObject testParam1 = null!;
+        NameTypeObject testParam2 = null!;
         NameTypeObject testParam3 = new NameTypeObject("Test", "Test");
 
         Assert.AreEqual(true, testParam1 == testParam2);
