@@ -8,7 +8,7 @@ namespace UMLEditor.Classes;
 /// </summary>
 public static class TimeMachine
 {
-    private static List<Diagram> _diagramList = new List<Diagram>();
+    private static List<Diagram> _diagramList = new ();
 
     private static int _head = -1, _current = -1, _tail = -1;
 
@@ -20,9 +20,10 @@ public static class TimeMachine
     {
         if (_current != _tail)
         {
-            _diagramList.RemoveRange(_current + 1, _tail - _current); }
-        _diagramList.Add(new Diagram(d));
+            _diagramList.RemoveRange(_current + 1, _tail - _current);
+        }
         _current++;
+        _diagramList.Add(new Diagram(d));
         _tail = _current;
 
         if (_diagramList.Count == 1)
@@ -43,7 +44,7 @@ public static class TimeMachine
             throw new InvalidOperationException("Next state does not exist");
         }
         _current++;
-        return _diagramList[_current];
+        return new Diagram(_diagramList[_current]);
     }
 
     /// <summary>
@@ -58,7 +59,7 @@ public static class TimeMachine
             throw new InvalidOperationException("Previous state does not exist");
         }
         _current--;
-        return _diagramList[_current];
+        return new Diagram(_diagramList[_current]);
     }
 
     /// <summary>

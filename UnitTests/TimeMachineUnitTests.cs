@@ -1,14 +1,13 @@
 ﻿using System;
 using NUnit.Framework;
 using UMLEditor.Classes;
-using UMLEditor.Exceptions;
 
 namespace UnitTests;
 
 [TestFixture]
 public class TimeMachineUnitTests
 {
-    private readonly Diagram? _d1 = new(), _d2 = new(), _d3 = new();
+    private readonly Diagram _d1 = new(), _d2 = new(), _d3 = new();
     [SetUp] 
     public void Setup()
     { }
@@ -42,13 +41,13 @@ public class TimeMachineUnitTests
         TimeMachine.AddState(_d1);
         TimeMachine.AddState(_d2);
         // Go back one step
-        Assert.AreEqual("Diagram1Class", TimeMachine.MoveToPreviousState().GetClassByName("Diagram1Class").ClassName);
+        Assert.AreEqual(true, TimeMachine.MoveToPreviousState().ClassExists("Diagram1Class"));
         // Try to go back another, but at beginning of list
         Assert.Throws<InvalidOperationException>(delegate { TimeMachine.MoveToPreviousState(); });
         // Create new future
         TimeMachine.AddState(_d3);
-        Assert.AreEqual("Diagram1Class", TimeMachine.MoveToPreviousState().GetClassByName("Diagram1Class").ClassName);
-        Assert.AreEqual("Diagram3Class",TimeMachine.MoveToNextState().GetClassByName("Diagram3Class").ClassName);
+        Assert.AreEqual(true, TimeMachine.MoveToPreviousState().ClassExists("Diagram1Class"));
+        Assert.AreEqual(true,TimeMachine.MoveToNextState().ClassExists("Diagram3Class"));
         Assert.Throws<InvalidOperationException>(delegate { TimeMachine.MoveToNextState(); });
     }
 }

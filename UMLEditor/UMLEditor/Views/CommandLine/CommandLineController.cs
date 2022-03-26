@@ -26,8 +26,13 @@ public class CommandLineController
     /// </summary>
     public CommandLineController()
     {
+        
         _activeDiagram = new Diagram();
         _activeFile = new JSONDiagramFile();
+        
+        // Push the initial state to the TimeMachine
+        TimeMachine.AddState(_activeDiagram);
+        
     }
     
     /// <summary>
@@ -430,7 +435,9 @@ public class CommandLineController
                                  "\nload_diagram: Load a previously saved diagram" +
                                  "\nlist_classes: List all existing classes" +
                                  "\nlist_attributes: List all attributes of a class" +
-                                 "\nlist_relationships: List all relationships of a class\n", ConsoleColor.DarkCyan);
+                                 "\nlist_relationships: List all relationships of a class" +
+                                 "\nundo: Undoes the last change" + 
+                                 "\nredo: Redoes the last undone change\n", ConsoleColor.DarkCyan);
                 break;
 
             case ("save_diagram"):
@@ -477,6 +484,19 @@ public class CommandLineController
                     return new StringColorStruct("load_diagram [fileName]", ERROR_COLOR);
                 }
 
+                break;
+
+            case ("undo"):
+                
+                _activeDiagram = TimeMachine.MoveToPreviousState();
+
+                return new StringColorStruct("Previous state restored", SUCCESS_COLOR);
+                break;
+
+            case ("redo"):
+                _activeDiagram = TimeMachine.MoveToNextState();
+
+                return new StringColorStruct("Next state restored", SUCCESS_COLOR);
                 break;
 
             case ("exit"):
