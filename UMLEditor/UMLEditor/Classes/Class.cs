@@ -164,7 +164,7 @@ public class Class: ICloneable
     /// </summary>
     /// <param name="name">Name of the Field you are checking</param>
     /// <returns>Returns true if exists, false if not.</returns>
-    private bool FieldExists (string name)
+    public bool FieldExists (string name)
     {
 
         return GetFieldByName(name) is not null;
@@ -176,7 +176,7 @@ public class Class: ICloneable
     /// </summary>
     /// <param name="field">The field to check</param>
     /// <returns>True if the field exists, false otherwise</returns>
-    private bool FieldExists(NameTypeObject field)
+    public bool FieldExists(NameTypeObject field)
     {
         return GetField(field) is not null;
     }
@@ -439,25 +439,6 @@ public class Class: ICloneable
     }
     
     /// <summary>
-    /// Renames a parameter on the provided method
-    /// </summary>
-    /// <param name="onMethod">The method the parameter is on</param>
-    /// <param name="oldParamName">The current (old) name of the parameter</param>
-    /// <param name="newParamName">The new name for the parameter</param>
-    public void RenameParameter(string onMethod, string oldParamName, string newParamName)
-    {
-
-        if (!MethodExists(onMethod))
-        {
-            throw new AttributeNonexistentException($"Method '{onMethod}' does not exist");
-        }
-
-        Method? targetMtd = GetMethodByName(onMethod);
-        targetMtd!.RenameParam(oldParamName, newParamName);
-
-    }
-    
-    /// <summary>
     /// Checks if a given class name is valid.  Throws an exception if not
     /// </summary>
     /// <param name="name">Name that is checked for validity</param>
@@ -487,7 +468,7 @@ public class Class: ICloneable
         }
 
         NameTypeObject? fieldToChange = GetFieldByName(fieldName);
-        ReplaceField(fieldToChange!, new NameTypeObject(fieldName, newType));
+        ReplaceField(fieldToChange!, new NameTypeObject(newType, fieldName));
     }
     
     /// <summary>
@@ -582,7 +563,7 @@ public class Class: ICloneable
     {
         if (!MethodExists(methodName))
         {
-            throw new MethodNonexistentRelationship($"Method '{methodName}' does not exist");
+            throw new AttributeNonexistentException($"Method '{methodName}' does not exist");
         }
         GetMethodByName(methodName)!.AddParam(new NameTypeObject(paramType, paramName));
     }

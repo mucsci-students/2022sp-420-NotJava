@@ -304,7 +304,7 @@ public class Method : AttributeObject, ICloneable
     /// Returns the parameter list as a string separated list
     /// </summary>
     /// <returns>A string with a comma separated list of the parameters</returns>
-    private string ParamsToString()
+    public string ParamsToString()
     {
 
         string result = "";

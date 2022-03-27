@@ -16,15 +16,6 @@ public abstract class AttributeObject
     [JsonProperty("name")]
     public string AttributeName { get; protected set; }
     
-    /// <summary>
-    /// Stringifies Attribute
-    /// </summary>
-    /// <returns>Formatted string of attribute</returns>
-    public override string ToString()
-    {
-        return ($"Attribute: {AttributeName}");
-    }
-    
     #pragma warning restore CS8618
     #pragma warning restore CS1591
     

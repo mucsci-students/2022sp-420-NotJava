@@ -70,6 +70,17 @@ public class RelationshipUnitTests
         testRel.ChangeType(types[1]);
         Assert.AreEqual(types[1], testRel.RelationshipType);
     }
+    
+    [Test]
+    public void RenameMemberTest()
+    {
+        Relationship testRel = new Relationship(class1Name, class2Name, types[0]);
+        testRel.RenameMember(class1Name, "Wackus");
+        testRel.RenameMember(class2Name, "Bonkus");
+        
+        Assert.AreEqual("Wackus", testRel.SourceClass);
+        Assert.AreEqual("Bonkus", testRel.DestinationClass);
+    }
 
     [Test]
     public void InvalidChangeTypeTest()
