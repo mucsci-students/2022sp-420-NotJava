@@ -9,4 +9,11 @@
     <Application.Styles>
         <FluentTheme Mode="Dark"/>
     </Application.Styles>
+
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="Exit" Gesture="cmd+q" Click="NativeMenuItem_OnClick" />
+        </NativeMenu>
+    </NativeMenu.Menu>
+    
 </Application>

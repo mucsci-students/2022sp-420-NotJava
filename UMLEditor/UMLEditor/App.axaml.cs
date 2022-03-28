@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -41,5 +42,11 @@ namespace UMLEditor
 
             base.OnFrameworkInitializationCompleted();
         }
+
+        private void NativeMenuItem_OnClick(object sender, EventArgs e)
+        {
+            Environment.Exit(0);
+        }
+        
     }
 }
