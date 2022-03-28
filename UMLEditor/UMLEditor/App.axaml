@@ -1,7 +1,8 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:UMLEditor"
-             x:Class="UMLEditor.App">
+             x:Class="UMLEditor.App"
+             Name="UML Editor">
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
