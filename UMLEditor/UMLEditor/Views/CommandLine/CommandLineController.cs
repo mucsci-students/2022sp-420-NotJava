@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Avalonia.Utilities;
 using UMLEditor.Classes;
 using UMLEditor.Interfaces;
 #pragma warning disable CS0162
@@ -20,6 +21,7 @@ public class CommandLineController
     
     private static readonly ConsoleColor ERROR_COLOR = ConsoleColor.Red;
     private static readonly ConsoleColor SUCCESS_COLOR = ConsoleColor.DarkGreen;
+
     
     /// <summary>
     /// CLIController Constructor
@@ -38,10 +40,21 @@ public class CommandLineController
     /// <summary>
     /// Executes command
     /// </summary>
-    /// <param name="input">command to execute</param>
     [SuppressMessage("ReSharper", "HeuristicUnreachableCode")]
-    public StringColorStruct ExecuteCommand(string input)
+    public StringColorStruct ExecuteController()
     {
+        AutoCompleteHandler tabCompleteHandler = new AutoCompleteHandler();
+        tabCompleteHandler.SupportCommands = new[] 
+        {
+            "add_class", "delete_class", "rename_class", "add_field", 
+            "delete_field", "rename_field", "change_field_type", "change_method_type", 
+            "add_method", "delete_method", "add_parameter", "delete_parameter", "rename_method", 
+            "rename_parameter", "replace_parameter", "list_classes", "list_attributes", 
+            "add_relationship", "delete_relationship", "change_relationship_type", 
+            "list_relationships", "help", "save_diagram", "load_diagram", "undo", "redo", "exit"
+        };
+        Console.ReadLine.AutoCompleteHandler = tabCompleteHandler;
+        string input = Console.ReadLine()!;
         // In the case no input was provided, do nothing
         if (input.Length == 0)
         {

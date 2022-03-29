@@ -30,7 +30,7 @@ public class CommandLine
             Console.Write("Enter Command: ");
             try
             {
-                StringColorStruct result = _controller.ExecuteCommand(Console.ReadLine()!);
+                StringColorStruct result = _controller.ExecuteController();
                 PrintColoredLine(result.Output, result.OutColor);
             }
             catch (Exception e)
