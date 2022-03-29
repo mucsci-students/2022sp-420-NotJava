@@ -14,6 +14,8 @@ using Avalonia.Threading;
 using Avalonia.Media;
 using UMLEditor.Classes;
 using UMLEditor.Interfaces;
+using UMLEditor.ViewModels;
+
 // ReSharper disable UnusedParameter.Local
 
 namespace UMLEditor.Views
@@ -143,6 +145,62 @@ namespace UMLEditor.Views
                 ReconsiderUndoRedoVisibility();
 
             };
+
+            // Bind to key combo events
+            Dictionary<string, Action> comboBindings = new();
+            MainViewModel.KeyComboIssued += (sender, combo) =>
+            {
+
+                // Invoke the action for this key combo
+                comboBindings[combo].Invoke();
+
+            };
+
+            // Assign key combo actions
+            comboBindings["ctrl+o"] = () => LoadButton_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+s"] = () => Save_Button_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+t"] = () =>
+            {
+
+                ToggleSwitch ts = this.FindControl<ToggleSwitch>("ViewEditToggle");
+                if (ts.IsChecked is not null)
+                {
+                    
+                    // Toggle the switch
+                    ts.IsChecked = !ts.IsChecked;                    
+                
+                    // Fire the changed event
+                    ViewEditToggle_OnClick(ts, new RoutedEventArgs());
+                    
+                }
+                
+            };
+            
+            comboBindings["ctrl+z"] = () =>
+            {
+
+                if (TimeMachine.PreviousStateExists())
+                {
+                    UndoButton_OnClick(this, new RoutedEventArgs());
+                }
+                
+            };
+            
+            comboBindings["ctrl+y"] = () =>
+            {
+
+                if (TimeMachine.NextStateExists())
+                {
+                    RedoButton_OnClick(this, new RoutedEventArgs());
+                }
+                
+            };
+
+            comboBindings["f1"] = () => HelpB_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+c"] = () => Class_AddClass_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+shift+c"] = () => Change_Relationship_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+r"] = () => Add_Relationship_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+d"] = () => Delete_Relationship_OnClick(this, new RoutedEventArgs());
 
         }
         
