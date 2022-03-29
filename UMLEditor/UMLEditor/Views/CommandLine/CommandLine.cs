@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using UMLEditor.Classes;
 
 namespace UMLEditor.Views.CommandLine;
 
@@ -25,12 +26,23 @@ public class CommandLine
     [SuppressMessage("ReSharper", "FunctionNeverReturns")]
     public void RunCli()
     {
+        AutoCompleteHandler tabCompleteHandler = new AutoCompleteHandler();
+        tabCompleteHandler.SupportedCommands = new[] 
+        {
+            "add_class", "delete_class", "rename_class", "add_field", 
+            "delete_field", "rename_field", "change_field_type", "change_method_type", 
+            "add_method", "delete_method", "add_parameter", "delete_parameter", "rename_method", 
+            "rename_parameter", "replace_parameter", "list_classes", "list_attributes", 
+            "add_relationship", "delete_relationship", "change_relationship_type", 
+            "list_relationships", "help", "save_diagram", "load_diagram", "undo", "redo", "exit"
+        };
+        ReadLine.AutoCompletionHandler = tabCompleteHandler;
         while (true)
         {
-            Console.Write("Enter Command: ");
+            string input = ReadLine.Read("Enter Command: ");
             try
             {
-                StringColorStruct result = _controller.ExecuteController();
+                StringColorStruct result = _controller.ExecuteCommand(input);
                 PrintColoredLine(result.Output, result.OutColor);
             }
             catch (Exception e)

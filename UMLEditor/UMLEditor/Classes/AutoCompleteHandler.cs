@@ -6,17 +6,17 @@ namespace UMLEditor.Classes;
 /// <summary>
 /// 
 /// </summary>
-public class AutoCompleteHandler
+public class AutoCompleteHandler : IAutoCompleteHandler
 {
     /// <summary>
     /// 
     /// </summary>
-    public char[] Seperators { get; set; } = new char[] { ' ' };
+    public char[] Separators { get; set; } = new char[] { ' ' };
 
     /// <summary>
     /// 
     /// </summary>
-    public string[] SupportCommands { get; set; } = Array.Empty<string>();
+    public string[] SupportedCommands { get; set; } = Array.Empty<string>();
 
     /// <summary>
     /// 
@@ -27,7 +27,7 @@ public class AutoCompleteHandler
     public string[] GetSuggestions(int index, string forLine)
     {
         List<string> candidates = new List<string>();
-        foreach (var command in SupportCommands)
+        foreach (var command in SupportedCommands)
         {
             if (IsLikelyCandidate(forLine, command))
             {
@@ -74,5 +74,21 @@ public class AutoCompleteHandler
     {
         return LastMatchingIndex(toTest, candidate) != -1;
     }
+
+    public string[] GetSuggestions(string forLine, int index)
+    {
+        List<string> candidates = new List<string>();
+
+        foreach (var command in SupportedCommands)
+        {
+            if (IsLikelyCandidate(forLine, command))
+            {
+                candidates.Add(command);
+            }
+        }
+
+        return candidates.ToArray();
+    }
+    
 }
 
