@@ -648,12 +648,6 @@ namespace UMLEditor.Views
                 endCtrl.Bounds.X + endHalfWidth,
                 endCtrl.Bounds.Y + endHalfHeight);
 
-            // Set points to draw lines
-            Point midStart;
-            Point midEnd;
-            List<Point> diamondPoints;
-            List<Point> trianglePoints;
-
             // Set origins to correct side of class boxes
             if (start.X < end.X)
             {
@@ -677,16 +671,22 @@ namespace UMLEditor.Views
                 end += new Point(0, endHalfHeight);
             }
             
+            // Set points to draw lines
+            Point midStart;
+            Point midEnd;
+            List<Point> diamondPoints;
+            List<Point> trianglePoints;
+
             if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
             {
                 // Arrow is horizontal
-                midStart = new Point(Math.Abs(start.X + end.X) / 2, start.Y);
-                midEnd = new Point(Math.Abs(start.X + end.X) / 2, end.Y);
+                midStart = new Point((start.X + end.X) / 2, start.Y);
+                midEnd = new Point((start.X + end.X) / 2, end.Y);
                 if (start.X < end.X)
                 {
                     // Goes from left to right
-                    start = new Point(start.X + startHalfWidth, start.Y);
-                    end = new Point(end.X - endHalfWidth - (2 * SymbolWidth), end.Y);
+                    //start = new Point(start.X + startHalfWidth, start.Y);
+                    end = new Point(end.X /*- endHalfWidth*/ - (2 * SymbolWidth), end.Y);
                     diamondPoints = new List<Point> { 
                         end,
                         new(end.X + SymbolWidth,end.Y - SymbolHeight),
@@ -703,8 +703,8 @@ namespace UMLEditor.Views
                 else
                 {
                     // Goes from right to left
-                    start = new Point(start.X - startHalfWidth, start.Y);
-                    end = new Point(end.X + endHalfWidth + (2 * SymbolWidth), end.Y);
+                    //start = new Point(start.X - startHalfWidth, start.Y);
+                    end = new Point(end.X + /*endHalfWidth +*/ (2 * SymbolWidth), end.Y);
                     diamondPoints = new List<Point> { 
                         end,
                         new(end.X - SymbolWidth,end.Y - SymbolHeight),
@@ -722,8 +722,8 @@ namespace UMLEditor.Views
             else
             {
                 // Arrow is vertical
-                midStart = new Point(start.X, Math.Abs(start.Y + end.Y) / 2);
-                midEnd = new Point(end.X, Math.Abs(start.Y + end.Y) / 2);
+                midStart = new Point(start.X, (start.Y + end.Y) / 2);
+                midEnd = new Point(end.X, (start.Y + end.Y) / 2);
                 if (start.Y < end.Y)
                 {
                     // Goes top to bottom
