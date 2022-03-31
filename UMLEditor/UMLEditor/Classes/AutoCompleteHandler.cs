@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace UMLEditor.Classes;
 
 /// <summary>
-/// 
+/// Handles tab completion
 /// </summary>
 public class AutoCompleteHandler : IAutoCompleteHandler
 {
@@ -17,26 +17,6 @@ public class AutoCompleteHandler : IAutoCompleteHandler
     /// List of commands supported
     /// </summary>
     public string[] SupportedCommands { get; set; } = Array.Empty<string>();
-
-    /// <summary>
-    /// Gets suggestions given what user has typed
-    /// </summary>
-    /// <param name="index">index of where user typed up to in string</param>
-    /// <param name="forLine">Line to attempt to complete</param>
-    /// <returns></returns>
-    public string[] GetSuggestions(int index, string forLine)
-    {
-        List<string> candidates = new List<string>();
-        foreach (var command in SupportedCommands)
-        {
-            if (IsLikelyCandidate(forLine, command))
-            {
-                candidates.Add(command);
-            }
-        }
-
-        return candidates.ToArray();
-    }
 
     /// <summary>
     /// Returns the last matching index of a string

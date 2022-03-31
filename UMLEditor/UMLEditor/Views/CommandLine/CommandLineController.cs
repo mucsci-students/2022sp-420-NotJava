@@ -39,6 +39,8 @@ public class CommandLineController
     /// <summary>
     /// Executes command
     /// </summary>
+    /// <param name="input">command to execute</param>
+    /// <returns></returns>
     [SuppressMessage("ReSharper", "HeuristicUnreachableCode")]
     public StringColorStruct ExecuteCommand(string input)
     {
