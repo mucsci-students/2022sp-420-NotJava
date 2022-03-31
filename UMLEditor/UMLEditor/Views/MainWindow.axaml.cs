@@ -653,6 +653,30 @@ namespace UMLEditor.Views
             Point midEnd;
             List<Point> diamondPoints;
             List<Point> trianglePoints;
+
+            // Set origins to correct side of class boxes
+            if (start.X < end.X)
+            {
+                start += new Point(startHalfWidth, 0);
+                end -= new Point(endHalfWidth, 0);
+            }
+            else
+            {
+                start -= new Point(startHalfWidth, 0);
+                end += new Point(endHalfWidth, 0);
+            }
+
+            if (start.Y < end.Y)
+            {
+                start += new Point(0, startHalfHeight);
+                end -= new Point(0, endHalfHeight);
+            }
+            else
+            {
+                start -= new Point(0, startHalfHeight);
+                end += new Point(0, endHalfHeight);
+            }
+            
             if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
             {
                 // Arrow is horizontal
