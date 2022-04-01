@@ -997,9 +997,9 @@ namespace UMLEditor.Views
             {
                 currentBoxes.ToggleEditMode(_inEditMode);
             }
-            
-            RedrawLines();
-            ReconsiderCanvasSize();
+     
+            ReconsiderCanvasSize();   
+            RedrawLines();    
             #pragma warning restore CS8629
         }
 
