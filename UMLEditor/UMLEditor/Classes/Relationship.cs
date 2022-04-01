@@ -80,7 +80,7 @@ public class Relationship : ICloneable
     /// <param name="type">The relationship type to check</param>
     /// <returns></returns>
     /// <exception cref="InvalidRelationshipTypeException">If the given type is not valid</exception>
-    private bool IsValidType(string type)
+    public bool IsValidType(string type)
     {
         if (!_validTypes.Contains(type))
         {
