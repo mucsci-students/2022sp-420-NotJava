@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Data;
+using DynamicData;
 using NUnit.Framework;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
@@ -342,5 +343,18 @@ public class ClassUnitTests
         Assert.Throws<AttributeAlreadyExistsException>(delegate { newClass.AddMethod("Double","TestMethod", testParams); });
         
         Assert.Throws<DuplicateNameException>(delegate { newClass.AddMethod("Double","TestMethodDupParam", testParams2); });
+    }
+    
+    [Test]
+    public void GetterTests()
+    {
+        Class newClass = new Class("TestClass");
+
+        newClass.AddMethod("String", "TestMethod");
+        newClass.AddField("String", "TestField");
+        
+        Assert.AreEqual(1, newClass.Methods.Count);
+        Assert.AreEqual(1, newClass.Fields.Count);
+        
     }
 }

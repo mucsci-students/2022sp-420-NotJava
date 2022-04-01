@@ -36,15 +36,6 @@ public class RelationshipUnitTests
         Assert.AreEqual(class2Name, rel.DestinationClass);
     }
 
-    //This test should probably be run from here, but class name checking is done in diagram class
-    /*[Test]
-    public void InvalidRelationshipClassesTest()
-    {
-        Assert.Throws<ClassNonexistentException>(delegate { new Relationship("foobar", class1Name, types[0]); });
-        Assert.Throws<ClassNonexistentException>(delegate { new Relationship(class2Name, "barfoo", types[0]); });
-        Assert.Throws<ClassNonexistentException>(delegate { new Relationship("foobar", "barfoo", types[0]); });
-    }*/
-
     [Test]
     public void RelationshipToStringTest()
     {
@@ -69,6 +60,18 @@ public class RelationshipUnitTests
         Relationship testRel = new Relationship(class1Name, class2Name, types[0]);
         testRel.ChangeType(types[1]);
         Assert.AreEqual(types[1], testRel.RelationshipType);
+    }
+    
+    [Test]
+    public void PropertiesTest()
+    {
+        Relationship testRel = new Relationship(class1Name, class2Name, types[0]);
+        List<string> _validTypes = new List<string>{"aggregation", "composition", "inheritance", "realization"};
+        
+        foreach(string validType in _validTypes)
+        { 
+            Assert.AreEqual(true, Relationship.ValidTypes.Contains(validType));
+        }
     }
     
     [Test]

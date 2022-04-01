@@ -238,13 +238,15 @@ public class AttributeUnitTests
     public void ReplaceParamTest()
     {
         NameTypeObject testParam1 = new NameTypeObject(validType, "paramName1");
-        List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1};
+        NameTypeObject testParamDuplicate = new NameTypeObject(validType, "paramNameDuplicate");
+        List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1, testParamDuplicate};
         NameTypeObject testParam2 = new NameTypeObject(validType, "paramName2");
 
         Method testMethod = new Method("String", "TestName", testParams );
 
         testMethod.ReplaceParam("paramName1", testParam2);
         Assert.AreEqual(true, testMethod.IsParamInList("paramName2"));
+        Assert.Throws<AttributeAlreadyExistsException>(delegate { testMethod.ReplaceParam("paramName1", testParamDuplicate);});
     }
     
     [Test]
