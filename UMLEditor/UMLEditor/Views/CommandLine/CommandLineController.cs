@@ -20,6 +20,7 @@ public class CommandLineController
     
     private static readonly ConsoleColor ERROR_COLOR = ConsoleColor.Red;
     private static readonly ConsoleColor SUCCESS_COLOR = ConsoleColor.DarkGreen;
+
     
     /// <summary>
     /// CLIController Constructor
@@ -39,6 +40,7 @@ public class CommandLineController
     /// Executes command
     /// </summary>
     /// <param name="input">command to execute</param>
+    /// <returns></returns>
     [SuppressMessage("ReSharper", "HeuristicUnreachableCode")]
     public StringColorStruct ExecuteCommand(string input)
     {

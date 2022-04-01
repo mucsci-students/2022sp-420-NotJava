@@ -17,6 +17,7 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="ReadLine" Version="2.0.1" />
     </ItemGroup>
     <ItemGroup>
       <None Remove="Views\AddClassPanel.axaml~" />

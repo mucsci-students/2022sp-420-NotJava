@@ -25,6 +25,7 @@ ignore:
   - "UMLEditor/UMLEditor/Classes/JSONDiagramFile.cs"
   - "UMLEditor/UMLEditor/Classes/Diagram.cs"
   - "UMLEditor/UMLEditor/Classes/JSONDiagramFile.cs"
+  - "UMLEditor/UMLEditor/Classes/AutoCompleteHandler.cs"
 
 parsers:
   gcov:
