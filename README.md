@@ -29,8 +29,8 @@ _This will run all available unit tests for the code and does nothing else._
 - To build and execute unit tests, run the following from the root of the repo directory (where the .sln is): <br />``dotnet test``
 
 ## Writeups
-- SQLite Writeup.pdf is where the writeup for our dropped SQLite task is located.
-- Design Pattern Writeup.pdf is where the list of implemented design patterns is located.
+- **SQLite Writeup.pdf** is where the writeup for our dropped SQLite task is located.
+- **Design Pattern Writeup.pdf** is where the list of implemented design patterns is located.
 
 ## GUI Mode Help
 - Menu Bar
