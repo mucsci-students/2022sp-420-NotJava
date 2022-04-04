@@ -5,27 +5,39 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using Exceptions;
 
+/// <summary>
+/// Relationship class
+/// </summary>
 public class Relationship : ICloneable
 {
     // Valid relationship types
     [JsonIgnore]
     private static readonly List<string> _validTypes = new List<string>{"aggregation", "composition", "inheritance", "realization"};
 
+    /// <summary>
+    /// ValidTypes properties
+    /// </summary>
     [JsonIgnore]
     public static List<string> ValidTypes
     {
         get => new List<string>(_validTypes);
     }
-
-    // Used for JSON serialization  and deserialization
+    
+    /// <summary>
+    /// Used for JSON serialization  and deserialization
+    /// </summary>
     [JsonProperty("source")]
     public string SourceClass { get; private set; }
     
-    // Used for JSON serialization  and deserialization
+    /// <summary>
+    /// Used for JSON serialization  and deserialization
+    /// </summary>
     [JsonProperty("destination")]
     public string DestinationClass { get; private set; }
-    
-    // Used for JSON serialization and deserialization
+
+    /// <summary>
+    /// Used for JSON serialization and deserialization
+    /// </summary>
     [JsonProperty("type")]
     public string RelationshipType { get; private set; }
 
@@ -68,7 +80,7 @@ public class Relationship : ICloneable
     /// <param name="type">The relationship type to check</param>
     /// <returns></returns>
     /// <exception cref="InvalidRelationshipTypeException">If the given type is not valid</exception>
-    private bool IsValidType(string type)
+    public bool IsValidType(string type)
     {
         if (!_validTypes.Contains(type))
         {
@@ -118,6 +130,10 @@ public class Relationship : ICloneable
         return $"{RelationshipType}: {SourceClass} => {DestinationClass}";
     }
 
+    /// <summary>
+    /// Clone function for Relationship
+    /// </summary>
+    /// <returns></returns>
     public object Clone()
     {
         return new Relationship(this);

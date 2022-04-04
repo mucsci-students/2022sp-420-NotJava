@@ -4,20 +4,20 @@ using System;
 using Newtonsoft.Json;
 using Exceptions;
 
+/// <summary>
+/// Attribute Class
+/// </summary>
 public abstract class AttributeObject
 {
+    #pragma warning disable CS1591
+    #pragma warning disable CS8618
+    
     // Used for JSON serialization  and deserialization
     [JsonProperty("name")]
     public string AttributeName { get; protected set; }
-
-    /// <summary>
-    /// Stringifies Attribute
-    /// </summary>
-    /// <returns>Formatted string of attribute</returns>
-    public override string ToString()
-    {
-        return ($"Attribute: {AttributeName}");
-    }
+    
+    #pragma warning restore CS8618
+    #pragma warning restore CS1591
     
     /// <summary>
     /// Renames attribute.  Checks to make sure name is valid

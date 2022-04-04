@@ -14,9 +14,15 @@ using Avalonia.Threading;
 using Avalonia.Media;
 using UMLEditor.Classes;
 using UMLEditor.Interfaces;
+using UMLEditor.ViewModels;
+
+// ReSharper disable UnusedParameter.Local
 
 namespace UMLEditor.Views
 {
+    /// <summary>
+    /// MainWindow.cs
+    /// </summary>
     public class MainWindow : Window
     {
 
@@ -56,7 +62,7 @@ namespace UMLEditor.Views
             {
                 
                 // Get an array of all class names in the diagram
-                List<Class> currentClasses = _activeDiagram!.Classes;
+                List<Class> currentClasses = _activeDiagram.Classes;
                 string[] classNames = new string[currentClasses.Count];
                 for (int indx = 0; indx < classNames.Length; ++indx)
                 {
@@ -91,12 +97,17 @@ namespace UMLEditor.Views
         {
             public UserControl SourceClass;
             public UserControl DestClass;
+            // ReSharper disable once NotAccessedField.Local
             public string RelationshipType;
             public Line StartLine;
             public Line MidLine;
             public Line EndLine;
             public Polyline Symbol;
         }
+        
+        // The undo and redo buttons
+        private readonly Button _undoButton;
+        private readonly Button _redoButton;
         
         /// <summary>
         /// Main method to create the window
@@ -119,6 +130,77 @@ namespace UMLEditor.Views
 
             _canvas = this.FindControl<Canvas>("MyCanvas");
             _inEditMode = false;
+
+            // Grab the undo and redo buttons
+            _undoButton = this.FindControl<Button>("UndoButton");
+            _redoButton = this.FindControl<Button>("RedoButton");
+
+            // Push initial state to the TimeMachine
+            TimeMachine.AddState(_activeDiagram);
+            
+            // Bind to the Diagram changed event to enable/ disable buttons from diagram changes
+            Diagram.DiagramChanged += (sender, _) =>
+            {
+
+                ReconsiderUndoRedoVisibility();
+
+            };
+
+            // Bind to key combo events
+            Dictionary<string, Action> comboBindings = new();
+            MainViewModel.KeyComboIssued += (sender, combo) =>
+            {
+
+                // Invoke the action for this key combo
+                comboBindings[combo].Invoke();
+
+            };
+
+            // Assign key combo actions
+            comboBindings["ctrl+o"] = () => LoadButton_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+s"] = () => Save_Button_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+t"] = () =>
+            {
+
+                ToggleSwitch ts = this.FindControl<ToggleSwitch>("ViewEditToggle");
+                if (ts.IsChecked is not null)
+                {
+                    
+                    // Toggle the switch
+                    ts.IsChecked = !ts.IsChecked;                    
+                
+                    // Fire the changed event
+                    ViewEditToggle_OnClick(ts, new RoutedEventArgs());
+                    
+                }
+                
+            };
+            
+            comboBindings["ctrl+z"] = () =>
+            {
+
+                if (TimeMachine.PreviousStateExists())
+                {
+                    UndoButton_OnClick(this, new RoutedEventArgs());
+                }
+                
+            };
+            
+            comboBindings["ctrl+y"] = () =>
+            {
+
+                if (TimeMachine.NextStateExists())
+                {
+                    RedoButton_OnClick(this, new RoutedEventArgs());
+                }
+                
+            };
+
+            comboBindings["f1"] = () => HelpB_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+c"] = () => Class_AddClass_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+shift+c"] = () => Change_Relationship_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+r"] = () => Add_Relationship_OnClick(this, new RoutedEventArgs());
+            comboBindings["ctrl+d"] = () => Delete_Relationship_OnClick(this, new RoutedEventArgs());
 
         }
         
@@ -168,13 +250,13 @@ namespace UMLEditor.Views
                 
             }
         }
-
-        private void ExitB_OnClick(object sender, RoutedEventArgs e)
+        
+        private void ExitB_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             Environment.Exit(0);
         }
 
-        private void HelpB_OnClick(object sender, RoutedEventArgs e)
+        private void HelpB_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             string link = "https://github.com/mucsci-students/2022sp-420-NotJava#gui-mode-help";
             RaiseAlert(
@@ -198,12 +280,12 @@ namespace UMLEditor.Views
             }
         }
 
-        private void Save_Button_OnClick(object sender, RoutedEventArgs e)
+        private void Save_Button_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             /* Open the file save dialog on its own thread
              * Obtain a future from this action */
             Task<string?> saveTask = _saveFileDialog.ShowAsync(this);
-            saveTask.ContinueWith((Task<string?> finishedTask) =>
+            saveTask.ContinueWith(finishedTask =>
             {
                 
                 Dispatcher.UIThread.Post(() => { 
@@ -241,12 +323,12 @@ namespace UMLEditor.Views
             });
         }
 
-        private void LoadButton_OnClick(object sender, RoutedEventArgs e)
+        private void LoadButton_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             /* Open the file selection dialog on its own thread
              * Obtain a future from this action */
             Task<string[]?> loadTask = _openFileDialog.ShowAsync(this);
-            loadTask.ContinueWith((Task<string[]?> taskResult) =>
+            loadTask.ContinueWith(taskResult =>
             {
                 // Called when the future is resolved
                 Dispatcher.UIThread.Post(() =>
@@ -264,12 +346,15 @@ namespace UMLEditor.Views
                     
                         try
                         {
-                            _activeDiagram = _activeFile.LoadDiagram(chosenFile);
-                            ClearCanvas();
-                            RenderClasses(_activeDiagram.Classes);
-                            Dispatcher.UIThread.RunJobs();
-                            RenderLines(_activeDiagram.Relationships);
-                            ReconsiderCanvasSize();
+                            
+                            _activeDiagram = _activeFile.LoadDiagram(chosenFile)!;
+                            RedrawEverything();
+                            
+                            // Reset TM & push new state
+                            TimeMachine.ClearTimeMachine();
+                            TimeMachine.AddState(_activeDiagram);
+                            ReconsiderUndoRedoVisibility();
+                            
                         }
             
                         catch (Exception exception)
@@ -289,14 +374,14 @@ namespace UMLEditor.Views
                 
             });
         }
-        private void Class_AddClass_OnClick (object sender, RoutedEventArgs e)
+        private void Class_AddClass_OnClick (object sender, RoutedEventArgs routedEventArgs)
         {
             // Create and wire up a new modal dialogue to the 'AddClassPanel'
             ModalDialog addClassModal = ModalDialog.CreateDialog<AddClassPanel>("Add New Class", DialogButtons.OK_CANCEL);
             Task<DialogButtons> modalResult = addClassModal.ShowDialog<DialogButtons>(this);
             
             // Spin up a result
-            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            modalResult.ContinueWith(result =>
             {
                 
                 // Case in which 'OKAY' is not selected.
@@ -362,9 +447,7 @@ namespace UMLEditor.Views
         /// <summary>
         /// Event handler to add a relationship
         /// </summary>
-        /// <param name="sender">Object that generated the event</param>
-        /// <param name="e">Extra arguments sent to the handler</param>
-        private void Add_Relationship_OnClick(object sender, RoutedEventArgs e)
+        private void Add_Relationship_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
 
             // Create a new modal dialogue and wire it up to the 'AddRelationshipPanel'
@@ -376,7 +459,7 @@ namespace UMLEditor.Views
             Task<DialogButtons> modalResult = addRelationshipModal.ShowDialog<DialogButtons>(this);
 
             // Spin up the result
-            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            modalResult.ContinueWith(result =>
             {
                 // Case where user does not select OKAY button.
                 if (result.Result != DialogButtons.OKAY)
@@ -415,13 +498,11 @@ namespace UMLEditor.Views
             });
 
         }
-        
+
         /// <summary>
         ///  Event handler to change a relationship's type
         /// </summary>
-        /// <param name="sender">Object that generated the event</param>
-        /// <param name="e">Extra arguments sent to the handler</param>
-        private void Change_Relationship_OnClick(object sender, RoutedEventArgs e)
+        private void Change_Relationship_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             
             // Create a new modal dialogue and wire it up to the 'ChangeRelationshipPanel'
@@ -432,7 +513,7 @@ namespace UMLEditor.Views
             Task<DialogButtons> modalResult = changeRelationshipModal.ShowDialog<DialogButtons>(this);
             
             // Spin up the result
-            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            modalResult.ContinueWith(result =>
             {
                 // Case where user does not select OKAY button.
                 if (result.Result != DialogButtons.OKAY)
@@ -472,13 +553,11 @@ namespace UMLEditor.Views
                 });
             });
         }
-        
+
         /// <summary>
         ///  Event handler to delete a relationship
         /// </summary>
-        /// <param name="sender">Object that generated the event</param>
-        /// <param name="e">Extra arguments sent to the handler</param>
-        private void Delete_Relationship_OnClick(object sender, RoutedEventArgs e)
+        private void Delete_Relationship_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
             // Create a new modal dialogue and wire it up to the 'DeleteRelationshipPanel'
             ModalDialog deleteRelationshipModal = ModalDialog.CreateDialog<AddRelationshipPanel>("Delete Relationship", DialogButtons.OK_CANCEL);
@@ -489,7 +568,7 @@ namespace UMLEditor.Views
             Task<DialogButtons> modalResult = deleteRelationshipModal.ShowDialog<DialogButtons>(this);
             
             // Spin up the result
-            modalResult.ContinueWith((Task<DialogButtons> result) =>
+            modalResult.ContinueWith(result =>
             {
                 // Case where user does not select OKAY button.
                 if (result.Result != DialogButtons.OKAY)
@@ -908,17 +987,66 @@ namespace UMLEditor.Views
         /// <param name="e">Extra arguments sent to the handler</param>
         private void ViewEditToggle_OnClick(object sender, RoutedEventArgs e)
         {
-
+            #pragma warning disable CS8629
             ToggleSwitch viewSwitch = (ToggleSwitch) sender;
-            _inEditMode = (bool)viewSwitch.IsChecked;
+
+            _inEditMode = ((bool)viewSwitch.IsChecked);
+
 
             foreach (ClassBox currentBoxes in DrawnClassBoxes)
             {
                 currentBoxes.ToggleEditMode(_inEditMode);
             }
+     
+            ReconsiderCanvasSize();   
+            RedrawLines();    
+            #pragma warning restore CS8629
+        }
+
+        /// <summary>
+        /// Enables or disables the undo/ redo buttons based on if the TM has a prev or next state
+        /// </summary>
+        private void ReconsiderUndoRedoVisibility()
+        {
             
-            RedrawLines();
+            _undoButton.IsEnabled = TimeMachine.PreviousStateExists();
+            _redoButton.IsEnabled = TimeMachine.NextStateExists();
             
+        }
+
+        /// <summary>
+        /// Wipes the canvas and redraws everything
+        /// </summary>
+        private void RedrawEverything()
+        {
+            
+            ClearCanvas();
+            RenderClasses(_activeDiagram.Classes);
+                            
+            Dispatcher.UIThread.RunJobs();
+            RenderLines(_activeDiagram.Relationships);
+            ReconsiderCanvasSize();
+            
+        }
+        
+        private void UndoButton_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            _activeDiagram = TimeMachine.MoveToPreviousState();
+            
+            ReconsiderUndoRedoVisibility();
+            RedrawEverything();
+
+        }
+
+        private void RedoButton_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            _activeDiagram = TimeMachine.MoveToNextState();
+            
+            ReconsiderUndoRedoVisibility();
+            RedrawEverything();
+
         }
     }
     

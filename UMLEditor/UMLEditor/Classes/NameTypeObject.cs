@@ -6,9 +6,14 @@ using Newtonsoft.Json;
 /// <summary>
 /// A generic type that contains two string fields, a name, and a type.
 /// </summary>
+#pragma warning disable CS0660, CS0661
 public class NameTypeObject : AttributeObject, ICloneable
+#pragma warning restore CS0660, CS0661
 {
     
+    /// <summary>
+    /// Properties for type
+    /// </summary>
     [JsonProperty("type")]
     public string Type { get; private set; }
 
@@ -57,7 +62,13 @@ public class NameTypeObject : AttributeObject, ICloneable
 
     }
     
-    public static bool operator ==(NameTypeObject a, NameTypeObject b)
+    /// <summary>
+    /// Equals operation for NameTypeObject
+    /// </summary>
+    /// <param name="a">The first argument given</param>
+    /// <param name="b">The second argument given</param>
+    /// <returns></returns>
+    public static bool operator ==(NameTypeObject? a, NameTypeObject? b)
     {
         if (a is null && b is null)
         {
@@ -70,16 +81,30 @@ public class NameTypeObject : AttributeObject, ICloneable
         return ((a!.Type == b!.Type) && (a.AttributeName == b.AttributeName));
     }
     
+    /// <summary>
+    /// Not equals operator
+    /// </summary>
+    /// <param name="a">The first argument given</param>
+    /// <param name="b">The second argument given</param>
+    /// <returns></returns>
     public static bool operator !=(NameTypeObject a, NameTypeObject b)
     {
         return !(a == b);
     }
     
+    /// <summary>
+    /// To string function for NameTypeObject
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
         return $"{Type} {AttributeName}";
     }
 
+    /// <summary>
+    /// Clone function for NameTypeObject
+    /// </summary>
+    /// <returns></returns>
     public object Clone()
     {
         return new NameTypeObject(this);

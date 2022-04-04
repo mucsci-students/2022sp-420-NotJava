@@ -1,7 +1,8 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:UMLEditor"
-             x:Class="UMLEditor.App">
+             x:Class="UMLEditor.App"
+             Name="UML Editor">
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
@@ -9,4 +10,11 @@
     <Application.Styles>
         <FluentTheme Mode="Dark"/>
     </Application.Styles>
+
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="Exit" Gesture="cmd+q" Click="NativeMenuItem_OnClick" />
+        </NativeMenu>
+    </NativeMenu.Menu>
+    
 </Application>

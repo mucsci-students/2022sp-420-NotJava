@@ -1,25 +1,33 @@
 ﻿namespace UMLEditor.Classes;
 
 using System;
-using UMLEditor.Utility;
+using Utility;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Exceptions;
 
+/// <summary>
+/// Method Class
+/// </summary>
 public class Method : AttributeObject, ICloneable
 {
 
     [JsonProperty("params")]
     private List<NameTypeObject> _parameters;
-
-    // Public accessor for Parameters
-    // Creates copies to ensure data integrity
+    
+    /// <summary>
+    /// Public accessor for Parameters
+    /// Creates copies to ensure data integrity
+    /// </summary>
     [JsonIgnore]
     public List<NameTypeObject> Parameters
     {
         get => Utilities.CloneContainer(_parameters);
     }
 
+    /// <summary>
+    /// ReturnType properties
+    /// </summary>
     [JsonProperty("return_type")] 
     public string ReturnType { get; private set; }
 
@@ -70,6 +78,10 @@ public class Method : AttributeObject, ICloneable
         _parameters = Utilities.CloneContainer(m._parameters);
     }
 
+    /// <summary>
+    /// Changes the method type given the new type
+    /// </summary>
+    /// <param name="newType">New type to be given to the method</param>
     public void ChangeMethodType(string newType)
     {
         CheckValidAttributeName(newType);
@@ -256,14 +268,14 @@ public class Method : AttributeObject, ICloneable
         // Make sure the source parameter exists
         if (!IsParamInList(toReplace))
         {
-            throw new AttributeNonexistentException($"Parameter '{replaceWith.ToString()}' does not exist in method '{AttributeName}'");
+            throw new AttributeNonexistentException($"Parameter '{replaceWith}' does not exist in method '{AttributeName}'");
         }
 
         /* - Find a reference to the target parameter
          * - Rename the target parameter and apply the new type */
         NameTypeObject? targetParam = FindParamInList(toReplace);
         targetParam!.AttRename(replaceWith.AttributeName);
-        targetParam!.ChangeType(replaceWith.Type);
+        targetParam.ChangeType(replaceWith.Type);
 
     }
     
@@ -292,7 +304,7 @@ public class Method : AttributeObject, ICloneable
     /// Returns the parameter list as a string separated list
     /// </summary>
     /// <returns>A string with a comma separated list of the parameters</returns>
-    private string ParamsToString()
+    public string ParamsToString()
     {
 
         string result = "";
@@ -325,6 +337,10 @@ public class Method : AttributeObject, ICloneable
         return $"{ReturnType} {AttributeName} ({ParamsToString()})";
     }
 
+    /// <summary>
+    /// Clone for the method class
+    /// </summary>
+    /// <returns></returns>
     public object Clone()
     {
         return new Method(this);

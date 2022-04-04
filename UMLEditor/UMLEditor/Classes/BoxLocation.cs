@@ -3,12 +3,21 @@ using Newtonsoft.Json;
 
 namespace UMLEditor.Classes;
 
+/// <summary>
+/// Box Location
+/// </summary>
 public class BoxLocation : ICloneable
 {
 
+    /// <summary>
+    /// X value
+    /// </summary>
     [JsonProperty("x")]
     public int X { get; private set; }
 
+    /// <summary>
+    /// Y Value
+    /// </summary>
     [JsonProperty("y")]
     public int Y { get; private set; }
 
@@ -48,6 +57,10 @@ public class BoxLocation : ICloneable
 
     }
 
+    /// <summary>
+    /// Clone function
+    /// </summary>
+    /// <returns></returns>
     public object Clone()
     {
         return new BoxLocation(this);

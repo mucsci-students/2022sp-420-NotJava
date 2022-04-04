@@ -1,30 +1,23 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
-using UMLEditor.Views;
+using UMLEditor.Classes;
+using UMLEditor.Views.CommandLine;
 
 namespace UMLEditor.NetCore
 {
     class Program
     {
-        
-        /// <summary>
-        /// Custom defined exit codes
-        /// </summary>
-        private enum CustomExitCodes
-        {
-            
-            ERROR_UNIMPLEMENTED = 5,
-
-        }
-
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
         [STAThread]
         public static void Main(string[] args)
         {
-            
+            Diagram.DiagramChanged += (sender, _) =>
+            {
+                TimeMachine.AddState((Diagram)sender!);
+            };
             // Ensure at least one arg is provided
             if (args.Length >= 1)
             {

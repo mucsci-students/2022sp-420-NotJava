@@ -1,4 +1,6 @@
-﻿using DynamicData.Binding;
+﻿
+using Avalonia.Interactivity;
+// ReSharper disable UnusedParameter.Local
 
 namespace UMLEditor.Views;
 
@@ -8,9 +10,8 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using System.Collections.Generic;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Threading;
-using UMLEditor.Classes;
+using Classes;
 using System.Runtime.InteropServices;
 
 /// <summary>
@@ -20,6 +21,9 @@ public class ClassBox : UserControl
 {
 
     private string _className;
+    /// <summary>
+    /// Classname getters and setters
+    /// </summary>
     public string ClassName
     {
         get => _className;
@@ -37,28 +41,27 @@ public class ClassBox : UserControl
     private StackPanel fieldsArea;
     private StackPanel methodsArea;
     private Label _classNameLabel;
-    private Grid _titleBar;
     private Point _clickedLocation;
     
     private Button _editButton;
     private Button _deleteButton;
     private Button _addFieldButton;
     private Button _addMethodButton;
-    
-    private bool _beingDragged; // True if the user is dragging this class
+
     private Diagram _activeDiagram; // The active diagram this class is a part of
     private MainWindow _parentWindow; // The parent window this class is depicted on (for raising alerts/ confirmations)
     
+    #pragma warning disable CS8618
+    #pragma warning disable CS1591
     public ClassBox()
     {
-        
         InitializeComponent();
 
         // Grab controls
         fieldsArea = this.FindControl<StackPanel>("FieldsArea");
         methodsArea = this.FindControl<StackPanel>("MethodsArea");
         _classNameLabel = this.FindControl<Label>("ClassNameLabel");
-        _titleBar = this.FindControl<Grid>("TitleBar");
+        var titleBar = this.FindControl<Grid>("TitleBar");
         
         _editButton = this.FindControl<Button>("EditButton");
         _deleteButton = this.FindControl<Button>("DeleteButton");
@@ -67,37 +70,39 @@ public class ClassBox : UserControl
 
         _inEditMode = false;
         
-        /////////////////////////////////////////////////////////////////////////////////////////
-        /// Mouse clicking/ dragging event handers
+    #pragma warning restore CS1591
+    #pragma warning restore CS8618
         
-        _beingDragged = false;
-        _titleBar.PointerPressed += (object sender, PointerPressedEventArgs args) =>
+        /////////////////////////////////////////////////////////////////////////////////////////
+
+        var beingDragged = false;
+        titleBar.PointerPressed += (_, args) =>
         {
             
             // If the class title bar is clicked, switch on the dragging flag
-            _beingDragged = true;
+            beingDragged = true;
             
             // Record where the user clicked the title bar
-            _clickedLocation = args.GetPosition(_titleBar);
+            _clickedLocation = args.GetPosition(titleBar);
 
         };
 
-        _titleBar.PointerReleased += (object sender, PointerReleasedEventArgs args) =>
+        titleBar.PointerReleased += (_, _) =>
         {
             
             // If the mouse button is released, switch off the dragging flag
-            _beingDragged = false; 
+            beingDragged = false; 
             
             // Redraw the lines again (so "flinging" the box doesn't mess up the lines)
             _parentWindow!.RedrawLines();
             
             // Save the new location of the class box
             _activeDiagram!.ChangeBoxLocation(ClassName, this.Bounds.X, this.Bounds.Y);
-            _parentWindow!.ReconsiderCanvasSize();
+            _parentWindow.ReconsiderCanvasSize();
             
         };
 
-        _titleBar.PointerEnter += (object sender, PointerEventArgs pe) =>
+        titleBar.PointerEnter += (_, pe) =>
         {
 
             StandardCursorType desiredCursor = StandardCursorType.SizeAll;
@@ -111,26 +116,26 @@ public class ClassBox : UserControl
 
             }
             
-            ChangeMousePointer(_titleBar, pe, desiredCursor);            
+            ChangeMousePointer(titleBar, pe, desiredCursor);            
 
         };
 
         // Revert to normal pointer when hovering over buttons
-        _editButton.PointerEnter += (object sender, PointerEventArgs pe) =>
+        _editButton.PointerEnter += (_, pe) =>
         {
             ChangeMousePointer(_editButton, pe, StandardCursorType.Arrow);
         };
 
-        _deleteButton.PointerEnter += (object sender, PointerEventArgs pe) =>
+        _deleteButton.PointerEnter += (_, pe) =>
         {
             ChangeMousePointer(_deleteButton, pe, StandardCursorType.Arrow);
         };
         
-        PointerMoved += (object sender, PointerEventArgs args) =>
+        PointerMoved += (_, args) =>
         {
 
             // If this class box is being dragged...
-            if (_beingDragged)
+            if (beingDragged)
             {
 
                 // Get the position of the cursor relative to the canvas
@@ -143,7 +148,7 @@ public class ClassBox : UserControl
                 Canvas.SetTop(this, newY);
 
                 _parentWindow!.RedrawLines();
-                _parentWindow!.ReconsiderCanvasSize();
+                _parentWindow.ReconsiderCanvasSize();
                 
             }
             
@@ -227,7 +232,7 @@ public class ClassBox : UserControl
     /// <summary>
     /// Event handler for the class deletion button
     /// </summary>
-    private void DeleteClass_Button_OnClick(object sender, RoutedEventArgs e)
+    private void DeleteClass_Button_OnClick(object sender, RoutedEventArgs routedEventArgs)
     {
         
         _parentWindow.RaiseConfirmation(
@@ -275,7 +280,7 @@ public class ClassBox : UserControl
     /// <summary>
     /// Event handler for the rename class button
     /// </summary>
-    private void RenameClass_Button_OnClick(object sender, RoutedEventArgs e)
+    private void RenameClass_Button_OnClick(object sender, RoutedEventArgs routedEventArgs)
     {
 
         ModalDialog dialog = ModalDialog.CreateDialog<AddClassPanel>($"Rename '{ClassName}'", DialogButtons.OK_CANCEL);
@@ -319,7 +324,7 @@ public class ClassBox : UserControl
     /// <summary>
     /// Prompts to add a field in this class
     /// </summary>
-    private void AddFieldButton_OnClick(object sender, RoutedEventArgs e)
+    private void AddFieldButton_OnClick(object sender, RoutedEventArgs routedEventArgs)
     {
         
         ModalDialog dialog = ModalDialog.CreateDialog<AddFieldPanel>($"Add Field To '{ClassName}'", DialogButtons.OK_CANCEL);
@@ -738,7 +743,7 @@ public class ClassBox : UserControl
 
     }
     
-    private void AddMethodButton_OnClick(object sender, RoutedEventArgs e)
+    private void AddMethodButton_OnClick(object sender, RoutedEventArgs routedEventArgs)
     {
 
         ModalDialog prompt = ModalDialog.CreateDialog<AddFieldPanel>("Create New Method", DialogButtons.OK_CANCEL);

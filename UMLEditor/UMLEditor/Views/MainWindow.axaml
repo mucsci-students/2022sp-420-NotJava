@@ -1,16 +1,28 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:UMLEditor.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:views="clr-namespace:UMLEditor.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="UMLEditor.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="UMLEditor"
         WindowStartupLocation="CenterScreen"
-        MinWidth="420">
-        
+        MinWidth="550">
+    
+        <!-- Establish listeners for key combos on the window -->
+        <Window.KeyBindings>
+            <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+O" Gesture="Ctrl+O" />
+            <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+S" Gesture="Ctrl+S" />
+            <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+Z" Gesture="Ctrl+Z" />
+            <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+Y" Gesture="Ctrl+Y" />
+            <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+T" Gesture="Ctrl+T" />
+            <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+C" Gesture="Ctrl+C" />
+            <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+Shift+C" Gesture="Ctrl+Shift+C" />
+            <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+R" Gesture="Ctrl+R" />
+            <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+D" Gesture="Ctrl+D" />
+            <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="F1" Gesture="F1" />
+        </Window.KeyBindings>
+    
         <Grid>
             
             <Grid.ColumnDefinitions>
@@ -27,45 +39,77 @@
                         Grid.Row="0"
                         HorizontalAlignment="Stretch">
                         <Menu DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+                                
+                                <!-- Establish listeners for key combos on the menu (so they work when the menu is open) -->    
+                                <!-- This is only needed for open and load for some reason -->    
+                                <Menu.KeyBindings>
+                                    <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+O" Gesture="Ctrl+O" />
+                                    <KeyBinding Command="{Binding OnKeyComboSent}" CommandParameter="Ctrl+S" Gesture="Ctrl+S" />
+                                </Menu.KeyBindings>
+                            
                                 <MenuItem Header="_File">
                                         <MenuItem Header="_Save"
                                                   Name="SaveDiagramButton"
                                                   Click="Save_Button_OnClick"
+                                                  InputGesture="Ctrl+S"
                                                   />
                                         <MenuItem Header="_Load"
                                                   Name="LoadDiagramButton"
                                                   Click="LoadButton_OnClick"
-                                                  />
-                                </MenuItem>
-                                <MenuItem Header="_Class">
-                                        <MenuItem Header="_Add"
-                                                  Click="Class_AddClass_OnClick"
-                                                  />
-                                </MenuItem>
-                                <MenuItem Header="_Relationship">
-                                        <MenuItem Header="_Add"
-                                                  Click="Add_Relationship_OnClick"
-                                        />
-                                        <MenuItem Header="_Change"
-                                                  Click="Change_Relationship_OnClick"
-                                        />
-                                        <MenuItem Header="_Delete"
-                                                  Click="Delete_Relationship_OnClick"
-                                        />
-                                </MenuItem>
-                                <MenuItem Header="Utility">
-                                        <MenuItem Header="_Help"
-                                                  Click="HelpB_OnClick"
+                                                  InputGesture="Ctrl+O"
                                                   />
                                         <MenuItem Header="_Exit"
                                                   Click="ExitB_OnClick"
                                                   />
                                 </MenuItem>
+                                <MenuItem Header="_Class">
+                                        <MenuItem Header="_Add"
+                                                  Click="Class_AddClass_OnClick"
+                                                  InputGesture="Ctrl+C"
+                                                  />
+                                </MenuItem>
+                                <MenuItem Header="_Relationship">
+                                        <MenuItem Header="_Add"
+                                                  Click="Add_Relationship_OnClick"
+                                                  InputGesture="Ctrl+R"
+                                        />
+                                        <MenuItem Header="_Change"
+                                                  Click="Change_Relationship_OnClick"
+                                                  InputGesture="Ctrl+Shift+C"
+                                        />
+                                        <MenuItem Header="_Delete"
+                                                  Click="Delete_Relationship_OnClick"
+                                                  InputGesture="Ctrl+D"
+                                        />
+                                </MenuItem>
+                                <MenuItem Header="Utility">
+                                        <MenuItem Header="_Help"
+                                                  Click="HelpB_OnClick"
+                                                  InputGesture="F1"
+                                                  />
+                                </MenuItem>
                         </Menu>
                       
                 </DockPanel>
-                <ToggleSwitch 
-                    Click="ViewEditToggle_OnClick" 
+                <Button
+                    Grid.Row="0"
+                    Name="UndoButton"
+                    HorizontalAlignment="Right"
+                    Margin="0 0 220 0"
+                    IsEnabled="False"
+                    Content="Undo"
+                    Click="UndoButton_OnClick"/>
+                <Button
+                    Grid.Row="0"
+                    Name="RedoButton"
+                    HorizontalAlignment="Right"
+                    Margin="0 0 160 0"
+                    IsEnabled="False"
+                    Content="Redo"
+                    Click="RedoButton_OnClick"/>
+                <ToggleSwitch
+                    Grid.Row="0" Click="ViewEditToggle_OnClick" 
+                    Name="ViewEditToggle"
                     OnContent="Edit Mode" 
                     OffContent="View Mode" 
                     HorizontalAlignment="Right"

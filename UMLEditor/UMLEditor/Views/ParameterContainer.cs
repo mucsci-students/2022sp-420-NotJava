@@ -1,7 +1,6 @@
 ﻿namespace UMLEditor.Views;
 
-using Avalonia.Interactivity;
-using UMLEditor.Classes;
+using Classes;
 
 /// <summary>
 /// A subclass of FieldContainer that defines more specific behaviors for method parameters.
@@ -11,8 +10,7 @@ public class ParameterContainer : FieldContainer
 {
     
     // The MethodContainer that this ParameterContainer is sitting in
-    private MethodContainer _parentMethod;
-    
+
     /// <summary>
     /// Constructs a method parameter container to the provided specifications
     /// </summary>
@@ -23,18 +21,17 @@ public class ParameterContainer : FieldContainer
     public ParameterContainer(NameTypeObject template, MethodContainer inMethod, ClassBox parentWindow, bool isInEditMode = false)
         : base(template.Type, template.AttributeName, parentWindow, true, isInEditMode)
     {
-
-        _parentMethod = inMethod;
+        var parentMethod = inMethod;
         
         // Install the event handler for method parameters
-        _deleteButton.Click += (object sender, RoutedEventArgs args) =>
+        _deleteButton.Click += (_, _) =>
         {
-            parentWindow.RequestParameterDeletion(this, _parentMethod);
+            parentWindow.RequestParameterDeletion(this, parentMethod);
         };
 
-        _editButton.Click += (object sender, RoutedEventArgs args) =>
+        _editButton.Click += (_, _) =>
         {
-            parentWindow.RequestParamRename(this, _parentMethod);
+            parentWindow.RequestParamRename(this, parentMethod);
         };
 
     }

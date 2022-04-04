@@ -10,6 +10,4 @@
   <Design.DataContext>
     <viewModels:MainViewModel />
   </Design.DataContext>
-
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 </UserControl>

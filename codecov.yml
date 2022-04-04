@@ -1,0 +1,41 @@
+codecov:
+  require_ci_to_pass: yes
+  
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
+ignore:
+  - ".github/workflows"  # ignore folders and all its contents
+  - ".idea/.idea.UMLEditor/.idea"
+  - "UnitTests"
+  - "/UMLEditor/.idea/.idea.UMLEdito/.idea"
+  - "UMLEditor.NetCore"
+  - "UMLEditor/UMLEditor/Assets"
+  - "UMLEditor/UMLEditor/Exceptions"
+  - "UMLEditor/UMLEditor/Interfaces"
+  - "UMLEditor/UMLEditor/Utility"
+  - "UMLEditor/UMLEditor/ViewModels"
+  - "UMLEditor/UMLEditor/Views"
+  - "UMLEditor/UMLEditor/App.axaml"
+  - "UMLEditor/UMLEditor/App.axaml.cs"
+  - "UMLEditor/UMLEditor/UMLEditor.csproj"
+  - "UMLEditor/UMLEditor/ViewLocator.cs"
+  - "UMLEditor/UMLEditor/Classes/JSONDiagramFile.cs"
+  - "UMLEditor/UMLEditor/Classes/Diagram.cs"
+  - "UMLEditor/UMLEditor/Classes/JSONDiagramFile.cs"
+  - "UMLEditor/UMLEditor/Classes/AutoCompleteHandler.cs"
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: no

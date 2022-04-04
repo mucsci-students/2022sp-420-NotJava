@@ -1,12 +1,12 @@
 ﻿using Avalonia.Interactivity;
-using Avalonia.Threading;
+// ReSharper disable UnusedParameter.Local
 
 namespace UMLEditor.Views;
 
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using UMLEditor.Classes;
+using Classes;
 
 /// <summary>
 /// A control that is a graphical depiction of a method
@@ -20,12 +20,20 @@ public class MethodContainer : UserControl
 
     private bool _isInEditMode;
     
+    /// <summary>
+    /// Return type getter and setter
+    /// </summary>
     public string ReturnType { get; private set; }
+    /// <summary>
+    /// MethodName getter and setter
+    /// </summary>
     public string MethodName { get; private set; }
 
+    #pragma warning disable CS8618
     /// <summary>
     /// Default constructor
     /// </summary>
+
     public MethodContainer()
     {
         
@@ -36,7 +44,8 @@ public class MethodContainer : UserControl
         _isInEditMode = false;
 
     }
-
+    #pragma warning restore CS8618
+    
     /// <summary>
     /// Constructs a MethodContainer with the provided parameters
     /// </summary>

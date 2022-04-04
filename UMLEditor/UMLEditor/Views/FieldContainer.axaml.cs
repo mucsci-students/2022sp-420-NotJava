@@ -1,25 +1,43 @@
 ﻿namespace UMLEditor.Views;
 
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using UMLEditor.Classes;
+using Classes;
 
+/// <summary>
+/// FieldContainer.cs
+/// </summary>
 public class FieldContainer : UserControl
 {
-
+    
+    /// <summary>
+    /// Delete Button
+    /// </summary>
+    protected Button _deleteButton; 
+    /// <summary>
+    /// Edit Button
+    /// </summary>
+    protected Button _editButton; 
     private Label _display;
     private Grid _backing;
-    private ClassBox _parentClassBox;
-    protected Button _deleteButton; 
-    protected Button _editButton; 
     
-    // Properties for field name/ type
+    /// <summary>
+    /// Properties for field name
+    /// </summary>
     public string FieldName { get; protected set; }
+    /// <summary>
+    /// Properties for Type
+    /// </summary>
     public string Type { get; protected set; }
 
+    /// <summary>
+    /// isMethodParam
+    /// </summary>
     protected bool _isMethodParam;
+    /// <summary>
+    /// isInEditMode
+    /// </summary>
     protected bool _isInEditMode;
     
     /// <summary>
@@ -36,6 +54,7 @@ public class FieldContainer : UserControl
     /// <summary>
     /// Default ctor
     /// </summary>
+        #pragma warning disable CS8618
     public FieldContainer()
     {
         
@@ -48,7 +67,8 @@ public class FieldContainer : UserControl
         _deleteButton = this.FindControl<Button>("DeleteButton");
 
     }
-
+    #pragma warning restore CS8618
+    
     /// <summary>
     /// Constructs a FieldContainer to the provided specifications
     /// </summary>
@@ -59,10 +79,9 @@ public class FieldContainer : UserControl
     /// <param name="inEditMode">Indicates whether or not this is in edit mode</param>
     public FieldContainer(string withType, string fieldName, ClassBox parentWindow, bool isMethodParam = false, bool inEditMode = false) : this()
     {
-
         Type = withType;
         FieldName = fieldName;
-        _parentClassBox = parentWindow;
+        var parentClassBox = parentWindow;
 
         _isMethodParam = isMethodParam;
         if (_isMethodParam)
@@ -78,14 +97,14 @@ public class FieldContainer : UserControl
         else
         {
 
-            _deleteButton.Click += (object sender, RoutedEventArgs args) =>
+            _deleteButton.Click += (_, _) =>
             {
-                _parentClassBox.RequestFieldDeletion(this);   
+                parentClassBox.RequestFieldDeletion(this);   
             };
 
-            _editButton.Click += (object sender, RoutedEventArgs args) =>
+            _editButton.Click += (_, _) =>
             {
-                _parentClassBox.RequestFieldRename(this);
+                parentClassBox.RequestFieldRename(this);
             };
 
         }

@@ -9,11 +9,14 @@ namespace UMLEditor.Views;
 public enum AlertIcon
 {
     
+
+#pragma warning disable CS1591
     NONE,
     ERROR,
     WARNING,
     QUESTION,
     INFO
+#pragma warning restore CS1591
     
 }
 

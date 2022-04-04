@@ -1,13 +1,16 @@
-﻿using System.Diagnostics;
+﻿using System;
 
 namespace UMLEditor.Classes;
 
-using UMLEditor.Utility;
+using Utility;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Exceptions;
 
-public class Diagram
+/// <summary>
+/// Diagram Class
+/// </summary>
+public class Diagram : ICloneable
 {
     
     [JsonProperty("classes", Required = Required.Always)]
@@ -15,17 +18,21 @@ public class Diagram
 
     [JsonProperty("relationships", Required = Required.Always)]
     private List<Relationship> _relationships;
-
-    // Public accessor for Classes
-    // Creates copies to ensure data integrity
+    
+    /// <summary>
+    /// Public accessor for Classes
+    /// Creates copies to ensure data integrity
+    /// </summary>
     [JsonIgnore]
     public List<Class> Classes
     {
         get => Utilities.CloneContainer(_classes);
     }
-
-    // Public accessor for Relationships
-    // Creates copies to ensure data integrity
+    
+    /// <summary>
+    /// Public accessor for Relationships
+    /// Creates copies to ensure data integrity
+    /// </summary>
     [JsonIgnore]
     public List<Relationship> Relationships
     {
@@ -42,11 +49,28 @@ public class Diagram
     }
 
     /// <summary>
+    /// Copy constructor for a Diagram
+    /// </summary>
+    /// <param name="d">diagram to copy</param>
+    public Diagram(Diagram d) : this()
+    {
+        foreach (var item in d._classes)
+        {
+            _classes.Add((Class) item.Clone());
+        }
+        
+        foreach (var item in d._relationships)
+        {
+            _relationships.Add((Relationship) item.Clone());
+        }
+    }
+
+    /// <summary>
     /// Check if specified class exists.
     /// </summary>
     /// <param name="name">Name of the class you are checking</param>
     /// <returns>Returns true if exists, false if not.</returns>
-    private bool ClassExists (string name)
+    public bool ClassExists (string name)
     {
 
         return GetClassByName(name) is not null;
@@ -129,7 +153,7 @@ public class Diagram
     /// <param name="sourceName">The source class in the relationship</param>
     /// <param name="destName">The destination class in the relationship</param>
     /// <returns>True if the relationship exists, false otherwise</returns>
-    private bool RelationshipExists (string sourceName, string destName)
+    public bool RelationshipExists (string sourceName, string destName)
     {
 
         return GetRelationship(sourceName, destName) is not null;
@@ -192,10 +216,12 @@ public class Diagram
         
         // Ensure the provided relationship does not exist
         MustNotHaveRelationship(sourceClassName, destClassName);
-
+        
         // Create and add the new relationship
         Relationship newRel = new Relationship(sourceClassName, destClassName, relationshipType);
         _relationships.Add(newRel);
+        
+        NotifyChanged();
         
     }
     
@@ -218,8 +244,10 @@ public class Diagram
         {
             throw new RelationshipTypeAlreadyExists($"Relationship '{sourceClass} => {destClass}' is already of type '{newRelationshipType}'.");
         }
-        
+
         r.ChangeType(newRelationshipType);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -232,6 +260,8 @@ public class Diagram
     {
         MustHaveClass(toClass);
         GetClassByName(toClass)!.AddMethod(returnType, methodName);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -246,6 +276,8 @@ public class Diagram
         
         MustHaveClass(toClass);
         GetClassByName(toClass)!.AddMethod(returnType, methodName, paramList);
+        
+        NotifyChanged();
         
     }
 
@@ -262,6 +294,8 @@ public class Diagram
         
         // Create a new class
         _classes.Add(new Class(className));
+        
+        NotifyChanged();
 
     }
     
@@ -281,6 +315,8 @@ public class Diagram
         }
         
         _classes.Remove(GetClassByName(className)!);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -307,6 +343,8 @@ public class Diagram
         {
             currentRel.RenameMember(oldName, newName);
         }
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -323,6 +361,8 @@ public class Diagram
         MustHaveClass(onClass);
         
         GetClassByName(onClass)!.RenameMethod(oldName, newName);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -398,6 +438,8 @@ public class Diagram
         
         // Delete relationship
         _relationships.Remove(GetRelationship(sourceName, destName)!);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -438,6 +480,8 @@ public class Diagram
 
         Class? targetClass = GetClassByName(toClass);
         targetClass!.AddField(withType, withName);
+        
+        NotifyChanged();
 
     }
 
@@ -454,6 +498,8 @@ public class Diagram
 
         Class? targetClass = GetClassByName(fromClass);
         targetClass!.DeleteField(withName);
+        
+        NotifyChanged();
 
     }
 
@@ -470,6 +516,8 @@ public class Diagram
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.RenameField(oldName, newName);
+        
+        NotifyChanged();
 
     }
 
@@ -486,6 +534,8 @@ public class Diagram
         
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeFieldType(fieldToChange, newType);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -502,6 +552,8 @@ public class Diagram
         
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeMethodType(onMethod, newType);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -517,6 +569,8 @@ public class Diagram
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ReplaceField(toRename, newField);
+        
+        NotifyChanged();
 
     }
 
@@ -535,6 +589,8 @@ public class Diagram
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ReplaceParameter(inMethod, toReplace, newParameter);
+        
+        NotifyChanged();
 
     }
 
@@ -550,6 +606,8 @@ public class Diagram
         MustHaveClass(onClass);
 
         GetClassByName(onClass)!.ClearParameters(inMethod);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -565,6 +623,8 @@ public class Diagram
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.DeleteMethodParameter(paramName, inMethod);
+        
+        NotifyChanged();
 
     }
 
@@ -583,6 +643,8 @@ public class Diagram
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.RenameMethodParameter(onMethod, oldParamName, newParamName);
+        
+        NotifyChanged();
 
     }
 
@@ -599,6 +661,8 @@ public class Diagram
         // Ensures the class exists
         MustHaveClass(className);
         GetClassByName(className)!.AddParameter(methodName, paramType, paramName);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -614,6 +678,8 @@ public class Diagram
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeMethodNameType(methodName, newMethodAnatomy);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -629,6 +695,8 @@ public class Diagram
 
         Class? targetClass = GetClassByName(inClass);
         targetClass!.AddParameter(toMethod, parameter.Type, parameter.AttributeName);
+        
+        NotifyChanged();
     }
     
     /// <summary>
@@ -643,6 +711,8 @@ public class Diagram
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.DeleteMethod(methodName);
+        
+        NotifyChanged();
     }
 
     /// <summary>
@@ -658,7 +728,30 @@ public class Diagram
 
         Class? targetClass = GetClassByName(onClass);
         targetClass!.ChangeLocation(x, y);
+        
+        NotifyChanged();
 
     }
-    
+
+    /// <summary>
+    /// Clones a diagram
+    /// </summary>
+    /// <returns>A clone of the diagram</returns>
+    public object Clone()
+    {
+        return new Diagram(this);
+    }
+
+    /// <summary>
+    /// Diagram changed event
+    /// </summary>
+    public static event EventHandler? DiagramChanged;
+
+    /// <summary>
+    /// Invokes the DiagramChanged Event
+    /// </summary>
+    public void NotifyChanged()
+    {
+        DiagramChanged?.Invoke(this, EventArgs.Empty);
+    }
 }

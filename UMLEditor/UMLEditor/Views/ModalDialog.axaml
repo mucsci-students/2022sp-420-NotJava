@@ -40,7 +40,7 @@
         
         <StackPanel
             Grid.Row="5"
-            Grid.ColumnSpan="4"
+            Grid.ColumnSpan="4" Grid.Column="0"
             HorizontalAlignment="Center"
             VerticalAlignment="Stretch"
             Orientation="Horizontal">
