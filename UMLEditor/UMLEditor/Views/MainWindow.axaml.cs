@@ -12,6 +12,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using UMLEditor.Classes;
 using UMLEditor.Interfaces;
 using UMLEditor.ViewModels;
@@ -83,6 +84,7 @@ namespace UMLEditor.Views
 
         private readonly OpenFileDialog _openFileDialog;
         private readonly SaveFileDialog _saveFileDialog;
+        private readonly SaveFileDialog _exportDialog;
         
         // Line specifications
         private const double SymbolWidth = 15;
@@ -127,6 +129,7 @@ namespace UMLEditor.Views
             _activeFile = new JSONDiagramFile();
 
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
+            InitExportDialog(out _exportDialog, "png");
 
             _canvas = this.FindControl<Canvas>("MyCanvas");
             _inEditMode = false;
@@ -221,6 +224,7 @@ namespace UMLEditor.Views
         /// No need for the "." in the extension.</param>
         private void InitFileDialogs(out OpenFileDialog openFD, out SaveFileDialog saveFD, params string[] filteredExtensions)
         {
+            
             string workingDir = Directory.GetCurrentDirectory();
             
             /* - Construct the open file dialog
@@ -249,6 +253,32 @@ namespace UMLEditor.Views
                 saveFD.Filters.Add(filter);
                 
             }
+        }
+
+        /// <summary>
+        /// Initializes an export file dialog with the provided extensions
+        /// </summary>
+        /// <param name="toInit">The dialog to initialize</param>
+        /// <param name="filteredExtensions">The extensions this export dialog should support</param>
+        private void InitExportDialog(out SaveFileDialog toInit, params string[] filteredExtensions)
+        {
+            
+            string workingDir = Directory.GetCurrentDirectory();
+            toInit = new SaveFileDialog();
+            toInit.Title = "Export Diagram";
+            toInit.Directory = workingDir;
+
+            foreach (string extension in filteredExtensions)
+            {
+                // Establish a filter for the current file extension
+                FileDialogFilter filter = new FileDialogFilter();
+                filter.Name = $".{extension} file";
+                filter.Extensions.Add(extension);
+
+                toInit.Filters.Add(filter);
+                
+            }
+            
         }
         
         private void ExitB_OnClick(object sender, RoutedEventArgs routedEventArgs)
@@ -355,6 +385,8 @@ namespace UMLEditor.Views
                             TimeMachine.AddState(_activeDiagram);
                             ReconsiderUndoRedoVisibility();
                             
+                            ReconsiderCanvasSize();
+                            
                         }
             
                         catch (Exception exception)
@@ -400,6 +432,7 @@ namespace UMLEditor.Views
                         // Attempt to create a new class with the given information.
                         _activeDiagram.AddClass(enteredName);
                         RenderClasses(enteredName);
+                        ReconsiderCanvasSize();
                     }
                     // If fails, raise an alert.
                     catch (Exception error)
@@ -1048,6 +1081,115 @@ namespace UMLEditor.Views
             RedrawEverything();
 
         }
+
+        /// <summary>
+        /// Exports the diagram to the provided image file
+        /// </summary>
+        /// <param name="imageFile">The file to export to</param>
+        private void ExportToImage(string imageFile)
+        {
+            
+            // Grab the scroll viewer
+            var scrollViewer = this.FindControl<ScrollViewer>("ScrollView");
+
+            // Avalonia is weird. We have to set the scroller over to (0,0) for the export to have everything...
+            var oldOffset = scrollViewer.Offset;
+            scrollViewer.Offset = new Vector(0.0, 0.0);
+
+            // Run all UI tasks
+            Dispatcher.UIThread.RunJobs();
+            
+            // Create the render target
+            var px = new PixelSize((int) _canvas.Width, (int) _canvas.Height);
+            var renderTarget = new RenderTargetBitmap(px);
+            
+            // Write in the black background
+            DrawingContext dc = new DrawingContext(renderTarget.CreateDrawingContext(null));
+            dc.FillRectangle(Brushes.Black, new Rect(new Point(0.0, 0.0), px.ToSize(1.0)));
+
+            // Render the canvas to the target
+            renderTarget.Render(_canvas);
+
+            // Write the image file and restore the old scroll value
+            renderTarget.Save(imageFile);
+            scrollViewer.Offset = oldOffset;
+
+        }
+        
+        private void ExportToImage_OnClick(object sender, RoutedEventArgs e)
+        {
+            
+            // Only open if the diagram is not empty, display an error otherwise
+            if (_activeDiagram.Classes.Count != 0)
+            {
+
+                Task<string?> exportTask = _exportDialog.ShowAsync(this);
+                exportTask.ContinueWith(taskResult =>
+                {
+                    
+                    // Called when the future is resolved
+                    Dispatcher.UIThread.Post(() =>
+                    {
+
+                        /* Get the files the user selected
+                         * This will be null if the user canceled the operation or closed the window */
+                        string? selectedFile = taskResult.Result;
+
+                        if (selectedFile is not null && selectedFile.Length >= 1)
+                        {
+
+                            try
+                            {
+
+                                ExportToImage(selectedFile);
+                                RaiseAlert
+                                (
+                                
+                                    "Diagram Exported",
+                                    "Diagram Exported",
+                                    $"Exported to {selectedFile}",
+                                    AlertIcon.INFO
+                                    
+                                );
+                                
+                            }
+
+                            catch (Exception exception)
+                            {
+
+                                RaiseAlert(
+                                    "Export Failed",
+                                    $"Export Failed",
+                                    exception.Message,
+                                    AlertIcon.ERROR
+                                );
+
+                            }
+                        }
+
+                    });
+
+                });
+                
+            }
+
+            else
+            {
+                
+                RaiseAlert
+                (
+                    
+                    "Nothing To Export", 
+                    "Nothing To Export", 
+                    "The diagram is empty", 
+                    AlertIcon.ERROR
+                    
+                );
+                
+            }
+            
+        }
+        
     }
     
 }
