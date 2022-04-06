@@ -496,8 +496,8 @@ namespace UMLEditor.Views
                         ClassBox sourceClassBox = GetClassBoxByName(sourceName);
                         ClassBox destClassBox = GetClassBoxByName(destinationName);
                         RelationshipLine currentLine =
-                            new RelationshipLine(sourceClassBox, destClassBox, relationshipType);
-                        currentLine.Draw(_canvas);
+                            new RelationshipLine(_canvas,sourceClassBox, destClassBox, relationshipType);
+                        currentLine.Draw();
                     }
                     // Alert if the add fails.
                     catch (Exception error)
@@ -550,11 +550,11 @@ namespace UMLEditor.Views
                         RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName);
                         ClassBox sourceClassBox = GetClassBoxByName(sourceName);
                         ClassBox destClassBox = GetClassBoxByName(destinationName);
-                        RelationshipLine newLine = new RelationshipLine(sourceClassBox, destClassBox, relationshipType);
+                        RelationshipLine newLine = new RelationshipLine(_canvas,sourceClassBox, destClassBox, relationshipType);
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
                         RenderLines(_activeDiagram.Relationships);
-                        newLine.Draw(_canvas);
+                        newLine.Draw();
                     }
                     // Alert if the change fails.
                     catch (Exception error)
@@ -714,10 +714,12 @@ namespace UMLEditor.Views
                 ClassBox sourceClassBox = GetClassBoxByName(currentRelation.SourceClass);
                 ClassBox destClassBox = GetClassBoxByName(currentRelation.DestinationClass);
 
-                RelationshipLine newLine =
-                    new RelationshipLine(sourceClassBox, destClassBox, currentRelation.RelationshipType);
+                //RelationshipLine newLine =
+                    new RelationshipLine(_canvas,sourceClassBox, destClassBox, currentRelation.RelationshipType);
+                //_relationshipLines.Add(newLine);
+                GetRelationshipByClassNames(currentRelation.SourceClass, currentRelation.DestinationClass).Draw();
+                //newLine.Draw();
                 
-                newLine.Draw(_canvas);
             }
         }
         
@@ -764,7 +766,8 @@ namespace UMLEditor.Views
             {
                 
                 ClearAllLines();
-                RenderLines(_activeDiagram.Relationships);
+                // Replace w/ redraw
+                //RenderLines(_activeDiagram.Relationships);
                 
             });
             

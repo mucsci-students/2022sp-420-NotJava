@@ -13,7 +13,7 @@ namespace UMLEditor.Classes;
 /// </summary>
 public class RelationshipLine
 {
-    
+    private readonly Point OriginPoint = new Point(0, 0);
     private const double SymbolWidth = 15;
     private const double SymbolHeight = 10;
     private const int LineThickness = 2;
@@ -38,12 +38,12 @@ public class RelationshipLine
     /// <summary>
     /// Symbol for relationship line.
     /// </summary>
-    public Polyline Symbol { get; private set; } = null!;
+    public Polyline? Symbol { get; private set; }
 
     /// <summary>
     /// List of line segments for relationship line
     /// </summary>
-    public List<Line> Segments { get; private set; } = null!;
+    public List<Line>? Segments { get; private set; }
 
     /// <summary>
     /// Default Ctor
@@ -51,17 +51,36 @@ public class RelationshipLine
     /// <param name="startCtrl">Source class control</param>
     /// <param name="endCtrl">Dest class control</param>
     /// <param name="relationshipType">Relationship type for line</param>
-    public RelationshipLine(UserControl startCtrl, UserControl endCtrl, string relationshipType)
+    public RelationshipLine(Canvas _canvas, UserControl startCtrl, UserControl endCtrl, string relationshipType)
     {
         SourceClass = startCtrl;
         DestClass = endCtrl;
         RelationshipType = relationshipType;
+
+        for (int i = 0; i < 5; ++i)
+        {
+            Line newLine = new Line();
+            //newLine = CreateRelationshipLine(OriginPoint, OriginPoint);
+            newLine.Name = "Line";
+            newLine.Stroke = _brush;
+            newLine.StrokeThickness = LineThickness;
+            newLine.ZIndex = 10;
+            Segments.Add(newLine);
+            _canvas.Children.Add(newLine);
+        }
+
+        Symbol = new Polyline();
+        //Symbol = CreateRelationshipSymbol(new List<Point>());
+        Symbol.Name = "Polyline";
+        Symbol.Stroke = _brush;
+        Symbol.StrokeThickness = LineThickness;
+        _canvas.Children.Add(Symbol);
     }
 
     /// <summary>
     /// Draw function for line
     /// </summary>
-    public void Draw(Canvas myCanvas)
+    public void Draw()
     {
             // Calculate lengths of controls
             double startHalfWidth = SourceClass.Bounds.Width / 2;
@@ -172,7 +191,7 @@ public class RelationshipLine
                 }
             }
 
-            Line l1 = CreateRelationshipLine(start, midStart);
+            /*Line l1 = CreateRelationshipLine(start, midStart);
             Line l2 = CreateRelationshipLine(midStart, midEnd);
             Line l3 = CreateRelationshipLine(midEnd, end);
             
@@ -183,29 +202,36 @@ public class RelationshipLine
             // Add lines to the canvas
             myCanvas.Children.Add(Segments[0]);
             myCanvas.Children.Add(Segments[1]);
-            myCanvas.Children.Add(Segments[2]);
+            myCanvas.Children.Add(Segments[2]);*/
 
             // Draw the relationship symbol based on provided type
             switch (RelationshipType)
             {
                 case "aggregation":
-                    myCanvas.Children.Add(CreateRelationshipSymbol(diamondPoints));
+                    Symbol.Points = diamondPoints;
+                    //myCanvas.Children.Add(CreateRelationshipSymbol(diamondPoints));
                     break;
                 case "composition":
-                    Polyline polyline = CreateRelationshipSymbol(diamondPoints);
-                    polyline.Fill = _brush;
-                    myCanvas.Children.Add(polyline);
+                    Symbol.Points = diamondPoints;
+                    //Polyline polyline = CreateRelationshipSymbol(diamondPoints);
+                    Symbol.Fill = _brush;
+                    //myCanvas.Children.Add(polyline);
                     break;
                 case "inheritance":
-                    Symbol = CreateRelationshipSymbol(trianglePoints);
-                    myCanvas.Children.Add(Symbol);
+                    Symbol.Points = trianglePoints;
+                    //Symbol = CreateRelationshipSymbol(trianglePoints);
+                    //myCanvas.Children.Add(Symbol);
                     break;
                 case "realization":
-                    Segments[0].StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    Segments[1].StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    Segments[2].StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    Symbol = CreateRelationshipSymbol(trianglePoints);
-                    myCanvas.Children.Add(Symbol);
+                    Symbol.Points = trianglePoints;
+                    for (int i = 0; i < 5; ++i)
+                    {
+                        Segments[i].StrokeDashArray = new AvaloniaList<double>(5, 3);
+                    }
+
+                    Symbol.Points = trianglePoints;
+                    //Symbol = CreateRelationshipSymbol(trianglePoints);
+                    //myCanvas.Children.Add(Symbol);
                     break;
             }
     }
