@@ -1,4 +1,5 @@
 ﻿
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 // ReSharper disable UnusedParameter.Local
 
@@ -13,6 +14,23 @@ using Avalonia.Input;
 using Avalonia.Threading;
 using Classes;
 using System.Runtime.InteropServices;
+
+/// <summary>
+/// Structure for relationship lines (will be removed once this is put in its own class)
+/// </summary>
+#pragma warning disable CS1591
+public struct RelationshipLine
+{
+    public UserControl SourceClass;
+    public UserControl DestClass;
+    // ReSharper disable once NotAccessedField.Local
+    public string RelationshipType;
+    public Line StartLine;
+    public Line MidLine;
+    public Line EndLine;
+    public Polyline Symbol;
+}
+#pragma warning restore CS1591
 
 /// <summary>
 /// A control that is a graphical depiction of a class in the diagram
@@ -48,6 +66,26 @@ public class ClassBox : UserControl
     private Button _addFieldButton;
     private Button _addMethodButton;
 
+    /// <summary>
+    /// Top edge of class box
+    /// </summary>
+    public List<RelationshipLine> Top { get; private set; }
+    
+    /// <summary>
+    /// Bottom edge of class box
+    /// </summary>
+    public List<RelationshipLine> Bottom { get; private set; }
+    
+    /// <summary>
+    /// Right edge of class box
+    /// </summary>
+    public List<RelationshipLine> Right { get; private set; }
+    
+    /// <summary>
+    /// Left edge of class box
+    /// </summary>
+    public List<RelationshipLine> Left { get; private set; }
+
     private Diagram _activeDiagram; // The active diagram this class is a part of
     private MainWindow _parentWindow; // The parent window this class is depicted on (for raising alerts/ confirmations)
     
@@ -55,6 +93,10 @@ public class ClassBox : UserControl
     #pragma warning disable CS1591
     public ClassBox()
     {
+        Top = new List<RelationshipLine>();
+        Bottom = new List<RelationshipLine>();
+        Left = new List<RelationshipLine>();
+        Right = new List<RelationshipLine>();
         InitializeComponent();
 
         // Grab controls
@@ -222,6 +264,54 @@ public class ClassBox : UserControl
             methodsArea.Children.Add(new MethodContainer(currentMtd, this, inEditMode:_inEditMode));
         }
         
+    }
+
+    /// <summary>
+    /// Adds a line to a given edge
+    /// </summary>
+    /// <param name="line">Line to add</param>
+    /// <param name="edgeSide">Edge to add line to</param>
+    public void AddToEdge(RelationshipLine line, EdgeEnum edgeSide)
+    {
+        switch (edgeSide)
+        {
+            case EdgeEnum.Right:
+                Right.Add(line);
+                break;
+            case EdgeEnum.Left:
+                Left.Add(line);
+                break;
+            case EdgeEnum.Top:
+                Top.Add(line);
+                break;
+            case EdgeEnum.Bottom:
+                Bottom.Add(line);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Removes a line from a specific edge
+    /// </summary>
+    /// <param name="line">Line to remove</param>
+    /// <param name="edgeSide">Edge to remove line from</param>
+    public void RemoveFromEdge(RelationshipLine line, EdgeEnum edgeSide)
+    {
+        switch (edgeSide)
+        {
+            case EdgeEnum.Right:
+                Right.Remove(line);
+                break;
+            case EdgeEnum.Left:
+                Left.Remove(line);
+                break;
+            case EdgeEnum.Top:
+                Top.Remove(line);
+                break;
+            case EdgeEnum.Bottom:
+                Bottom.Remove(line);
+                break;
+        }
     }
     
     private void InitializeComponent()
