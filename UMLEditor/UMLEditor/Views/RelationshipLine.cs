@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
-using Avalonia;
-using System;
 using Avalonia.Media;
-using Avalonia.Collections;
 
-namespace UMLEditor.Classes;
+namespace UMLEditor.Views;
 
 /// <summary>
 /// RelationshipLine class for use in the main window.
