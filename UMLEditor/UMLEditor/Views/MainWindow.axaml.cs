@@ -547,7 +547,7 @@ namespace UMLEditor.Views
                     {
                         // Attempt to change a relationship type with the information given.
                         _activeDiagram.ChangeRelationship(sourceName,destinationName,relationshipType);
-                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName);
+                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName)!;
                         ClassBox sourceClassBox = GetClassBoxByName(sourceName);
                         ClassBox destClassBox = GetClassBoxByName(destinationName);
                         RelationshipLine newLine = new RelationshipLine(sourceClassBox, destClassBox, relationshipType);
@@ -602,7 +602,7 @@ namespace UMLEditor.Views
                     {
                         // Attempt to delete relationship with the information given.
                         _activeDiagram.DeleteRelationship(sourceName,destinationName);
-                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName);
+                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName)!;
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
                         RenderLines(_activeDiagram.Relationships);
