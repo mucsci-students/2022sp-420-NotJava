@@ -38,12 +38,22 @@ public class RelationshipLine
     /// <summary>
     /// Symbol for relationship line.
     /// </summary>
-    public Polyline Symbol { get; private set; } = null!;
+    public Polyline Symbol { get; private set; }
 
     /// <summary>
     /// List of line segments for relationship line
     /// </summary>
     public List<Line> Segments { get; private set; }
+    
+    /// <summary>
+    /// Enum for source edge.
+    /// </summary>
+    public EdgeEnum SourceEdge { get; private set; }
+    
+    /// <summary>
+    /// Enum for source edge.
+    /// </summary>
+    public EdgeEnum DestEdge { get; private set; }
 
     /// <summary>
     /// Default Ctor
@@ -60,11 +70,12 @@ public class RelationshipLine
     }
 
     /// <summary>
-    /// Draw function for line
+    /// Function to draw the line.
     /// </summary>
+    /// <param name="myCanvas">The canvas in which the line will be drawn.</param>
     public void Draw(Canvas myCanvas)
     {
-            // Calculate lengths of controls
+            // Calculate lengths of controls.  This is accomplished via dividing all bounds by two.
             double startHalfWidth = SourceClass.Bounds.Width / 2;
             double startHalfHeight = SourceClass.Bounds.Height / 2;
             double endHalfWidth = DestClass.Bounds.Width / 2;
@@ -84,14 +95,16 @@ public class RelationshipLine
             List<Point> trianglePoints;
             if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
             {
-                // Arrow is horizontal
+                // Arrow is horizontal.  Checks the distance between the x on the box and the y on the box.  
+                // Draws the arrow horizontally if the x is longer than the y.
                 midStart = new Point(Math.Abs(start.X + end.X) / 2, start.Y);
                 midEnd = new Point(Math.Abs(start.X + end.X) / 2, end.Y);
                 if (start.X < end.X)
                 {
-                    // Goes from left to right
+                    // Goes from left to right.  
                     start = new Point(start.X + startHalfWidth, start.Y);
                     end = new Point(end.X - endHalfWidth - (2 * SymbolWidth), end.Y);
+                    // Two different symbols, each one made up of a list of points.
                     diamondPoints = new List<Point> { 
                         end,
                         new(end.X + SymbolWidth,end.Y - SymbolHeight),
@@ -110,6 +123,7 @@ public class RelationshipLine
                     // Goes from right to left
                     start = new Point(start.X - startHalfWidth, start.Y);
                     end = new Point(end.X + endHalfWidth + (2 * SymbolWidth), end.Y);
+                    // Two different symbols, each one made up of a list of points.
                     diamondPoints = new List<Point> { 
                         end,
                         new(end.X - SymbolWidth,end.Y - SymbolHeight),
@@ -127,6 +141,7 @@ public class RelationshipLine
             else
             {
                 // Arrow is vertical
+                // Draws the arrow horizontally if the y is longer than the x.
                 midStart = new Point(start.X, Math.Abs(start.Y + end.Y) / 2);
                 midEnd = new Point(end.X, Math.Abs(start.Y + end.Y) / 2);
                 if (start.Y < end.Y)
@@ -134,6 +149,7 @@ public class RelationshipLine
                     // Goes top to bottom
                     start = new Point(start.X, start.Y + startHalfHeight);
                     end = new Point(end.X, end.Y - endHalfHeight - (2 * SymbolWidth));
+                    // Two different symbols, each one made up of a list of points.
                     diamondPoints = new List<Point>
                     {
                         end,
@@ -155,6 +171,7 @@ public class RelationshipLine
                     // Goes bottom to top
                     start = new Point(start.X, start.Y - startHalfHeight);
                     end = new Point(end.X, end.Y + endHalfHeight + (2 * SymbolWidth));
+                    // Two different symbols, each one made up of a list of points.
                     diamondPoints = new List<Point>
                     {
                         end,
@@ -172,14 +189,11 @@ public class RelationshipLine
                     };
                 }
             }
-
-            Line l1 = CreateRelationshipLine(start, midStart);
-            Line l2 = CreateRelationshipLine(midStart, midEnd);
-            Line l3 = CreateRelationshipLine(midEnd, end);
             
-            Segments.Add(l1);
-            Segments.Add(l2);
-            Segments.Add(l3);
+            // Adding three lines to the list of segments, accounting for start, middle, end, and the between.
+            Segments.Add(CreateRelationshipLine(start, midStart));
+            Segments.Add(CreateRelationshipLine(midStart, midEnd));
+            Segments.Add(CreateRelationshipLine(midEnd, end));
 
             // Add lines to the canvas
             myCanvas.Children.Add(Segments[0]);
