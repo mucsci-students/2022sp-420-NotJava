@@ -43,7 +43,7 @@ public class RelationshipLine
     /// <summary>
     /// List of line segments for relationship line
     /// </summary>
-    public List<Line> Segments { get; private set; } = null!;
+    public List<Line> Segments { get; private set; }
 
     /// <summary>
     /// Default Ctor
@@ -56,6 +56,7 @@ public class RelationshipLine
         SourceClass = startCtrl;
         DestClass = endCtrl;
         RelationshipType = relationshipType;
+        Segments = new List<Line>();
     }
 
     /// <summary>
