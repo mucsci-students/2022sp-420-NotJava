@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Runtime.InteropServices;
 using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
@@ -78,7 +77,7 @@ namespace UMLEditor.Views
         
         private readonly Canvas _canvas;
 
-        private List<RelationshipLine> _relationshipLines = new List<RelationshipLine>();
+        private List<RelationshipLine> _relationshipLines = new();
 
         private IDiagramFile _activeFile;
 
@@ -86,27 +85,8 @@ namespace UMLEditor.Views
         private readonly SaveFileDialog _saveFileDialog;
         private readonly SaveFileDialog _exportDialog;
         
-        // Line specifications
-        private const double SymbolWidth = 15;
-        private const double SymbolHeight = 10;
-        private const int LineThickness = 2;
-        private readonly IBrush _brush = Brushes.CornflowerBlue;
+        private bool _inEditMode;
 
-        private bool _inEditMode; 
-        
-        // Data structure for the display of a Relationship line
-        struct RelationshipLine
-        {
-            public UserControl SourceClass;
-            public UserControl DestClass;
-            // ReSharper disable once NotAccessedField.Local
-            public string RelationshipType;
-            public Line StartLine;
-            public Line MidLine;
-            public Line EndLine;
-            public Polyline Symbol;
-        }
-        
         // The undo and redo buttons
         private readonly Button _undoButton;
         private readonly Button _redoButton;
@@ -462,9 +442,9 @@ namespace UMLEditor.Views
             return foundClass;
         }
 
-        private RelationshipLine GetRelationshipByClassNames(string sourceName, string destinationName)
+        private RelationshipLine? GetRelationshipByClassNames(string sourceName, string destinationName)
         {
-            RelationshipLine foundLine = new RelationshipLine();
+            RelationshipLine? foundLine = null;
             foreach (var line in _relationshipLines)
             {
                 if (line.SourceClass.Name == sourceName &&
@@ -515,7 +495,9 @@ namespace UMLEditor.Views
                         _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
                         ClassBox sourceClassBox = GetClassBoxByName(sourceName);
                         ClassBox destClassBox = GetClassBoxByName(destinationName);
-                        DrawRelationship(sourceClassBox, destClassBox, relationshipType);
+                        RelationshipLine currentLine =
+                            new RelationshipLine(sourceClassBox, destClassBox, relationshipType);
+                        currentLine.Draw(_canvas);
                     }
                     // Alert if the add fails.
                     catch (Exception error)
@@ -565,13 +547,14 @@ namespace UMLEditor.Views
                     {
                         // Attempt to change a relationship type with the information given.
                         _activeDiagram.ChangeRelationship(sourceName,destinationName,relationshipType);
-                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName);
+                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName)!;
                         ClassBox sourceClassBox = GetClassBoxByName(sourceName);
                         ClassBox destClassBox = GetClassBoxByName(destinationName);
+                        RelationshipLine newLine = new RelationshipLine(sourceClassBox, destClassBox, relationshipType);
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
                         RenderLines(_activeDiagram.Relationships);
-                        DrawRelationship(sourceClassBox, destClassBox, relationshipType);
+                        newLine.Draw(_canvas);
                     }
                     // Alert if the change fails.
                     catch (Exception error)
@@ -619,7 +602,7 @@ namespace UMLEditor.Views
                     {
                         // Attempt to delete relationship with the information given.
                         _activeDiagram.DeleteRelationship(sourceName,destinationName);
-                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName);
+                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName)!;
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
                         RenderLines(_activeDiagram.Relationships);
@@ -731,197 +714,11 @@ namespace UMLEditor.Views
                 ClassBox sourceClassBox = GetClassBoxByName(currentRelation.SourceClass);
                 ClassBox destClassBox = GetClassBoxByName(currentRelation.DestinationClass);
 
-                DrawRelationship(sourceClassBox, destClassBox, currentRelation.RelationshipType);
+                RelationshipLine newLine =
+                    new RelationshipLine(sourceClassBox, destClassBox, currentRelation.RelationshipType);
+                
+                newLine.Draw(_canvas);
             }
-        }
-        
-        /// <summary>
-        /// Draws the relationship arrow between two classes
-        /// </summary>
-        /// <param name="startCtrl">The source class to start drawing from</param>
-        /// <param name="endCtrl">The destination class to draw to</param>
-        /// <param name="relationshipType">The type of relationship to draw</param>
-        private void DrawRelationship(UserControl startCtrl, UserControl endCtrl, string relationshipType)
-        {
-            RelationshipLine newLine = new RelationshipLine();
-            newLine.SourceClass = startCtrl;
-            newLine.DestClass = endCtrl;
-            newLine.RelationshipType = relationshipType;
-            
-            // Calculate lengths of controls
-            double startHalfWidth = startCtrl.Bounds.Width / 2;
-            double startHalfHeight = startCtrl.Bounds.Height / 2;
-            double endHalfWidth = endCtrl.Bounds.Width / 2;
-            double endHalfHeight = endCtrl.Bounds.Height / 2;
-            // Initialize points to middle of controls
-            Point start = new Point(
-                startCtrl.Bounds.X + startHalfWidth,
-                startCtrl.Bounds.Y + startHalfHeight);
-            Point end = new Point(
-                endCtrl.Bounds.X + endHalfWidth,
-                endCtrl.Bounds.Y + endHalfHeight);
-
-            // Set points to draw lines
-            Point midStart;
-            Point midEnd;
-            List<Point> diamondPoints;
-            List<Point> trianglePoints;
-            if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
-            {
-                // Arrow is horizontal
-                midStart = new Point(Math.Abs(start.X + end.X) / 2, start.Y);
-                midEnd = new Point(Math.Abs(start.X + end.X) / 2, end.Y);
-                if (start.X < end.X)
-                {
-                    // Goes from left to right
-                    start = new Point(start.X + startHalfWidth, start.Y);
-                    end = new Point(end.X - endHalfWidth - (2 * SymbolWidth), end.Y);
-                    diamondPoints = new List<Point> { 
-                        end,
-                        new(end.X + SymbolWidth,end.Y - SymbolHeight),
-                        new(end.X + (2 * SymbolWidth),end.Y),
-                        new(end.X + SymbolWidth,end.Y + SymbolHeight),
-                        end };
-                    trianglePoints = new List<Point> { 
-                        new(end.X,end.Y - SymbolHeight),
-                        new(end.X + (2 * SymbolWidth),end.Y),
-                        new(end.X,end.Y + SymbolHeight),
-                        new(end.X,end.Y - SymbolHeight)
-                    };
-                }
-                else
-                {
-                    // Goes from right to left
-                    start = new Point(start.X - startHalfWidth, start.Y);
-                    end = new Point(end.X + endHalfWidth + (2 * SymbolWidth), end.Y);
-                    diamondPoints = new List<Point> { 
-                        end,
-                        new(end.X - SymbolWidth,end.Y - SymbolHeight),
-                        new(end.X - (2 * SymbolWidth),end.Y),
-                        new(end.X - SymbolWidth,end.Y + SymbolHeight),
-                        end };
-                    trianglePoints = new List<Point> { 
-                        new(end.X,end.Y - SymbolHeight),
-                        new(end.X - (2 * SymbolWidth),end.Y),
-                        new(end.X,end.Y + SymbolHeight),
-                        new(end.X,end.Y - SymbolHeight)
-                    };
-                }
-            }
-            else
-            {
-                // Arrow is vertical
-                midStart = new Point(start.X, Math.Abs(start.Y + end.Y) / 2);
-                midEnd = new Point(end.X, Math.Abs(start.Y + end.Y) / 2);
-                if (start.Y < end.Y)
-                {
-                    // Goes top to bottom
-                    start = new Point(start.X, start.Y + startHalfHeight);
-                    end = new Point(end.X, end.Y - endHalfHeight - (2 * SymbolWidth));
-                    diamondPoints = new List<Point>
-                    {
-                        end,
-                        new(end.X + SymbolHeight, end.Y + SymbolWidth),
-                        new(end.X, end.Y + (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y + SymbolWidth),
-                        end
-                    };
-                    trianglePoints = new List<Point>
-                    {
-                        new(end.X + SymbolHeight, end.Y),
-                        new(end.X, end.Y + (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y),
-                        new(end.X + SymbolHeight, end.Y)
-                    };
-                }
-                else
-                {
-                    // Goes bottom to top
-                    start = new Point(start.X, start.Y - startHalfHeight);
-                    end = new Point(end.X, end.Y + endHalfHeight + (2 * SymbolWidth));
-                    diamondPoints = new List<Point>
-                    {
-                        end,
-                        new(end.X + SymbolHeight, end.Y - SymbolWidth),
-                        new(end.X, end.Y - (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y - SymbolWidth),
-                        end
-                    };
-                    trianglePoints = new List<Point>
-                    {
-                        new(end.X + SymbolHeight, end.Y),
-                        new(end.X, end.Y - (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y),
-                        new(end.X + SymbolHeight, end.Y)
-                    };
-                }
-            }
-
-            newLine.StartLine = CreateRelationshipLine(start,midStart);
-            newLine.MidLine = CreateRelationshipLine(midStart, midEnd);
-            newLine.EndLine = CreateRelationshipLine(midEnd, end);
-            
-            // Add lines to the canvas
-            _canvas.Children.Add(newLine.StartLine);
-            _canvas.Children.Add(newLine.MidLine);
-            _canvas.Children.Add(newLine.EndLine);
-
-            // Draw the relationship symbol based on provided type
-            switch (relationshipType)
-            {
-                case "aggregation":
-                    _canvas.Children.Add(CreateRelationshipSymbol(diamondPoints));
-                    break;
-                case "composition":
-                    Polyline polyline = CreateRelationshipSymbol(diamondPoints);
-                    polyline.Fill = _brush;
-                    _canvas.Children.Add(polyline);
-                    break;
-                case "inheritance":
-                    _canvas.Children.Add(CreateRelationshipSymbol(trianglePoints));
-                    break;
-                case "realization":
-                    newLine.StartLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    newLine.MidLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    newLine.EndLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    newLine.Symbol = CreateRelationshipSymbol(trianglePoints);
-                    _canvas.Children.Add(newLine.Symbol);
-                    break;
-            }
-            _relationshipLines.Add(newLine);
-        }
-
-        /// <summary>
-        /// Draws the relationship symbol from the given list of points
-        /// </summary>
-        /// <param name="points">A list of points for the vertices to draw</param>
-        /// <returns>The new relationship symbol</returns>
-        private Polyline CreateRelationshipSymbol(List<Point> points)
-        {
-            Polyline polyline = new Polyline();
-            polyline.Name = "Polyline";
-            polyline.Points = points;
-            polyline.Stroke = _brush;
-            polyline.StrokeThickness = LineThickness;
-            return polyline;
-        }
-
-        /// <summary>
-        /// Creates a line from the given start to end points
-        /// </summary>
-        /// <param name="lineStart">Point to start at</param>
-        /// <param name="lineEnd">Point to end at</param>
-        /// <returns>The new line</returns>
-        private Line CreateRelationshipLine(Point lineStart, Point lineEnd)
-        {
-            Line l = new Line();
-            l.Name = "Line";
-            l.StartPoint = lineStart;
-            l.EndPoint = lineEnd;
-            l.Stroke = _brush;
-            l.StrokeThickness = LineThickness;
-            l.ZIndex = 10;
-            return l;
         }
         
         /// <summary>

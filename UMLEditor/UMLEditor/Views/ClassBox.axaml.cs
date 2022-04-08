@@ -1,9 +1,4 @@
-﻿
-using Avalonia.Controls.Shapes;
-using Avalonia.Interactivity;
-// ReSharper disable UnusedParameter.Local
-
-namespace UMLEditor.Views;
+﻿namespace UMLEditor.Views;
 
 using System;
 using Avalonia;
@@ -14,23 +9,7 @@ using Avalonia.Input;
 using Avalonia.Threading;
 using Classes;
 using System.Runtime.InteropServices;
-
-/// <summary>
-/// Structure for relationship lines (will be removed once this is put in its own class)
-/// </summary>
-#pragma warning disable CS1591
-public struct RelationshipLine
-{
-    public UserControl SourceClass;
-    public UserControl DestClass;
-    // ReSharper disable once NotAccessedField.Local
-    public string RelationshipType;
-    public Line StartLine;
-    public Line MidLine;
-    public Line EndLine;
-    public Polyline Symbol;
-}
-#pragma warning restore CS1591
+using Avalonia.Interactivity;
 
 /// <summary>
 /// A control that is a graphical depiction of a class in the diagram
