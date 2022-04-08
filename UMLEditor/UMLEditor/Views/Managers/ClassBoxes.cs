@@ -46,13 +46,20 @@ public static class ClassBoxes
         Register[className] = toRegister;
         
     }
+
+    /// <summary>
+    /// Deletes the ClassBox registration for the class by the provided ClassBox
+    /// </summary>
+    /// <param name="toUnregister">The ClassBox to unregister</param>
+    /// <returns>True if a ClassBox for className was registered and removed, false otherwise</returns>
+    public static bool UnregisterClassBox(ClassBox toUnregister) => UnregisterClassBox(toUnregister.ClassName);
     
     /// <summary>
     /// Deletes the ClassBox registration for the class by the provided name
     /// </summary>
     /// <param name="className">The name of the class to unregister</param>
     /// <returns>True if a ClassBox for className was registered and removed, false otherwise</returns>
-    public static bool UnregisterClassBox(string className)
+    private static bool UnregisterClassBox(string className)
     {
         
         // Remove the registration
@@ -108,5 +115,10 @@ public static class ClassBoxes
         throw new InvalidOperationException($"A binding for a ClassBox for {bindingName} does not exist");
 
     }
-    
+
+    /// <summary>
+    /// Removes all registrations this manager tracks
+    /// </summary>
+    public static void UnregisterAll() => Register.Clear();
+
 }
