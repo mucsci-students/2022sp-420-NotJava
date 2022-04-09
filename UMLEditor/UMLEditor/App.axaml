@@ -13,7 +13,7 @@
 
     <NativeMenu.Menu>
         <NativeMenu>
-            <NativeMenuItem Header="Exit" Gesture="cmd+q" Click="NativeMenuItem_OnClick" />
+            <NativeMenuItem Header="Quit UML Editor" Gesture="cmd+q" Click="NativeMenuItem_OnClick" />
         </NativeMenu>
     </NativeMenu.Menu>
     
