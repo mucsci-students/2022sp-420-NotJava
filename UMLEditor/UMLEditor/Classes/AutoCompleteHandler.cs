@@ -71,7 +71,7 @@ public class AutoCompleteHandler : IAutoCompleteHandler
             List<string> possibleCandidates = new List<string>();
             string[] splitLine = forLine.Split(' ');
 
-            if (splitLine.Length == 2 || splitLine.Length == 3)
+            if (splitLine.Length is 2 or 3)
             {
                 return GetPossibleClasses(forLine);
             }
@@ -82,7 +82,7 @@ public class AutoCompleteHandler : IAutoCompleteHandler
                 foreach (var relationshipType in relationshipTypes)
                 {
                     if (IsLikelyCandidate(
-                            splitLine[ /*possibly replace with reverse index operator*/ splitLine.Length - 1],
+                            splitLine[^1],
                             relationshipType))
                     {
                         possibleCandidates.Add(relationshipType);
@@ -97,7 +97,7 @@ public class AutoCompleteHandler : IAutoCompleteHandler
         {
             string[] splitLine = forLine.Split(' ');
 
-            if (splitLine.Length == 2 || splitLine.Length == 3)
+            if (splitLine.Length is 2 or 3)
             {
                 return GetPossibleClasses(forLine);
             }
@@ -113,8 +113,7 @@ public class AutoCompleteHandler : IAutoCompleteHandler
 
             if (splitLine.Length == 3)
             {
-                return GetPossibleFields(forLine, splitLine[ /*possibly replace with reverse index operator*/
-                    splitLine.Length - 2]);
+                return GetPossibleFields(forLine, splitLine[^2]);
             }
             
         }
@@ -130,11 +129,10 @@ public class AutoCompleteHandler : IAutoCompleteHandler
     /// <returns>An array of possible classes.</returns>
     public string[] GetPossibleClasses(string forLine)
     {
-        string[] splitLine = forLine.Split(' ');
         List<string> possibleCandidates = new List<string>();
         foreach (var classObject in Diagram!.Classes)
         {
-            if (IsLikelyCandidate(splitLine[ /*possibly replace with reverse index operator*/ splitLine.Length - 1],
+            if (IsLikelyCandidate(forLine.Split(' ')[^1],
                     classObject.ClassName))
             {
                 possibleCandidates.Add(classObject.ClassName);
@@ -165,7 +163,7 @@ public class AutoCompleteHandler : IAutoCompleteHandler
         
         foreach (var fieldObject in correctClass.Fields)
         {
-            if (IsLikelyCandidate(forLine.Split(' ')[forLine.Split(' ').Length - 1],
+            if (IsLikelyCandidate(forLine.Split(' ')[^1],
                     fieldObject.AttributeName))
             {
                 possibleCandidates.Add(fieldObject.AttributeName);
