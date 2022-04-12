@@ -15,7 +15,7 @@ public class CommandLineController
 {
 
     
-    private Diagram _activeDiagram;
+    // private Diagram _activeDiagram;
     private IDiagramFile _activeFile;
     
     private static readonly ConsoleColor ERROR_COLOR = ConsoleColor.Red;
@@ -28,11 +28,11 @@ public class CommandLineController
     public CommandLineController()
     {
         
-        _activeDiagram = new Diagram();
+        // _activeDiagram = new Diagram();
         _activeFile = new JSONDiagramFile();
         
         // Push the initial state to the TimeMachine
-        TimeMachine.AddState(_activeDiagram);
+        // TimeMachine.AddState(_activeDiagram);
         
     }
     
@@ -42,7 +42,7 @@ public class CommandLineController
     /// <param name="input">command to execute</param>
     /// <returns></returns>
     [SuppressMessage("ReSharper", "HeuristicUnreachableCode")]
-    public StringColorStruct ExecuteCommand(string input)
+    public StringColorStruct ExecuteCommand(string input, ref Diagram _activeDiagram)
     {
         // In the case no input was provided, do nothing
         if (input.Length == 0)

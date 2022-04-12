@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using UMLEditor.Classes;
-
 namespace UMLEditor.Views.CommandLine;
 
 /// <summary>
@@ -10,6 +9,7 @@ namespace UMLEditor.Views.CommandLine;
 public class CommandLine
 {
     private CommandLineController _controller;
+    private Diagram _diagram;
     private static readonly ConsoleColor ERROR_COLOR = ConsoleColor.Red;
 
     /// <summary>
@@ -18,6 +18,8 @@ public class CommandLine
     public CommandLine()
     {
         _controller = new CommandLineController();
+        _diagram = new Diagram();
+        TimeMachine.AddState(_diagram);
     }
     
     /// <summary>
@@ -36,13 +38,15 @@ public class CommandLine
             "add_relationship", "delete_relationship", "change_relationship_type", 
             "list_relationships", "help", "save_diagram", "load_diagram", "undo", "redo", "exit"
         };
+        
         ReadLine.AutoCompletionHandler = tabCompleteHandler;
         while (true)
         {
+            tabCompleteHandler.diagram = (Diagram) _diagram.Clone();
             string input = ReadLine.Read("Enter Command: ");
             try
             {
-                StringColorStruct result = _controller.ExecuteCommand(input);
+                StringColorStruct result = _controller.ExecuteCommand(input, ref _diagram);
                 PrintColoredLine(result.Output, result.OutColor);
             }
             catch (Exception e)

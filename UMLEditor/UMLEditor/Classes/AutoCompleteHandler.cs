@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace UMLEditor.Classes;
 
@@ -17,7 +18,13 @@ public class AutoCompleteHandler : IAutoCompleteHandler
     /// List of commands supported
     /// </summary>
     public string[] SupportedCommands { get; set; } = Array.Empty<string>();
-    
+
+    public string[] classes { get; set; } = Array.Empty<string>();
+    public string[] fields { get; set; } = Array.Empty<string>();
+    public string[] methods { get; set; } = Array.Empty<string>();
+
+    public Diagram diagram { get; set; }
+
     /// <summary>
     /// Checks if a string is a likely candidiate
     /// </summary>
@@ -46,6 +53,52 @@ public class AutoCompleteHandler : IAutoCompleteHandler
                 candidates.Add(command);
             }
             
+        }
+
+        if (forLine.Contains("delete_class"))
+        {
+            string[] listClasses = diagram.ListClasses().Split('\n');
+            List<string> possibleClasses = new List<string>();
+            foreach (var className in listClasses)
+            {
+                if (IsLikelyCandidate(forLine.Split(' ')[1], className))
+                {
+                    possibleClasses.Add(className);
+                }
+            }
+            return possibleClasses.ToArray();
+        }
+
+        if (forLine.Contains("add_relationship"))
+        {
+            List<string> possibleCandidates = new List<string>();
+            string[] splitLine = forLine.Split(' ');
+
+            if (splitLine.Length == 2 || splitLine.Length == 3)
+            {
+                string[] listClasses = diagram.ListClasses().Split('\n');
+                foreach (var className in listClasses)
+                {
+                    if (IsLikelyCandidate(splitLine[/*possibly replace with reverse index operator*/ splitLine.Length - 1], className))
+                    {
+                        possibleCandidates.Add(className);
+                    }
+                }
+                return possibleCandidates.ToArray();   
+            }
+
+            if (splitLine.Length == 4)
+            {
+                string[] relationshipTypes = Relationship.ValidTypes.ToArray();
+                foreach (var relationshipType in relationshipTypes)
+                {
+                    if (IsLikelyCandidate(splitLine[/*possibly replace with reverse index operator*/ splitLine.Length - 1], relationshipType))
+                    {
+                        possibleCandidates.Add(relationshipType);
+                    }
+                }
+                return possibleCandidates.ToArray();
+            }
         }
             
         return candidates.ToArray();
