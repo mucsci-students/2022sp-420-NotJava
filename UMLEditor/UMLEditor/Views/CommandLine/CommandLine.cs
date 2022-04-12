@@ -42,7 +42,7 @@ public class CommandLine
         ReadLine.AutoCompletionHandler = tabCompleteHandler;
         while (true)
         {
-            tabCompleteHandler.diagram = (Diagram) _diagram.Clone();
+            tabCompleteHandler.Diagram = _diagram;
             string input = ReadLine.Read("Enter Command: ");
             try
             {
