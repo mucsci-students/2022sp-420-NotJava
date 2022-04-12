@@ -15,6 +15,7 @@ using Avalonia.Media.Imaging;
 using UMLEditor.Classes;
 using UMLEditor.Interfaces;
 using UMLEditor.ViewModels;
+using UMLEditor.Views.Managers;
 
 // ReSharper disable UnusedParameter.Local
 
@@ -358,6 +359,8 @@ namespace UMLEditor.Views
                         {
                             
                             _activeDiagram = _activeFile.LoadDiagram(chosenFile)!;
+                            
+                            // Wipe all ClassBox registrations and redraws the canvas
                             RedrawEverything();
                             
                             // Reset TM & push new state
@@ -428,19 +431,7 @@ namespace UMLEditor.Views
             });
         }
 
-        private ClassBox GetClassBoxByName(string fromName)
-        {
-            ClassBox foundClass = new ClassBox();
-            foreach (var classBox in _classBoxes)
-            {
-                if (classBox.ClassName == fromName)
-                {
-                    foundClass = classBox;
-                }
-            }
-
-            return foundClass;
-        }
+        private ClassBox GetClassBoxByName(string fromName) => ClassBoxes.FindByName(fromName);
 
         private RelationshipLine? GetRelationshipByClassNames(string sourceName, string destinationName)
         {
@@ -667,7 +658,7 @@ namespace UMLEditor.Views
         }
         
         /// <summary>
-        /// Renders a list of classes, by provided name
+        /// Renders a list of classes, by provided name. Registers the ClassBoxes in the ClassBox manager
         /// </summary>
         /// <param name="withName">The names of classes to be rendered.
         /// The rendered classes will be default boxes with only the name being different.</param>
@@ -681,12 +672,14 @@ namespace UMLEditor.Views
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
                 
+                ClassBoxes.RegisterClassBox(newClass);
+                
             }
             
         }
         
         /// <summary>
-        /// Renders a list of classes
+        /// Renders a list of classes. Registers the ClassBoxes in the ClassBox manager
         /// </summary>
         /// <param name="withClasses">The list of classes to be added to the rendered area</param>
         private void RenderClasses(List<Class> withClasses)
@@ -698,6 +691,8 @@ namespace UMLEditor.Views
                 ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this, _inEditMode);
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
+                
+                ClassBoxes.RegisterClassBox(newClass);
                 
             }
 
@@ -742,16 +737,22 @@ namespace UMLEditor.Views
         /// <param name="toUnrender">The class to remove from the rendered area</param>
         public void UnrenderClass(ClassBox toUnrender)
         {
+            
             _canvas.Children.Remove(toUnrender);
+            ClassBoxes.UnregisterClassBox(toUnrender);
             ReconsiderCanvasSize();
+            
         }
         
         /// <summary>
-        /// Wipes everything off of the canvas
+        /// Wipes everything off of the canvas. Unregisters all previously rendered ClassBoxes
         /// </summary>
         private void ClearCanvas()
         {
+            
             _canvas.Children.Clear();
+            ClassBoxes.UnregisterAll();
+            
         }
 
         /// <summary>

@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Views;
+﻿using UMLEditor.Views.Managers;
+
+namespace UMLEditor.Views;
 
 using System;
 using Avalonia;
@@ -367,8 +369,11 @@ public class ClassBox : UserControl
 
                         AddClassPanel form = dialog.GetPrompt<AddClassPanel>();
                         _activeDiagram.RenameClass(ClassName, form.ClassName);
-                        ClassName = form.ClassName;
 
+                        // Update the ClassBox registration
+                        ClassBoxes.UpdateRegistration(ClassName, form.ClassName);
+                        ClassName = form.ClassName;
+                        
                     }
 
                     catch (Exception e)
