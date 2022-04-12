@@ -64,9 +64,8 @@ public class AutoCompleteHandler : IAutoCompleteHandler
                 return GetPossibleClasses(forLine);
             }
         }
-
-
-        if (forLine.Contains("add_relationship") || forLine.Contains("change_relationship_type"))
+        
+        else if (forLine.Contains("add_relationship") || forLine.Contains("change_relationship_type"))
         {
             List<string> possibleCandidates = new List<string>();
             string[] splitLine = forLine.Split(' ');
@@ -93,7 +92,7 @@ public class AutoCompleteHandler : IAutoCompleteHandler
             }
         }
 
-        if (forLine.Contains("delete_relationship"))
+        else if (forLine.Contains("delete_relationship"))
         {
             string[] splitLine = forLine.Split(' ');
 
@@ -103,7 +102,9 @@ public class AutoCompleteHandler : IAutoCompleteHandler
             }
         }
 
-        if (forLine.Contains("delete_field"))
+        else if (forLine.Contains("delete_field") 
+                 || forLine.Contains("change_field_type") 
+                 || forLine.Contains("rename_field"))
         {
             string[] splitLine = forLine.Split(' ');
             if (splitLine.Length == 2)
@@ -117,7 +118,44 @@ public class AutoCompleteHandler : IAutoCompleteHandler
             }
             
         }
+        
+        else if (forLine.Contains("delete_method")
+                 || forLine.Contains("change_method_type")
+                 || forLine.Contains("rename_method")
+                 || forLine.Contains("add_parameter"))
+        {
+            string[] splitLine = forLine.Split(' ');
+            if (splitLine.Length == 2)
+            {
+                return GetPossibleClasses(forLine);
+            }
 
+            if (splitLine.Length == 3)
+            {
+                return GetPossibleMethods(forLine, splitLine[^2]);
+            }  
+        }
+        
+        else if (forLine.Contains("delete_parameter")
+                 || forLine.Contains("rename_parameter"))
+        {
+            string[] splitLine = forLine.Split(' ');
+            if (splitLine.Length == 2)
+            {
+                return GetPossibleClasses(forLine);
+            }
+
+            if (splitLine.Length == 3)
+            {
+                return GetPossibleMethods(forLine, splitLine[^2]);
+            }
+
+            if (splitLine.Length == 4)
+            {
+                return GetPossibleParameters(forLine, splitLine[^3], splitLine[^2]);
+            }
+        }
+        
         return candidates.ToArray();
     }
 
@@ -127,7 +165,7 @@ public class AutoCompleteHandler : IAutoCompleteHandler
     /// </summary>
     /// <param name="forLine">The command typed so far by the user.</param>
     /// <returns>An array of possible classes.</returns>
-    public string[] GetPossibleClasses(string forLine)
+    private string[] GetPossibleClasses(string forLine)
     {
         List<string> possibleCandidates = new List<string>();
         foreach (var classObject in Diagram!.Classes)
@@ -148,19 +186,10 @@ public class AutoCompleteHandler : IAutoCompleteHandler
     /// <param name="forLine">The command typed so far by the user.</param>
     /// <param name="className">The class name to return the fields of.</param>
     /// <returns></returns>
-    public string[] GetPossibleFields(string forLine, string className)
+    private string[] GetPossibleFields(string forLine, string className)
     {
         List<string> possibleCandidates = new List<string>();
-        Class correctClass = new Class();
-        foreach (var classObject in Diagram!.Classes)
-        {
-            if (classObject.ClassName == className)
-            {
-                correctClass = classObject;
-                break;
-            }
-        }
-        
+        Class correctClass = GetClassByName(className);
         foreach (var fieldObject in correctClass.Fields)
         {
             if (IsLikelyCandidate(forLine.Split(' ')[^1],
@@ -172,6 +201,93 @@ public class AutoCompleteHandler : IAutoCompleteHandler
 
         return possibleCandidates.ToArray();
     }
-}
 
+    /// <summary>
+    /// Returns possible methods for tab completion.
+    /// </summary>
+    /// <param name="forLine">The command typed so far by the user.</param>
+    /// <param name="className">The class name to return the methods of.</param>
+    /// <returns>The possible methods.</returns>
+    private string[] GetPossibleMethods(string forLine, string className)
+    {
+        List<string> possibleCandidates = new List<string>();
+        Class correctClass = GetClassByName(className);
+        foreach (var fieldObject in correctClass.Methods)
+        {
+            if (IsLikelyCandidate(forLine.Split(' ')[^1],
+                    fieldObject.AttributeName))
+            {
+                possibleCandidates.Add(fieldObject.AttributeName);
+            }
+        }
+
+        return possibleCandidates.ToArray();
+    }
+
+    /// <summary>
+    /// Returns possible parameters for tab completion
+    /// </summary>
+    /// <param name="forLine">The command typed so far by the user.</param>
+    /// <param name="className">The class that the method is contained in.</param>
+    /// <param name="methodName">The method name to return the parameters of.</param>
+    /// <returns>The possible parameters.</returns>
+    private string[] GetPossibleParameters(string forLine, string className, string methodName)
+    {
+        Class correctClass = GetClassByName(className);
+
+        Method method = GetMethodByName(correctClass, methodName);
+        
+        List<string> possibleCandidates = new List<string>();
+        foreach (var parameter in method.Parameters)
+        {
+            if (IsLikelyCandidate(forLine.Split(' ')[^1], parameter.AttributeName))
+            {
+                possibleCandidates.Add(parameter.AttributeName);
+            }
+        }
+
+        return possibleCandidates.ToArray();
+    }
+
+    /// <summary>
+    /// Returns class object given name of class.
+    /// </summary>
+    /// <param name="className">String name of class.</param>
+    /// <returns>Class object of the class.</returns>
+    private Class GetClassByName(string className)
+    {
+        Class correctClass = new Class();
+        foreach (var classObject in Diagram!.Classes)
+        {
+            if (classObject.ClassName == className)
+            {
+                correctClass = classObject;
+                break;
+            }
+        }
+
+        return correctClass;
+    }
+    
+    /// <summary>
+    /// Returns method object given class object and method name
+    /// </summary>
+    /// <param name="classObject">The class to get the method from.</param>
+    /// <param name="methodName">The name of the method.</param>
+    /// <returns>Method object of the method.</returns>
+    private Method GetMethodByName(Class classObject, string methodName)
+    {
+        Method method = new Method();
+        foreach (var methodObject in classObject.Methods)
+        {
+            if (methodObject.AttributeName == methodName)
+            {
+                method = methodObject;
+                break;
+            }
+        }
+
+        return method;
+    }
+}
 
