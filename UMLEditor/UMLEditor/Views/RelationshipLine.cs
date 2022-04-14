@@ -75,11 +75,42 @@ public class RelationshipLine
     /// <param name="myCanvas">The canvas in which the line will be drawn.</param>
     public void Draw(Canvas myCanvas)
     {
-            // Calculate lengths of controls.  This is accomplished via dividing all bounds by two.
-            double startHalfWidth = SourceClass.Bounds.Width / 2;
-            double startHalfHeight = SourceClass.Bounds.Height / 2;
-            double endHalfWidth = DestClass.Bounds.Width / 2;
-            double endHalfHeight = DestClass.Bounds.Height / 2;
+        // Calculate lengths of controls.  This is accomplished via dividing all bounds by two.
+        double startHalfWidth = SourceClass.Bounds.Width / 2;
+        double startHalfHeight = SourceClass.Bounds.Height / 2;
+        double endHalfWidth = DestClass.Bounds.Width / 2;
+        double endHalfHeight = DestClass.Bounds.Height / 2;
+
+        // Create lists of edge midpoints for start and destination classes
+        List<Point> startEdgePoints = new List<Point>();
+        startEdgePoints.Add(new Point(SourceClass.Bounds.X + startHalfWidth, SourceClass.Bounds.Y));
+        startEdgePoints.Add(new Point(SourceClass.Bounds.X + SourceClass.Bounds.Width,
+            SourceClass.Bounds.Y + startHalfHeight));
+        startEdgePoints.Add(new Point(SourceClass.Bounds.X + startHalfWidth,
+            SourceClass.Bounds.Y + SourceClass.Bounds.Height));
+        startEdgePoints.Add(new Point(SourceClass.Bounds.X, SourceClass.Bounds.Y + startHalfHeight));
+        
+        List<Point> endEdgePoints = new List<Point>();
+        endEdgePoints.Add(new Point(DestClass.Bounds.X + startHalfWidth, DestClass.Bounds.Y));
+        endEdgePoints.Add(new Point(DestClass.Bounds.X + DestClass.Bounds.Width,
+            DestClass.Bounds.Y + startHalfHeight));
+        endEdgePoints.Add(new Point(DestClass.Bounds.X + startHalfWidth,
+            DestClass.Bounds.Y + DestClass.Bounds.Height));
+        endEdgePoints.Add(new Point(DestClass.Bounds.X, DestClass.Bounds.Y + startHalfHeight));
+        
+        // Find shortest X path
+        Point startPoint, endPoint;
+        if (Math.Abs(startEdgePoints[1].X - endEdgePoints[3].X) < Math.Abs(startEdgePoints[3].X - endEdgePoints[1].X))
+        {
+            startPoint = startEdgePoints[1];
+            endPoint = endEdgePoints[3];
+        }
+        else
+        {
+            startPoint = startEdgePoints[3];
+            endPoint = endEdgePoints[1];
+        }
+
             // Initialize points to middle of controls
             Point start = new Point(
                 SourceClass.Bounds.X + startHalfWidth,
