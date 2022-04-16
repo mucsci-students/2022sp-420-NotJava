@@ -5,6 +5,7 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
+using UMLEditor.Views.Managers;
 
 namespace UMLEditor.Views;
 
@@ -14,8 +15,8 @@ namespace UMLEditor.Views;
 public class RelationshipLine
 {
     
-    private const double SymbolWidth = 15;
-    private const double SymbolHeight = 10;
+    private const double SymbolHalfWidth = 16;
+    private const double SymbolHalfHeight = 12;
     private const int LineThickness = 2;
     private readonly IBrush _brush = Brushes.CornflowerBlue;
     
@@ -44,7 +45,7 @@ public class RelationshipLine
     /// List of line segments for relationship line
     /// </summary>
     public List<Line> Segments { get; private set; }
-    
+
     /// <summary>
     /// Enum for source edge.
     /// </summary>
@@ -69,30 +70,185 @@ public class RelationshipLine
         Segments = new List<Line>();
     }
 
+    private double GetDistance(Point p1, Point p2)
+    {
+        return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y,2));
+    }
+
     /// <summary>
     /// Function to draw the line.
     /// </summary>
     /// <param name="myCanvas">The canvas in which the line will be drawn.</param>
     public void Draw(Canvas myCanvas)
     {
-            // Calculate lengths of controls.  This is accomplished via dividing all bounds by two.
-            double startHalfWidth = SourceClass.Bounds.Width / 2;
-            double startHalfHeight = SourceClass.Bounds.Height / 2;
-            double endHalfWidth = DestClass.Bounds.Width / 2;
-            double endHalfHeight = DestClass.Bounds.Height / 2;
-            // Initialize points to middle of controls
-            Point start = new Point(
-                SourceClass.Bounds.X + startHalfWidth,
-                SourceClass.Bounds.Y + startHalfHeight);
-            Point end = new Point(
-                DestClass.Bounds.X + endHalfWidth,
-                DestClass.Bounds.Y + endHalfHeight);
+        ClassBox sourceClassBox = ClassBoxes.FindByName(SourceClass.Name);
+        ClassBox destClassBox = ClassBoxes.FindByName(DestClass.Name);
+        // Clear previous edge assignments
+        if (SourceEdge != EdgeEnum.Invalid)
+        {
+            sourceClassBox.RemoveFromEdge(this, SourceEdge);
+        }
+
+        if (DestEdge != EdgeEnum.Invalid)
+        {
+            destClassBox.RemoveFromEdge(this,DestEdge);
+        }
+        Segments.Clear();
+        
+        
+        // Calculate lengths of controls.  This is accomplished via dividing all bounds by two.
+        double startHalfWidth = SourceClass.Bounds.Width / 2;
+        double startHalfHeight = SourceClass.Bounds.Height / 2;
+        double endHalfWidth = DestClass.Bounds.Width / 2;
+        double endHalfHeight = DestClass.Bounds.Height / 2;
+
+        // Create lists of edge midpoints for start and destination classes
+        // 0 - Top, 1 - Right, 2 - Bottom, 3 - Left
+        List<Point> startEdgePoints = new List<Point>();
+        startEdgePoints.Add(new Point(SourceClass.Bounds.X + startHalfWidth, SourceClass.Bounds.Y));
+        startEdgePoints.Add(new Point(SourceClass.Bounds.X + SourceClass.Bounds.Width,
+            SourceClass.Bounds.Y + startHalfHeight));
+        startEdgePoints.Add(new Point(SourceClass.Bounds.X + startHalfWidth,
+            SourceClass.Bounds.Y + SourceClass.Bounds.Height));
+        startEdgePoints.Add(new Point(SourceClass.Bounds.X, SourceClass.Bounds.Y + startHalfHeight));
+        
+        List<Point> endEdgePoints = new List<Point>();
+        endEdgePoints.Add(new Point(DestClass.Bounds.X + endHalfWidth, DestClass.Bounds.Y));
+        endEdgePoints.Add(new Point(DestClass.Bounds.X + DestClass.Bounds.Width,
+            DestClass.Bounds.Y + endHalfHeight));
+        endEdgePoints.Add(new Point(DestClass.Bounds.X + endHalfWidth,
+            DestClass.Bounds.Y + DestClass.Bounds.Height));
+        endEdgePoints.Add(new Point(DestClass.Bounds.X, DestClass.Bounds.Y + endHalfHeight));
+       
+        // Initialize start and end edge points
+        Point start = new Point();
+        Point end = new Point();
+        
+        // Find shortest distance
+        double shortestDist = Double.MaxValue;
+        foreach (Point p1 in startEdgePoints)
+        {
+            foreach (Point p2 in endEdgePoints)
+            {
+                double thisDistance = GetDistance(p1, p2);
+                if (thisDistance < shortestDist)
+                {
+                    shortestDist = thisDistance;
+                    start = p1;
+                    end = p2;
+                }
+            }
+        }
+
+        List<Point> diamondPoints = new List<Point>();
+        List<Point> trianglePoints = new List<Point>();
+        int startEdgeIndex = startEdgePoints.IndexOf(start);
+        int endEdgeIndex = endEdgePoints.IndexOf(end);
+
+        // Set source edge
+        switch (startEdgeIndex)
+        {
+            case 0:
+                SourceEdge = EdgeEnum.Top;
+                sourceClassBox.AddToEdge(this, EdgeEnum.Top);
+                break;
+            case 1:
+                SourceEdge = EdgeEnum.Right;
+                sourceClassBox.AddToEdge(this, EdgeEnum.Right);
+                break;
+            case 2:
+                SourceEdge = EdgeEnum.Bottom;
+                sourceClassBox.AddToEdge(this, EdgeEnum.Bottom);
+                break;
+            case 3:
+                SourceEdge = EdgeEnum.Left;
+                sourceClassBox.AddToEdge(this, EdgeEnum.Left);
+                break;
+        }
+    
+        // Set end edge and create symbol points
+        switch (endEdgeIndex)
+        {
+            case 0:
+                DestEdge = EdgeEnum.Top;
+                destClassBox.AddToEdge(this, EdgeEnum.Top);
+                end = new Point(end.X, end.Y - (SymbolHalfWidth * 2));
+                
+                diamondPoints = new List<Point> { 
+                    end,
+                    new(end.X + SymbolHalfHeight, end.Y + SymbolHalfWidth),
+                    new(end.X, end.Y + (SymbolHalfWidth * 2)),
+                    new(end.X - SymbolHalfHeight, end.Y + SymbolHalfWidth),
+                    end };
+                trianglePoints = new List<Point> { 
+                    new(end.X + SymbolHalfHeight,end.Y),
+                    new(end.X,end.Y + (SymbolHalfWidth * 2)),
+                    new(end.X - SymbolHalfHeight,end.Y),
+                    new(end.X + SymbolHalfHeight,end.Y)
+                };
+                break;
+            case 1:
+                DestEdge = EdgeEnum.Right;
+                destClassBox.AddToEdge(this, EdgeEnum.Right);
+                end = new Point(end.X + (SymbolHalfWidth * 2), end.Y);
+                diamondPoints = new List<Point> { 
+                    end,
+                    new(end.X - SymbolHalfWidth, end.Y - SymbolHalfHeight),
+                    new(end.X - (SymbolHalfWidth * 2), end.Y),
+                    new(end.X - SymbolHalfWidth, end.Y + SymbolHalfHeight),
+                    end };
+                trianglePoints = new List<Point> { 
+                    new(end.X,end.Y - SymbolHalfHeight),
+                    new(end.X - (SymbolHalfWidth * 2),end.Y),
+                    new(end.X,end.Y + SymbolHalfHeight),
+                    new(end.X,end.Y - SymbolHalfHeight)
+                };
+                break;
+            case 2:
+                DestEdge = EdgeEnum.Bottom;
+                destClassBox.AddToEdge(this, EdgeEnum.Bottom);
+                end = new Point(end.X, end.Y + (SymbolHalfWidth * 2));
+                diamondPoints = new List<Point> { 
+                    end,
+                    new(end.X + SymbolHalfHeight, end.Y - SymbolHalfWidth),
+                    new(end.X, end.Y - (SymbolHalfWidth * 2)),
+                    new(end.X - SymbolHalfHeight, end.Y - SymbolHalfWidth),
+                    end };
+                trianglePoints = new List<Point> { 
+                    new(end.X + SymbolHalfHeight,end.Y),
+                    new(end.X,end.Y - (SymbolHalfWidth * 2)),
+                    new(end.X - SymbolHalfHeight,end.Y),
+                    new(end.X + SymbolHalfHeight,end.Y)
+                };
+                break;
+            case 3:
+                DestEdge = EdgeEnum.Left;
+                destClassBox.AddToEdge(this, EdgeEnum.Left);
+                end = new Point(end.X - (SymbolHalfWidth * 2), end.Y);
+                diamondPoints = new List<Point> { 
+                    end,
+                    new(end.X + SymbolHalfWidth, end.Y - SymbolHalfHeight),
+                    new(end.X + (SymbolHalfWidth * 2), end.Y),
+                    new(end.X + SymbolHalfWidth, end.Y + SymbolHalfHeight),
+                    end };
+                trianglePoints = new List<Point> { 
+                    new(end.X,end.Y - SymbolHalfHeight),
+                    new(end.X + (SymbolHalfWidth * 2),end.Y),
+                    new(end.X,end.Y + SymbolHalfHeight),
+                    new(end.X,end.Y - SymbolHalfHeight)
+                };
+                break;
+        }
+        
+        // Set points for symbol
+        Point midStart;
+        Point midEnd;
 
             // Set points to draw lines
-            Point midStart;
+            /*Point midStart;
             Point midEnd;
             List<Point> diamondPoints;
-            List<Point> trianglePoints;
+            List<Point> trianglePoints;*/
             if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
             {
                 // Arrow is horizontal.  Checks the distance between the x on the box and the y on the box.  
@@ -102,10 +258,10 @@ public class RelationshipLine
                 if (start.X < end.X)
                 {
                     // Goes from left to right.  
-                    start = new Point(start.X + startHalfWidth, start.Y);
-                    end = new Point(end.X - endHalfWidth - (2 * SymbolWidth), end.Y);
+                    //start = new Point(start.X + startHalfWidth, start.Y);
+                    //end = new Point(end.X - endHalfWidth - (2 * SymbolWidth), end.Y);
                     // Two different symbols, each one made up of a list of points.
-                    diamondPoints = new List<Point> { 
+                    /*diamondPoints = new List<Point> { 
                         end,
                         new(end.X + SymbolWidth,end.Y - SymbolHeight),
                         new(end.X + (2 * SymbolWidth),end.Y),
@@ -116,15 +272,15 @@ public class RelationshipLine
                         new(end.X + (2 * SymbolWidth),end.Y),
                         new(end.X,end.Y + SymbolHeight),
                         new(end.X,end.Y - SymbolHeight)
-                    };
+                    };*/
                 }
                 else
                 {
                     // Goes from right to left
-                    start = new Point(start.X - startHalfWidth, start.Y);
-                    end = new Point(end.X + endHalfWidth + (2 * SymbolWidth), end.Y);
+                    //start = new Point(start.X - startHalfWidth, start.Y);
+                    //end = new Point(end.X + endHalfWidth + (2 * SymbolWidth), end.Y);
                     // Two different symbols, each one made up of a list of points.
-                    diamondPoints = new List<Point> { 
+                    /*diamondPoints = new List<Point> { 
                         end,
                         new(end.X - SymbolWidth,end.Y - SymbolHeight),
                         new(end.X - (2 * SymbolWidth),end.Y),
@@ -135,7 +291,7 @@ public class RelationshipLine
                         new(end.X - (2 * SymbolWidth),end.Y),
                         new(end.X,end.Y + SymbolHeight),
                         new(end.X,end.Y - SymbolHeight)
-                    };
+                    };*/
                 }
             }
             else
@@ -147,10 +303,10 @@ public class RelationshipLine
                 if (start.Y < end.Y)
                 {
                     // Goes top to bottom
-                    start = new Point(start.X, start.Y + startHalfHeight);
-                    end = new Point(end.X, end.Y - endHalfHeight - (2 * SymbolWidth));
+                    //start = new Point(start.X, start.Y + startHalfHeight);
+                    //end = new Point(end.X, end.Y - endHalfHeight - (2 * SymbolWidth));
                     // Two different symbols, each one made up of a list of points.
-                    diamondPoints = new List<Point>
+                    /*diamondPoints = new List<Point>
                     {
                         end,
                         new(end.X + SymbolHeight, end.Y + SymbolWidth),
@@ -164,15 +320,15 @@ public class RelationshipLine
                         new(end.X, end.Y + (2 * SymbolWidth)),
                         new(end.X - SymbolHeight, end.Y),
                         new(end.X + SymbolHeight, end.Y)
-                    };
+                    };*/
                 }
                 else
                 {
                     // Goes bottom to top
-                    start = new Point(start.X, start.Y - startHalfHeight);
-                    end = new Point(end.X, end.Y + endHalfHeight + (2 * SymbolWidth));
+                    //start = new Point(start.X, start.Y - startHalfHeight);
+                    //end = new Point(end.X, end.Y + endHalfHeight + (2 * SymbolWidth));
                     // Two different symbols, each one made up of a list of points.
-                    diamondPoints = new List<Point>
+                    /*diamondPoints = new List<Point>
                     {
                         end,
                         new(end.X + SymbolHeight, end.Y - SymbolWidth),
@@ -186,7 +342,7 @@ public class RelationshipLine
                         new(end.X, end.Y - (2 * SymbolWidth)),
                         new(end.X - SymbolHeight, end.Y),
                         new(end.X + SymbolHeight, end.Y)
-                    };
+                    };*/
                 }
             }
             
@@ -257,5 +413,20 @@ public class RelationshipLine
         l.ZIndex = 10;
         return l;
     }
-}
 
+    public void UpdatePoint(ClassBox classBox, EdgeEnum edge)
+    {
+        int linesCount;
+        switch (edge)
+        {
+            case EdgeEnum.Bottom:
+                break;
+            case EdgeEnum.Left:
+                break;
+            case EdgeEnum.Right:
+                break;
+            case EdgeEnum.Top:
+                break;
+        }
+    }
+}
