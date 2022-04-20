@@ -23,10 +23,5 @@ public enum EdgeEnum
     /// <summary>
     /// Bottom edge
     /// </summary>
-    Bottom,
-    
-    /// <summary>
-    /// Value for an invalid edge
-    /// </summary>
-    Invalid
+    Bottom
 }

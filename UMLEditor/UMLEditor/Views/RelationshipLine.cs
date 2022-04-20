@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
+using AStarSharp;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -14,11 +16,16 @@ namespace UMLEditor.Views;
 /// </summary>
 public class RelationshipLine
 {
-    
+
     private const double SymbolHalfWidth = 16;
     private const double SymbolHalfHeight = 12;
     private const int LineThickness = 2;
     private readonly IBrush _brush = Brushes.CornflowerBlue;
+
+    private static List<List<Node>> _grid = new();
+    private static Astar _astar = new(_grid);
+
+    private List<Vector2> _gridPoints = new();
     
     /// <summary>
     /// SourceClass control for relationship line
@@ -70,9 +77,69 @@ public class RelationshipLine
         Segments = new List<Line>();
     }
 
+    /// <summary>
+    /// Initializes the pathing grid to the correct size and creates nodes for each coordinate
+    /// </summary>
+    /// <param name="canvas">The canvas to get size of for grid (currently not working)</param>
+    public static void InitializeGrid(Canvas canvas)
+    {
+        // Currently not getting bounds correctly, using placeholder values
+        int maxX = 2000 / Node.NODE_SIZE, maxY = 2000 / Node.NODE_SIZE;
+        if (canvas.Bounds.Width != 0)
+        {
+            maxX = (int)canvas.Bounds.Width;
+        }
+
+        if (canvas.Bounds.Height != 0)
+        {
+            maxY = (int)canvas.Bounds.Height;
+        }
+        
+        for (int x = 0; x < maxX; ++x)
+        {
+            List<Node> row = new List<Node>();
+            _grid.Add(row);
+            for (int y = 0; y < maxY; ++y)
+            {
+                Node myNode = new Node(new Vector2(x,y), true);
+                _grid[x].Add(myNode);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Resets the pathing grid to be fully walkable
+    /// </summary>
+    public static void ResetGrid()
+    {
+        for (int x = 0; x < _grid.Count; ++x)
+        {
+            for (int y = 0; y < _grid[x].Count; ++y)
+            {
+                _grid[x][y].Walkable = true;
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Gets the straight line distance between two points
+    /// </summary>
+    /// <param name="p1">First point</param>
+    /// <param name="p2">Second point</param>
+    /// <returns></returns>
     private double GetDistance(Point p1, Point p2)
     {
         return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y,2));
+    }
+
+    /// <summary>
+    /// Sets a grid location to not be walkable for the path search algorithm
+    /// </summary>
+    /// <param name="x">X coordinate of point</param>
+    /// <param name="y">Y coordinate of point</param>
+    public static void MakeNotWalkable(int x, int y)
+    {
+        _grid[x][y].Walkable = false;
     }
 
     /// <summary>
@@ -81,22 +148,18 @@ public class RelationshipLine
     /// <param name="myCanvas">The canvas in which the line will be drawn.</param>
     public void Draw(Canvas myCanvas)
     {
+        // Get ClassBox objects for source and destination
         ClassBox sourceClassBox = ClassBoxes.FindByName(SourceClass.Name);
         ClassBox destClassBox = ClassBoxes.FindByName(DestClass.Name);
-        // Clear previous edge assignments
-        if (SourceEdge != EdgeEnum.Invalid)
-        {
-            sourceClassBox.RemoveFromEdge(this, SourceEdge);
-        }
-
-        if (DestEdge != EdgeEnum.Invalid)
-        {
-            destClassBox.RemoveFromEdge(this,DestEdge);
-        }
-        Segments.Clear();
         
+        // Reset grid nodes where previous lines were
+        foreach (Vector2 p in _gridPoints)
+        {
+            _grid[(int)p.X][(int)p.Y].Walkable = true;
+        }
+        _gridPoints.Clear();
         
-        // Calculate lengths of controls.  This is accomplished via dividing all bounds by two.
+        // Get midpoints for each edge
         double startHalfWidth = SourceClass.Bounds.Width / 2;
         double startHalfHeight = SourceClass.Bounds.Height / 2;
         double endHalfWidth = DestClass.Bounds.Width / 2;
@@ -120,11 +183,10 @@ public class RelationshipLine
             DestClass.Bounds.Y + DestClass.Bounds.Height));
         endEdgePoints.Add(new Point(DestClass.Bounds.X, DestClass.Bounds.Y + endHalfHeight));
        
-        // Initialize start and end edge points
         Point start = new Point();
         Point end = new Point();
         
-        // Find shortest distance
+        // Find shortest distance between edges
         double shortestDist = Double.MaxValue;
         foreach (Point p1 in startEdgePoints)
         {
@@ -140,11 +202,219 @@ public class RelationshipLine
             }
         }
 
-        List<Point> diamondPoints = new List<Point>();
-        List<Point> trianglePoints = new List<Point>();
         int startEdgeIndex = startEdgePoints.IndexOf(start);
         int endEdgeIndex = endEdgePoints.IndexOf(end);
+        
+        Point lineStart = new Point();
+        Point lineEnd = new Point();
+        Point symbolPoint = new Point();
+        List<Point> diamondPoints = new List<Point>();
+        List<Point> trianglePoints = new List<Point>();
 
+        Stack<Node>? path = null;
+        int sourceCount = 0, destCount = 0;
+        // Calculate path between edges
+        while (path is null && sourceCount < 4)
+        {
+            if (path is null)
+            {
+                switch (startEdgeIndex)
+                {
+                    case 0:
+                        lineStart = new Point(
+                            startEdgePoints[startEdgeIndex].X - (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE),
+                            startEdgePoints[startEdgeIndex].Y - (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE) -
+                            Node.NODE_SIZE);
+                        break;
+                    case 1:
+                        lineStart = new Point(
+                            startEdgePoints[startEdgeIndex].X +
+                            (Node.NODE_SIZE - (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE)) + Node.NODE_SIZE,
+                            startEdgePoints[startEdgeIndex].Y - (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE));
+                        break;
+                    case 2:
+                        lineStart = new Point(
+                            startEdgePoints[startEdgeIndex].X - (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE),
+                            startEdgePoints[startEdgeIndex].Y +
+                            (Node.NODE_SIZE - (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE)) + Node.NODE_SIZE);
+                        break;
+                    case 3:
+                        lineStart = new Point(
+                            startEdgePoints[startEdgeIndex].X - (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE) -
+                            Node.NODE_SIZE,
+                            startEdgePoints[startEdgeIndex].Y - (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE));
+                        break;
+                }
+
+                // Set end edge and create symbol points
+                switch (endEdgeIndex)
+                {
+                    case 0:
+                        end = new Point(endEdgePoints[endEdgeIndex].X,
+                            endEdgePoints[endEdgeIndex].Y - (SymbolHalfWidth * 2));
+                        lineEnd = new Point(end.X - (end.X % Node.NODE_SIZE), end.Y - (end.Y % Node.NODE_SIZE));
+                        _gridPoints.Add(new Vector2((int) end.X / Node.NODE_SIZE, (int) end.Y / Node.NODE_SIZE));
+                        diamondPoints = new List<Point>
+                        {
+                            end,
+                            new(end.X + SymbolHalfHeight, end.Y + SymbolHalfWidth),
+                            new(end.X, end.Y + (SymbolHalfWidth * 2)),
+                            new(end.X - SymbolHalfHeight, end.Y + SymbolHalfWidth),
+                            end
+                        };
+                        trianglePoints = new List<Point>
+                        {
+                            new(end.X + SymbolHalfHeight, end.Y),
+                            new(end.X, end.Y + (SymbolHalfWidth * 2)),
+                            new(end.X - SymbolHalfHeight, end.Y),
+                            new(end.X + SymbolHalfHeight, end.Y)
+                        };
+                        symbolPoint = end;
+                        break;
+                    case 1:
+                        end = new Point(endEdgePoints[endEdgeIndex].X + (SymbolHalfWidth * 2),
+                            endEdgePoints[endEdgeIndex].Y);
+                        lineEnd = new Point(end.X + (Node.NODE_SIZE - (end.X % Node.NODE_SIZE)),
+                            end.Y - (end.Y % Node.NODE_SIZE));
+                        _gridPoints.Add(new Vector2((int) end.X / Node.NODE_SIZE, (int) end.Y / Node.NODE_SIZE));
+                        diamondPoints = new List<Point>
+                        {
+                            end,
+                            new(end.X - SymbolHalfWidth, end.Y - SymbolHalfHeight),
+                            new(end.X - (SymbolHalfWidth * 2), end.Y),
+                            new(end.X - SymbolHalfWidth, end.Y + SymbolHalfHeight),
+                            end
+                        };
+                        trianglePoints = new List<Point>
+                        {
+                            new(end.X, end.Y - SymbolHalfHeight),
+                            new(end.X - (SymbolHalfWidth * 2), end.Y),
+                            new(end.X, end.Y + SymbolHalfHeight),
+                            new(end.X, end.Y - SymbolHalfHeight)
+                        };
+                        symbolPoint = end;
+                        break;
+                    case 2:
+                        end = new Point(endEdgePoints[endEdgeIndex].X,
+                            endEdgePoints[endEdgeIndex].Y + (SymbolHalfWidth * 2));
+                        lineEnd = new Point(end.X - (end.X % Node.NODE_SIZE),
+                            end.Y + (Node.NODE_SIZE - (end.Y % Node.NODE_SIZE)));
+                        _gridPoints.Add(new Vector2((int) end.X / Node.NODE_SIZE, (int) end.Y / Node.NODE_SIZE));
+                        diamondPoints = new List<Point>
+                        {
+                            end,
+                            new(end.X + SymbolHalfHeight, end.Y - SymbolHalfWidth),
+                            new(end.X, end.Y - (SymbolHalfWidth * 2)),
+                            new(end.X - SymbolHalfHeight, end.Y - SymbolHalfWidth),
+                            end
+                        };
+                        trianglePoints = new List<Point>
+                        {
+                            new(end.X + SymbolHalfHeight, end.Y),
+                            new(end.X, end.Y - (SymbolHalfWidth * 2)),
+                            new(end.X - SymbolHalfHeight, end.Y),
+                            new(end.X + SymbolHalfHeight, end.Y)
+                        };
+                        symbolPoint = end;
+                        break;
+                    case 3:
+                        end = new Point(endEdgePoints[endEdgeIndex].X - (SymbolHalfWidth * 2),
+                            endEdgePoints[endEdgeIndex].Y);
+                        lineEnd = new Point(end.X - (end.X % Node.NODE_SIZE), end.Y - (end.Y % Node.NODE_SIZE));
+                        _gridPoints.Add(new Vector2((int) end.X / Node.NODE_SIZE, (int) end.Y / Node.NODE_SIZE));
+                        diamondPoints = new List<Point>
+                        {
+                            end,
+                            new(end.X + SymbolHalfWidth, end.Y - SymbolHalfHeight),
+                            new(end.X + (SymbolHalfWidth * 2), end.Y),
+                            new(end.X + SymbolHalfWidth, end.Y + SymbolHalfHeight),
+                            end
+                        };
+                        trianglePoints = new List<Point>
+                        {
+                            new(end.X, end.Y - SymbolHalfHeight),
+                            new(end.X + (SymbolHalfWidth * 2), end.Y),
+                            new(end.X, end.Y + SymbolHalfHeight),
+                            new(end.X, end.Y - SymbolHalfHeight)
+                        };
+                        symbolPoint = end;
+                        break;
+                }
+                
+                // Draw the relationship symbol based on provided type
+                switch (RelationshipType)
+                {
+                    case "aggregation":
+                        Symbol = CreateRelationshipSymbol(diamondPoints);
+                        break;
+                    case "composition":
+                        Symbol = CreateRelationshipSymbol(diamondPoints);
+                        Symbol.Fill = _brush;
+                        break;
+                    case "inheritance":
+                        Symbol = CreateRelationshipSymbol(trianglePoints);
+                        break;
+                    case "realization":
+                        foreach (Line l in Segments)
+                        {
+                            l.StrokeDashArray = new AvaloniaList<double>(5, 3);
+                        }
+                        Symbol = CreateRelationshipSymbol(trianglePoints);
+                        break;
+                }
+                
+                // Make symbol area non-walkable
+                for (int y = (int)(Symbol.Bounds.Y / Node.NODE_SIZE)-1;
+                     y <= (int)((Symbol.Bounds.Y + Symbol.Bounds.Height) / Node.NODE_SIZE)+1;
+                     ++y)
+                {
+                    for (int x= (int)(Symbol.Bounds.X / Node.NODE_SIZE)-1;
+                         x <= (int)((Symbol.Bounds.X + Symbol.Bounds.Width) / Node.NODE_SIZE)+1;
+                         ++x)
+                    {
+                        if (y >= 0 && x >= 0)
+                        {
+                            _grid[x][y].Walkable = false;
+                        }
+                    }
+                }
+                
+                // Check for out of bounds
+                lineStart = new Point(Math.Clamp(lineStart.X, 0, _grid[0].Count * Node.NODE_SIZE),
+                    Math.Clamp(lineStart.Y, 0, _grid.Count * Node.NODE_SIZE));
+                end = new Point(Math.Clamp(end.X, 0, _grid[0].Count * Node.NODE_SIZE),
+                    Math.Clamp(end.Y, 0, _grid.Count * Node.NODE_SIZE));
+
+                // Calculate path from source edge to destination edge
+                path = _astar.FindPath(new Vector2((float) lineStart.X, (float) lineStart.Y),
+                    new Vector2((float) end.X, (float) end.Y));
+                // If no path found, cycle through edges
+                if (path is null)
+                {
+                    ++destCount;
+                    ++endEdgeIndex;
+                    if (endEdgeIndex > 3)
+                    {
+                        endEdgeIndex = 0;
+                    }
+
+                    end = endEdgePoints[endEdgeIndex];
+                    if (destCount == 4)
+                    {
+                        destCount = 0;
+                        ++sourceCount;
+                        ++startEdgeIndex;
+                        if (startEdgeIndex > 3)
+                        {
+                            startEdgeIndex = 0;
+                        }
+
+                        start = startEdgePoints[startEdgeIndex];
+                    }
+                }
+            }
+        }
+        
         // Set source edge
         switch (startEdgeIndex)
         {
@@ -166,219 +436,97 @@ public class RelationshipLine
                 break;
         }
     
-        // Set end edge and create symbol points
+        // Set end edge
         switch (endEdgeIndex)
         {
             case 0:
                 DestEdge = EdgeEnum.Top;
                 destClassBox.AddToEdge(this, EdgeEnum.Top);
-                end = new Point(end.X, end.Y - (SymbolHalfWidth * 2));
-                
-                diamondPoints = new List<Point> { 
-                    end,
-                    new(end.X + SymbolHalfHeight, end.Y + SymbolHalfWidth),
-                    new(end.X, end.Y + (SymbolHalfWidth * 2)),
-                    new(end.X - SymbolHalfHeight, end.Y + SymbolHalfWidth),
-                    end };
-                trianglePoints = new List<Point> { 
-                    new(end.X + SymbolHalfHeight,end.Y),
-                    new(end.X,end.Y + (SymbolHalfWidth * 2)),
-                    new(end.X - SymbolHalfHeight,end.Y),
-                    new(end.X + SymbolHalfHeight,end.Y)
-                };
                 break;
             case 1:
                 DestEdge = EdgeEnum.Right;
                 destClassBox.AddToEdge(this, EdgeEnum.Right);
-                end = new Point(end.X + (SymbolHalfWidth * 2), end.Y);
-                diamondPoints = new List<Point> { 
-                    end,
-                    new(end.X - SymbolHalfWidth, end.Y - SymbolHalfHeight),
-                    new(end.X - (SymbolHalfWidth * 2), end.Y),
-                    new(end.X - SymbolHalfWidth, end.Y + SymbolHalfHeight),
-                    end };
-                trianglePoints = new List<Point> { 
-                    new(end.X,end.Y - SymbolHalfHeight),
-                    new(end.X - (SymbolHalfWidth * 2),end.Y),
-                    new(end.X,end.Y + SymbolHalfHeight),
-                    new(end.X,end.Y - SymbolHalfHeight)
-                };
                 break;
             case 2:
                 DestEdge = EdgeEnum.Bottom;
                 destClassBox.AddToEdge(this, EdgeEnum.Bottom);
-                end = new Point(end.X, end.Y + (SymbolHalfWidth * 2));
-                diamondPoints = new List<Point> { 
-                    end,
-                    new(end.X + SymbolHalfHeight, end.Y - SymbolHalfWidth),
-                    new(end.X, end.Y - (SymbolHalfWidth * 2)),
-                    new(end.X - SymbolHalfHeight, end.Y - SymbolHalfWidth),
-                    end };
-                trianglePoints = new List<Point> { 
-                    new(end.X + SymbolHalfHeight,end.Y),
-                    new(end.X,end.Y - (SymbolHalfWidth * 2)),
-                    new(end.X - SymbolHalfHeight,end.Y),
-                    new(end.X + SymbolHalfHeight,end.Y)
-                };
                 break;
             case 3:
                 DestEdge = EdgeEnum.Left;
                 destClassBox.AddToEdge(this, EdgeEnum.Left);
-                end = new Point(end.X - (SymbolHalfWidth * 2), end.Y);
-                diamondPoints = new List<Point> { 
-                    end,
-                    new(end.X + SymbolHalfWidth, end.Y - SymbolHalfHeight),
-                    new(end.X + (SymbolHalfWidth * 2), end.Y),
-                    new(end.X + SymbolHalfWidth, end.Y + SymbolHalfHeight),
-                    end };
-                trianglePoints = new List<Point> { 
-                    new(end.X,end.Y - SymbolHalfHeight),
-                    new(end.X + (SymbolHalfWidth * 2),end.Y),
-                    new(end.X,end.Y + SymbolHalfHeight),
-                    new(end.X,end.Y - SymbolHalfHeight)
-                };
                 break;
         }
         
-        // Set points for symbol
-        Point midStart;
-        Point midEnd;
+        // Draw lines
+        // Situation 1: A path was found
+        if (path is not null)
+        {
+            _gridPoints.Add(new Vector2((int)lineStart.X/Node.NODE_SIZE, (int)lineStart.Y/Node.NODE_SIZE));
+            Line newLine = CreateRelationshipLine(start, lineStart);
+            Segments.Add(newLine);
+            myCanvas.Children.Add(newLine);
+            Vector2 pos = path.Pop().Position;
+            _gridPoints.Add(pos);
+            newLine = CreateRelationshipLine(lineStart, new Point(pos.X * Node.NODE_SIZE, pos.Y * Node.NODE_SIZE));
+            Segments.Add(newLine);
+            myCanvas.Children.Add(newLine);
+            while (path.Count > 1)
+            {
+                Vector2 newPos = path.Pop().Position;
+                _gridPoints.Add(newPos);
+                newLine = CreateRelationshipLine(new Point(pos.X * Node.NODE_SIZE, pos.Y * Node.NODE_SIZE),
+                    new Point(newPos.X * Node.NODE_SIZE, newPos.Y * Node.NODE_SIZE));
+                Segments.Add(newLine);
+                myCanvas.Children.Add(newLine);
+                pos = newPos;
+            }
 
-            // Set points to draw lines
-            /*Point midStart;
-            Point midEnd;
-            List<Point> diamondPoints;
-            List<Point> trianglePoints;*/
-            if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
-            {
-                // Arrow is horizontal.  Checks the distance between the x on the box and the y on the box.  
-                // Draws the arrow horizontally if the x is longer than the y.
-                midStart = new Point(Math.Abs(start.X + end.X) / 2, start.Y);
-                midEnd = new Point(Math.Abs(start.X + end.X) / 2, end.Y);
-                if (start.X < end.X)
-                {
-                    // Goes from left to right.  
-                    //start = new Point(start.X + startHalfWidth, start.Y);
-                    //end = new Point(end.X - endHalfWidth - (2 * SymbolWidth), end.Y);
-                    // Two different symbols, each one made up of a list of points.
-                    /*diamondPoints = new List<Point> { 
-                        end,
-                        new(end.X + SymbolWidth,end.Y - SymbolHeight),
-                        new(end.X + (2 * SymbolWidth),end.Y),
-                        new(end.X + SymbolWidth,end.Y + SymbolHeight),
-                        end };
-                    trianglePoints = new List<Point> { 
-                        new(end.X,end.Y - SymbolHeight),
-                        new(end.X + (2 * SymbolWidth),end.Y),
-                        new(end.X,end.Y + SymbolHeight),
-                        new(end.X,end.Y - SymbolHeight)
-                    };*/
-                }
-                else
-                {
-                    // Goes from right to left
-                    //start = new Point(start.X - startHalfWidth, start.Y);
-                    //end = new Point(end.X + endHalfWidth + (2 * SymbolWidth), end.Y);
-                    // Two different symbols, each one made up of a list of points.
-                    /*diamondPoints = new List<Point> { 
-                        end,
-                        new(end.X - SymbolWidth,end.Y - SymbolHeight),
-                        new(end.X - (2 * SymbolWidth),end.Y),
-                        new(end.X - SymbolWidth,end.Y + SymbolHeight),
-                        end };
-                    trianglePoints = new List<Point> { 
-                        new(end.X,end.Y - SymbolHeight),
-                        new(end.X - (2 * SymbolWidth),end.Y),
-                        new(end.X,end.Y + SymbolHeight),
-                        new(end.X,end.Y - SymbolHeight)
-                    };*/
-                }
-            }
-            else
-            {
-                // Arrow is vertical
-                // Draws the arrow horizontally if the y is longer than the x.
-                midStart = new Point(start.X, Math.Abs(start.Y + end.Y) / 2);
-                midEnd = new Point(end.X, Math.Abs(start.Y + end.Y) / 2);
-                if (start.Y < end.Y)
-                {
-                    // Goes top to bottom
-                    //start = new Point(start.X, start.Y + startHalfHeight);
-                    //end = new Point(end.X, end.Y - endHalfHeight - (2 * SymbolWidth));
-                    // Two different symbols, each one made up of a list of points.
-                    /*diamondPoints = new List<Point>
-                    {
-                        end,
-                        new(end.X + SymbolHeight, end.Y + SymbolWidth),
-                        new(end.X, end.Y + (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y + SymbolWidth),
-                        end
-                    };
-                    trianglePoints = new List<Point>
-                    {
-                        new(end.X + SymbolHeight, end.Y),
-                        new(end.X, end.Y + (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y),
-                        new(end.X + SymbolHeight, end.Y)
-                    };*/
-                }
-                else
-                {
-                    // Goes bottom to top
-                    //start = new Point(start.X, start.Y - startHalfHeight);
-                    //end = new Point(end.X, end.Y + endHalfHeight + (2 * SymbolWidth));
-                    // Two different symbols, each one made up of a list of points.
-                    /*diamondPoints = new List<Point>
-                    {
-                        end,
-                        new(end.X + SymbolHeight, end.Y - SymbolWidth),
-                        new(end.X, end.Y - (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y - SymbolWidth),
-                        end
-                    };
-                    trianglePoints = new List<Point>
-                    {
-                        new(end.X + SymbolHeight, end.Y),
-                        new(end.X, end.Y - (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y),
-                        new(end.X + SymbolHeight, end.Y)
-                    };*/
-                }
-            }
+            _gridPoints.Add(new Vector2((int)lineEnd.X/Node.NODE_SIZE, (int)lineEnd.Y/Node.NODE_SIZE));
+            newLine = CreateRelationshipLine(lineEnd, new Point(pos.X*Node.NODE_SIZE,pos.Y*Node.NODE_SIZE));
+            Segments.Add(newLine);
+            myCanvas.Children.Add(newLine);
             
-            // Adding three lines to the list of segments, accounting for start, middle, end, and the between.
-            Segments.Add(CreateRelationshipLine(start, midStart));
-            Segments.Add(CreateRelationshipLine(midStart, midEnd));
-            Segments.Add(CreateRelationshipLine(midEnd, end));
-
-            // Add lines to the canvas
-            myCanvas.Children.Add(Segments[0]);
-            myCanvas.Children.Add(Segments[1]);
-            myCanvas.Children.Add(Segments[2]);
-
-            // Draw the relationship symbol based on provided type
-            switch (RelationshipType)
+            _gridPoints.Add(new Vector2((int)end.X/Node.NODE_SIZE, (int)end.Y/Node.NODE_SIZE));
+            newLine = CreateRelationshipLine(lineEnd, symbolPoint);
+            Segments.Add(newLine);
+            myCanvas.Children.Add(newLine);
+            
+            foreach (Vector2 g in _gridPoints)
             {
-                case "aggregation":
-                    myCanvas.Children.Add(CreateRelationshipSymbol(diamondPoints));
-                    break;
-                case "composition":
-                    Polyline polyline = CreateRelationshipSymbol(diamondPoints);
-                    polyline.Fill = _brush;
-                    myCanvas.Children.Add(polyline);
-                    break;
-                case "inheritance":
-                    Symbol = CreateRelationshipSymbol(trianglePoints);
-                    myCanvas.Children.Add(Symbol);
-                    break;
-                case "realization":
-                    Segments[0].StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    Segments[1].StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    Segments[2].StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    Symbol = CreateRelationshipSymbol(trianglePoints);
-                    myCanvas.Children.Add(Symbol);
-                    break;
+                if (g.X >= 0 && g.Y >= 0)
+                {
+                    _grid[(int) g.X][(int) g.Y].Walkable = false;
+                }
             }
+        }
+        // Situation 2: No path found, draw straight line from start to end
+        else
+        {
+            Point midPoint = new Point((start.X + end.X) / 2, (start.Y + end.Y) / 2);
+            Line newLine = CreateRelationshipLine(start, midPoint);
+            Segments.Add(newLine);
+            myCanvas.Children.Add(newLine);
+            newLine = CreateRelationshipLine(midPoint, end);
+            Segments.Add(newLine);
+            myCanvas.Children.Add(newLine);
+        }
+
+        /*using StreamWriter file = new("grid.txt");
+        for (int y = 0; y < 100; ++y)
+        {
+            for (int x = 0; x < 100; ++x)
+            {
+                if (_grid[x][y].Walkable == false)
+                    file.Write("X");
+                else
+                {
+                    file.Write("_");
+                }
+            }
+            file.WriteLine();
+        }*/
+        
+        myCanvas.Children.Add(Symbol);
     }
     
     /// <summary>
@@ -412,21 +560,5 @@ public class RelationshipLine
         l.StrokeThickness = LineThickness;
         l.ZIndex = 10;
         return l;
-    }
-
-    public void UpdatePoint(ClassBox classBox, EdgeEnum edge)
-    {
-        int linesCount;
-        switch (edge)
-        {
-            case EdgeEnum.Bottom:
-                break;
-            case EdgeEnum.Left:
-                break;
-            case EdgeEnum.Right:
-                break;
-            case EdgeEnum.Top:
-                break;
-        }
     }
 }

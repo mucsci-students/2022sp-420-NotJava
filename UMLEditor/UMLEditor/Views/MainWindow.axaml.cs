@@ -16,6 +16,7 @@ using UMLEditor.Classes;
 using UMLEditor.Interfaces;
 using UMLEditor.ViewModels;
 using UMLEditor.Views.Managers;
+using AStarSharp;
 
 // ReSharper disable UnusedParameter.Local
 
@@ -114,6 +115,9 @@ namespace UMLEditor.Views
 
             _canvas = this.FindControl<Canvas>("MyCanvas");
             _inEditMode = false;
+            
+            // Build grid for line placement
+            RelationshipLine.InitializeGrid(_canvas);
 
             // Grab the undo and redo buttons
             _undoButton = this.FindControl<Button>("UndoButton");
@@ -129,7 +133,7 @@ namespace UMLEditor.Views
                 ReconsiderUndoRedoVisibility();
 
             };
-
+            
             // Bind to key combo events
             Dictionary<string, Action> comboBindings = new();
             MainViewModel.KeyComboIssued += (sender, combo) =>
@@ -656,6 +660,30 @@ namespace UMLEditor.Views
             alertDialog.ShowDialog<DialogButtons>(this).ContinueWith(callback);
 
         }
+
+        /// <summary>
+        /// Takes the bounds of the class box on the canvas, converts them to grid coordinates and sets the
+        /// grid locations to non-walkable
+        /// </summary>
+        /// <param name="classBox">Class box to add non-walkable locations to the grid</param>
+        private void AddClassBoxToGrid(ClassBox classBox)
+        {
+            // Add Class Box region to list of not walkable grid nodes
+            for (int y = (int)(classBox.Bounds.Y / Node.NODE_SIZE)-1;
+                 y <= (int)((classBox.Bounds.Y + classBox.Bounds.Height) / Node.NODE_SIZE)+1;
+                 ++y)
+            {
+                for (int x= (int)(classBox.Bounds.X / Node.NODE_SIZE)-1;
+                     x <= (int)((classBox.Bounds.X + classBox.Bounds.Width) / Node.NODE_SIZE)+1;
+                     ++x)
+                {
+                    if (y >= 0 && x >= 0)
+                    {
+                        RelationshipLine.MakeNotWalkable(x, y);
+                    }
+                }
+            }
+        }
         
         /// <summary>
         /// Renders a list of classes, by provided name. Registers the ClassBoxes in the ClassBox manager
@@ -671,7 +699,6 @@ namespace UMLEditor.Views
                 ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this, _inEditMode);
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
-                
                 ClassBoxes.RegisterClassBox(newClass);
                 
             }
@@ -684,14 +711,12 @@ namespace UMLEditor.Views
         /// <param name="withClasses">The list of classes to be added to the rendered area</param>
         private void RenderClasses(List<Class> withClasses)
         {
-            
             foreach (Class currentClass in withClasses)
             {
                 
                 ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this, _inEditMode);
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
-                
                 ClassBoxes.RegisterClassBox(newClass);
                 
             }
@@ -704,11 +729,18 @@ namespace UMLEditor.Views
         /// <param name="withRelationships">The list of Relationships to be added to the rendered area</param>
         private void RenderLines(List<Relationship> withRelationships)
         {
+            foreach (ClassBox c in _classBoxes)
+            {
+                AddClassBoxToGrid(c);
+            }
             foreach (Relationship currentRelation in withRelationships)
             {
                 ClassBox sourceClassBox = GetClassBoxByName(currentRelation.SourceClass);
                 ClassBox destClassBox = GetClassBoxByName(currentRelation.DestinationClass);
 
+                sourceClassBox.ClearAllEdges();
+                destClassBox.ClearAllEdges();
+                
                 RelationshipLine newLine =
                     new RelationshipLine(sourceClassBox, destClassBox, currentRelation.RelationshipType);
                 
@@ -719,7 +751,7 @@ namespace UMLEditor.Views
         /// <summary>
         /// Removes all drawn lines from the canvas
         /// </summary>
-        private void ClearAllLines()
+        public void ClearAllLines()
         {
             List<IControl> children = new List<IControl>(_canvas.Children); 
             foreach (var control in children)
@@ -752,7 +784,7 @@ namespace UMLEditor.Views
             
             _canvas.Children.Clear();
             ClassBoxes.UnregisterAll();
-            
+            RelationshipLine.ResetGrid();
         }
 
         /// <summary>
@@ -766,7 +798,7 @@ namespace UMLEditor.Views
                 
                 ClearAllLines();
                 RenderLines(_activeDiagram.Relationships);
-                
+
             });
             
         }
@@ -802,7 +834,6 @@ namespace UMLEditor.Views
                 {
                     largestY = candidateY;
                 }
-                
             }
 
             // Resize the canvas to fit all children
@@ -855,6 +886,7 @@ namespace UMLEditor.Views
             RenderClasses(_activeDiagram.Classes);
                             
             Dispatcher.UIThread.RunJobs();
+            
             RenderLines(_activeDiagram.Relationships);
             ReconsiderCanvasSize();
             

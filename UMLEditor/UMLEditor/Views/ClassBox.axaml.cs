@@ -117,6 +117,7 @@ public class ClassBox : UserControl
             beingDragged = false; 
             
             // Redraw the lines again (so "flinging" the box doesn't mess up the lines)
+            RelationshipLine.ResetGrid();
             _parentWindow!.RedrawLines();
             
             // Save the new location of the class box
@@ -161,6 +162,8 @@ public class ClassBox : UserControl
             if (beingDragged)
             {
 
+                _parentWindow!.ClearAllLines();
+                RelationshipLine.ResetGrid();
                 // Get the position of the cursor relative to the canvas
                 Point pointerLocation = args.GetPosition(this.Parent);
                 double newX = Math.Max(0, (pointerLocation.X - _clickedLocation.X));
@@ -169,7 +172,8 @@ public class ClassBox : UserControl
                 // Set the ClassBox's location to the location of the cursor
                 Canvas.SetLeft(this, newX);
                 Canvas.SetTop(this, newY);
-
+                
+                /// ****** COMMENT OUT THESE LINES FOR BETTER DRAW PERFORMANCE ****** 
                 _parentWindow!.RedrawLines();
                 _parentWindow.ReconsiderCanvasSize();
                 
@@ -293,6 +297,17 @@ public class ClassBox : UserControl
                 Bottom.Remove(line);
                 break;
         }
+    }
+
+    /// <summary>
+    /// Clears all lists of lines connected to each edge of the class box
+    /// </summary>
+    public void ClearAllEdges()
+    {
+        Top.Clear();
+        Right.Clear();
+        Bottom.Clear();
+        Left.Clear();
     }
     
     private void InitializeComponent()
