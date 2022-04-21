@@ -214,6 +214,7 @@ public class RelationshipLine
 
         int startEdgeIndex = startEdgePoints.IndexOf(start);
         int endEdgeIndex = endEdgePoints.IndexOf(end);
+        int prevStartIndex = startEdgeIndex;
 
         Point lineStart = new Point();
         Point lineEnd = new Point();
@@ -507,17 +508,6 @@ public class RelationshipLine
         // Situation 2: No path found, draw straight line from start to end
         else
         {
-            /*Point startMidPoint = new Point((startEdgePoints[prevStartIndex].X + symbolPoint.X) / 2, startEdgePoints[prevStartIndex].Y);
-            Point endMidPoint = new Point((startEdgePoints[prevStartIndex].X + symbolPoint.X) / 2, symbolPoint.Y);
-            Line newLine = CreateRelationshipLine(startEdgePoints[prevStartIndex], startMidPoint);
-            Segments.Add(newLine);
-            myCanvas.Children.Add(newLine);
-            newLine = CreateRelationshipLine(startMidPoint, endMidPoint);
-            Segments.Add(newLine);
-            myCanvas.Children.Add(newLine);
-            newLine = CreateRelationshipLine(endMidPoint, symbolPoint);
-            Segments.Add(newLine);
-            myCanvas.Children.Add(newLine);*/
             // Find shortest distance between edges
             shortestDist = Double.MaxValue;
             foreach (Point p1 in startEdgePoints)
@@ -529,10 +519,19 @@ public class RelationshipLine
                     {
                         shortestDist = thisDistance;
                         start = p1;
+                        end = p2;
                     }
                 }
             }
-            Line newLine = CreateRelationshipLine(start, symbolPoint);
+            Point startMidPoint = new Point((start.X + symbolPoint.X) / 2, start.Y);
+            Point endMidPoint = new Point((start.X + symbolPoint.X) / 2, symbolPoint.Y);
+            Line newLine = CreateRelationshipLine(start, startMidPoint);
+            Segments.Add(newLine);
+            myCanvas.Children.Add(newLine);
+            newLine = CreateRelationshipLine(startMidPoint, endMidPoint);
+            Segments.Add(newLine);
+            myCanvas.Children.Add(newLine);
+            newLine = CreateRelationshipLine(endMidPoint, symbolPoint);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
         }
