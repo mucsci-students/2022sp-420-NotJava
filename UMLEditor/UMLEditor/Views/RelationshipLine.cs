@@ -25,17 +25,17 @@ public class RelationshipLine
     private static List<List<Node>> _grid = new();
     private static Astar _astar = new(_grid);
 
-    private List<Vector2> _gridPoints = new();
+    private List<Point> _gridPoints = new();
     
     /// <summary>
     /// SourceClass control for relationship line
     /// </summary>
-    public UserControl SourceClass { get; private set; }
+    public ClassBox SourceClass { get; private set; }
     
     /// <summary>
     /// Destination class for relationship line
     /// </summary>
-    public UserControl DestClass { get; private set; }
+    public ClassBox DestClass { get; private set; }
     // Resharper disable once NotAccessedField.local
     
     /// <summary>
@@ -69,7 +69,7 @@ public class RelationshipLine
     /// <param name="startCtrl">Source class control</param>
     /// <param name="endCtrl">Dest class control</param>
     /// <param name="relationshipType">Relationship type for line</param>
-    public RelationshipLine(UserControl startCtrl, UserControl endCtrl, string relationshipType)
+    public RelationshipLine(ClassBox startCtrl, ClassBox endCtrl, string relationshipType)
     {
         SourceClass = startCtrl;
         DestClass = endCtrl;
@@ -149,11 +149,13 @@ public class RelationshipLine
     public void Draw(Canvas myCanvas)
     {
         // Get ClassBox objects for source and destination
-        ClassBox sourceClassBox = ClassBoxes.FindByName(SourceClass.Name);
-        ClassBox destClassBox = ClassBoxes.FindByName(DestClass.Name);
+        //ClassBox sourceClassBox = ClassBoxes.FindByName(SourceClass.Name);
+        //ClassBox destClassBox = ClassBoxes.FindByName(DestClass.Name);
+        ClassBox sourceClassBox = SourceClass;
+        ClassBox destClass = DestClass;
         
         // Reset grid nodes where previous lines were
-        foreach (Vector2 p in _gridPoints)
+        foreach (Point p in _gridPoints)
         {
             _grid[(int)p.X][(int)p.Y].Walkable = true;
         }
@@ -253,7 +255,7 @@ public class RelationshipLine
                         end = new Point(endEdgePoints[endEdgeIndex].X,
                             endEdgePoints[endEdgeIndex].Y - (SymbolHalfWidth * 2));
                         lineEnd = new Point(end.X - (end.X % Node.NODE_SIZE), end.Y - (end.Y % Node.NODE_SIZE));
-                        _gridPoints.Add(new Vector2((int) end.X / Node.NODE_SIZE, (int) end.Y / Node.NODE_SIZE));
+                        _gridPoints.Add(end);
                         diamondPoints = new List<Point>
                         {
                             end,
@@ -276,7 +278,7 @@ public class RelationshipLine
                             endEdgePoints[endEdgeIndex].Y);
                         lineEnd = new Point(end.X + (Node.NODE_SIZE - (end.X % Node.NODE_SIZE)),
                             end.Y - (end.Y % Node.NODE_SIZE));
-                        _gridPoints.Add(new Vector2((int) end.X / Node.NODE_SIZE, (int) end.Y / Node.NODE_SIZE));
+                        _gridPoints.Add(end);
                         diamondPoints = new List<Point>
                         {
                             end,
@@ -299,7 +301,7 @@ public class RelationshipLine
                             endEdgePoints[endEdgeIndex].Y + (SymbolHalfWidth * 2));
                         lineEnd = new Point(end.X - (end.X % Node.NODE_SIZE),
                             end.Y + (Node.NODE_SIZE - (end.Y % Node.NODE_SIZE)));
-                        _gridPoints.Add(new Vector2((int) end.X / Node.NODE_SIZE, (int) end.Y / Node.NODE_SIZE));
+                        _gridPoints.Add(end);
                         diamondPoints = new List<Point>
                         {
                             end,
@@ -321,7 +323,7 @@ public class RelationshipLine
                         end = new Point(endEdgePoints[endEdgeIndex].X - (SymbolHalfWidth * 2),
                             endEdgePoints[endEdgeIndex].Y);
                         lineEnd = new Point(end.X - (end.X % Node.NODE_SIZE), end.Y - (end.Y % Node.NODE_SIZE));
-                        _gridPoints.Add(new Vector2((int) end.X / Node.NODE_SIZE, (int) end.Y / Node.NODE_SIZE));
+                        _gridPoints.Add(end);
                         diamondPoints = new List<Point>
                         {
                             end,
@@ -441,19 +443,19 @@ public class RelationshipLine
         {
             case 0:
                 DestEdge = EdgeEnum.Top;
-                destClassBox.AddToEdge(this, EdgeEnum.Top);
+                //destClassBox.AddToEdge(this, EdgeEnum.Top);
                 break;
             case 1:
                 DestEdge = EdgeEnum.Right;
-                destClassBox.AddToEdge(this, EdgeEnum.Right);
+                //destClassBox.AddToEdge(this, EdgeEnum.Right);
                 break;
             case 2:
                 DestEdge = EdgeEnum.Bottom;
-                destClassBox.AddToEdge(this, EdgeEnum.Bottom);
+                //destClassBox.AddToEdge(this, EdgeEnum.Bottom);
                 break;
             case 3:
                 DestEdge = EdgeEnum.Left;
-                destClassBox.AddToEdge(this, EdgeEnum.Left);
+                //destClassBox.AddToEdge(this, EdgeEnum.Left);
                 break;
         }
         
@@ -461,37 +463,36 @@ public class RelationshipLine
         // Situation 1: A path was found
         if (path is not null)
         {
-            _gridPoints.Add(new Vector2((int)lineStart.X/Node.NODE_SIZE, (int)lineStart.Y/Node.NODE_SIZE));
+            _gridPoints.Add(lineStart);
             Line newLine = CreateRelationshipLine(start, lineStart);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
-            Vector2 pos = path.Pop().Position;
+            Point pos = path.Pop().Center;
             _gridPoints.Add(pos);
-            newLine = CreateRelationshipLine(lineStart, new Point(pos.X * Node.NODE_SIZE, pos.Y * Node.NODE_SIZE));
+            newLine = CreateRelationshipLine(lineStart, pos);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
             while (path.Count > 1)
             {
-                Vector2 newPos = path.Pop().Position;
+                Point newPos = path.Pop().Center;
                 _gridPoints.Add(newPos);
-                newLine = CreateRelationshipLine(new Point(pos.X * Node.NODE_SIZE, pos.Y * Node.NODE_SIZE),
-                    new Point(newPos.X * Node.NODE_SIZE, newPos.Y * Node.NODE_SIZE));
+                newLine = CreateRelationshipLine(pos, newPos);
                 Segments.Add(newLine);
                 myCanvas.Children.Add(newLine);
                 pos = newPos;
             }
 
-            _gridPoints.Add(new Vector2((int)lineEnd.X/Node.NODE_SIZE, (int)lineEnd.Y/Node.NODE_SIZE));
-            newLine = CreateRelationshipLine(lineEnd, new Point(pos.X*Node.NODE_SIZE,pos.Y*Node.NODE_SIZE));
+            _gridPoints.Add(lineEnd);
+            newLine = CreateRelationshipLine(lineEnd, pos);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
             
-            _gridPoints.Add(new Vector2((int)end.X/Node.NODE_SIZE, (int)end.Y/Node.NODE_SIZE));
+            _gridPoints.Add(end);
             newLine = CreateRelationshipLine(lineEnd, symbolPoint);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
             
-            foreach (Vector2 g in _gridPoints)
+            foreach (Point g in _gridPoints)
             {
                 if (g.X >= 0 && g.Y >= 0)
                 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Avalonia;
 
 namespace AStarSharp
 {
@@ -11,12 +12,13 @@ namespace AStarSharp
     public class Node
     {
         // Change this depending on what the desired size is for each element in the grid
-        public static int NODE_SIZE = 15;
+        public static int NODE_SIZE = 25;
         
         /// <summary>
         /// Parent node to this node
         /// </summary>
-        public Node Parent;
+        public Node? Parent;
+
         /// <summary>
         /// Grid position of the node
         /// </summary>
@@ -24,11 +26,11 @@ namespace AStarSharp
         /// <summary>
         /// Center position of the node
         /// </summary>
-        public Vector2 Center
+        public Point Center
         {
             get
             {
-                return new Vector2(Position.X + NODE_SIZE / 2, Position.Y + NODE_SIZE / 2);
+                return new Point(Position.X * NODE_SIZE + NODE_SIZE / 2, Position.Y * NODE_SIZE + NODE_SIZE / 2);
             }
         }
         
@@ -51,7 +53,7 @@ namespace AStarSharp
         {
             get
             {
-                if (DistanceToTarget != -1 && Cost != -1)
+                if (DistanceToTarget <= -1 && Cost <= -1)
                     return DistanceToTarget + Cost;
                 else
                     return -1;
