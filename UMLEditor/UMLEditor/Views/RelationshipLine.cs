@@ -7,7 +7,8 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using UMLEditor.Views.Managers;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace UMLEditor.Views;
 
@@ -22,6 +23,7 @@ public class RelationshipLine
     private const int LineThickness = 2;
     private readonly IBrush _brush = Brushes.CornflowerBlue;
 
+    private static bool _magicToggle = false;
     private static List<List<Node>> _grid = new();
     private static Astar _astar = new(_grid);
 
@@ -75,6 +77,16 @@ public class RelationshipLine
         DestClass = endCtrl;
         RelationshipType = relationshipType;
         Segments = new List<Line>();
+        Symbol = new Polyline();
+    }
+
+    /// <summary>
+    /// Toggles flag to use magic lines algorithm
+    /// </summary>
+    /// <param name="b">Uses magic lines if true, default if false</param>
+    public static void ToggleMagicLines(bool b)
+    {
+        _magicToggle = b;
     }
 
     /// <summary>
@@ -151,16 +163,11 @@ public class RelationshipLine
         // Get ClassBox objects for source and destination
         //ClassBox sourceClassBox = ClassBoxes.FindByName(SourceClass.Name);
         //ClassBox destClassBox = ClassBoxes.FindByName(DestClass.Name);
-        ClassBox sourceClassBox = SourceClass;
-        ClassBox destClass = DestClass;
-        
-        // Reset grid nodes where previous lines were
-        foreach (Point p in _gridPoints)
-        {
-            _grid[(int)p.X][(int)p.Y].Walkable = true;
-        }
+        //ClassBox sourceClassBox = SourceClass;
+        //ClassBox destClass = DestClass;
+
         _gridPoints.Clear();
-        
+
         // Get midpoints for each edge
         double startHalfWidth = SourceClass.Bounds.Width / 2;
         double startHalfHeight = SourceClass.Bounds.Height / 2;
@@ -176,7 +183,7 @@ public class RelationshipLine
         startEdgePoints.Add(new Point(SourceClass.Bounds.X + startHalfWidth,
             SourceClass.Bounds.Y + SourceClass.Bounds.Height));
         startEdgePoints.Add(new Point(SourceClass.Bounds.X, SourceClass.Bounds.Y + startHalfHeight));
-        
+
         List<Point> endEdgePoints = new List<Point>();
         endEdgePoints.Add(new Point(DestClass.Bounds.X + endHalfWidth, DestClass.Bounds.Y));
         endEdgePoints.Add(new Point(DestClass.Bounds.X + DestClass.Bounds.Width,
@@ -184,10 +191,10 @@ public class RelationshipLine
         endEdgePoints.Add(new Point(DestClass.Bounds.X + endHalfWidth,
             DestClass.Bounds.Y + DestClass.Bounds.Height));
         endEdgePoints.Add(new Point(DestClass.Bounds.X, DestClass.Bounds.Y + endHalfHeight));
-       
+
         Point start = new Point();
         Point end = new Point();
-        
+
         // Find shortest distance between edges
         double shortestDist = Double.MaxValue;
         foreach (Point p1 in startEdgePoints)
@@ -206,7 +213,8 @@ public class RelationshipLine
 
         int startEdgeIndex = startEdgePoints.IndexOf(start);
         int endEdgeIndex = endEdgePoints.IndexOf(end);
-        
+        int prevStartIndex = startEdgeIndex;
+
         Point lineStart = new Point();
         Point lineEnd = new Point();
         Point symbolPoint = new Point();
@@ -224,30 +232,38 @@ public class RelationshipLine
                 {
                     case 0:
                         lineStart = new Point(
-                            startEdgePoints[startEdgeIndex].X - (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE),
-                            startEdgePoints[startEdgeIndex].Y - (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE) -
+                            startEdgePoints[startEdgeIndex].X -
+                            (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE),
+                            startEdgePoints[startEdgeIndex].Y -
+                            (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE) -
                             Node.NODE_SIZE);
                         break;
                     case 1:
                         lineStart = new Point(
                             startEdgePoints[startEdgeIndex].X +
-                            (Node.NODE_SIZE - (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE)) + Node.NODE_SIZE,
-                            startEdgePoints[startEdgeIndex].Y - (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE));
+                            (Node.NODE_SIZE - (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE)) +
+                            Node.NODE_SIZE,
+                            startEdgePoints[startEdgeIndex].Y -
+                            (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE));
                         break;
                     case 2:
                         lineStart = new Point(
-                            startEdgePoints[startEdgeIndex].X - (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE),
+                            startEdgePoints[startEdgeIndex].X -
+                            (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE),
                             startEdgePoints[startEdgeIndex].Y +
-                            (Node.NODE_SIZE - (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE)) + Node.NODE_SIZE);
+                            (Node.NODE_SIZE - (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE)) +
+                            Node.NODE_SIZE);
                         break;
                     case 3:
                         lineStart = new Point(
-                            startEdgePoints[startEdgeIndex].X - (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE) -
+                            startEdgePoints[startEdgeIndex].X -
+                            (startEdgePoints[startEdgeIndex].X % Node.NODE_SIZE) -
                             Node.NODE_SIZE,
-                            startEdgePoints[startEdgeIndex].Y - (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE));
+                            startEdgePoints[startEdgeIndex].Y -
+                            (startEdgePoints[startEdgeIndex].Y % Node.NODE_SIZE));
                         break;
                 }
-
+                _gridPoints.Add(lineStart);
                 // Set end edge and create symbol points
                 switch (endEdgeIndex)
                 {
@@ -342,7 +358,7 @@ public class RelationshipLine
                         symbolPoint = end;
                         break;
                 }
-                
+
                 // Draw the relationship symbol based on provided type
                 switch (RelationshipType)
                 {
@@ -361,17 +377,18 @@ public class RelationshipLine
                         {
                             l.StrokeDashArray = new AvaloniaList<double>(5, 3);
                         }
+
                         Symbol = CreateRelationshipSymbol(trianglePoints);
                         break;
                 }
-                
+
                 // Make symbol area non-walkable
-                for (int y = (int)(Symbol.Bounds.Y / Node.NODE_SIZE)-1;
-                     y <= (int)((Symbol.Bounds.Y + Symbol.Bounds.Height) / Node.NODE_SIZE)+1;
+                for (int y = (int) (Symbol.Bounds.Y / Node.NODE_SIZE) - 1;
+                     y <= (int) ((Symbol.Bounds.Y + Symbol.Bounds.Height) / Node.NODE_SIZE) + 1;
                      ++y)
                 {
-                    for (int x= (int)(Symbol.Bounds.X / Node.NODE_SIZE)-1;
-                         x <= (int)((Symbol.Bounds.X + Symbol.Bounds.Width) / Node.NODE_SIZE)+1;
+                    for (int x = (int) (Symbol.Bounds.X / Node.NODE_SIZE) - 1;
+                         x <= (int) ((Symbol.Bounds.X + Symbol.Bounds.Width) / Node.NODE_SIZE) + 1;
                          ++x)
                     {
                         if (y >= 0 && x >= 0)
@@ -380,16 +397,15 @@ public class RelationshipLine
                         }
                     }
                 }
-                
+
                 // Check for out of bounds
                 lineStart = new Point(Math.Clamp(lineStart.X, 0, _grid[0].Count * Node.NODE_SIZE),
-                    Math.Clamp(lineStart.Y, 0, _grid.Count * Node.NODE_SIZE));
-                end = new Point(Math.Clamp(end.X, 0, _grid[0].Count * Node.NODE_SIZE),
-                    Math.Clamp(end.Y, 0, _grid.Count * Node.NODE_SIZE));
-
+                    Math.Clamp(lineStart.Y, 0, _grid.Count * Node.NODE_SIZE - 1));
+                lineEnd = new Point(Math.Clamp(lineEnd.X, 0, _grid[0].Count * Node.NODE_SIZE),
+                    Math.Clamp(lineEnd.Y, 0, _grid.Count * Node.NODE_SIZE - 1));
                 // Calculate path from source edge to destination edge
                 path = _astar.FindPath(new Vector2((float) lineStart.X, (float) lineStart.Y),
-                    new Vector2((float) end.X, (float) end.Y));
+                    new Vector2((float) lineEnd.X, (float) lineEnd.Y));
                 // If no path found, cycle through edges
                 if (path is null)
                 {
@@ -400,7 +416,6 @@ public class RelationshipLine
                         endEdgeIndex = 0;
                     }
 
-                    end = endEdgePoints[endEdgeIndex];
                     if (destCount == 4)
                     {
                         destCount = 0;
@@ -416,28 +431,28 @@ public class RelationshipLine
                 }
             }
         }
-        
+
         // Set source edge
         switch (startEdgeIndex)
         {
             case 0:
                 SourceEdge = EdgeEnum.Top;
-                sourceClassBox.AddToEdge(this, EdgeEnum.Top);
+                //sourceClassBox.AddToEdge(this, EdgeEnum.Top);
                 break;
             case 1:
                 SourceEdge = EdgeEnum.Right;
-                sourceClassBox.AddToEdge(this, EdgeEnum.Right);
+                //sourceClassBox.AddToEdge(this, EdgeEnum.Right);
                 break;
             case 2:
                 SourceEdge = EdgeEnum.Bottom;
-                sourceClassBox.AddToEdge(this, EdgeEnum.Bottom);
+                //sourceClassBox.AddToEdge(this, EdgeEnum.Bottom);
                 break;
             case 3:
                 SourceEdge = EdgeEnum.Left;
-                sourceClassBox.AddToEdge(this, EdgeEnum.Left);
+                //sourceClassBox.AddToEdge(this, EdgeEnum.Left);
                 break;
         }
-    
+
         // Set end edge
         switch (endEdgeIndex)
         {
@@ -459,17 +474,14 @@ public class RelationshipLine
                 break;
         }
         
+        
         // Draw lines
         // Situation 1: A path was found
-        if (path is not null)
+        if (path is not null && _magicToggle)
         {
-            _gridPoints.Add(lineStart);
-            Line newLine = CreateRelationshipLine(start, lineStart);
-            Segments.Add(newLine);
-            myCanvas.Children.Add(newLine);
             Point pos = path.Pop().Center;
             _gridPoints.Add(pos);
-            newLine = CreateRelationshipLine(lineStart, pos);
+            Line newLine = CreateRelationshipLine(start, pos);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
             while (path.Count > 1)
@@ -483,39 +495,55 @@ public class RelationshipLine
             }
 
             _gridPoints.Add(lineEnd);
-            newLine = CreateRelationshipLine(lineEnd, pos);
+            newLine = CreateRelationshipLine(symbolPoint, pos);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
-            
-            _gridPoints.Add(end);
-            newLine = CreateRelationshipLine(lineEnd, symbolPoint);
-            Segments.Add(newLine);
-            myCanvas.Children.Add(newLine);
-            
+
             foreach (Point g in _gridPoints)
             {
                 if (g.X >= 0 && g.Y >= 0)
                 {
-                    _grid[(int) g.X][(int) g.Y].Walkable = false;
+                    _grid[(int) g.X / Node.NODE_SIZE][(int) g.Y / Node.NODE_SIZE].Walkable = false;
                 }
             }
         }
         // Situation 2: No path found, draw straight line from start to end
         else
         {
-            Point midPoint = new Point((start.X + end.X) / 2, (start.Y + end.Y) / 2);
-            Line newLine = CreateRelationshipLine(start, midPoint);
+            /*Point startMidPoint = new Point((startEdgePoints[prevStartIndex].X + symbolPoint.X) / 2, startEdgePoints[prevStartIndex].Y);
+            Point endMidPoint = new Point((startEdgePoints[prevStartIndex].X + symbolPoint.X) / 2, symbolPoint.Y);
+            Line newLine = CreateRelationshipLine(startEdgePoints[prevStartIndex], startMidPoint);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
-            newLine = CreateRelationshipLine(midPoint, end);
+            newLine = CreateRelationshipLine(startMidPoint, endMidPoint);
+            Segments.Add(newLine);
+            myCanvas.Children.Add(newLine);
+            newLine = CreateRelationshipLine(endMidPoint, symbolPoint);
+            Segments.Add(newLine);
+            myCanvas.Children.Add(newLine);*/
+            // Find shortest distance between edges
+            shortestDist = Double.MaxValue;
+            foreach (Point p1 in startEdgePoints)
+            {
+                foreach (Point p2 in endEdgePoints)
+                {
+                    double thisDistance = GetDistance(p1, p2);
+                    if (thisDistance < shortestDist)
+                    {
+                        shortestDist = thisDistance;
+                        start = p1;
+                    }
+                }
+            }
+            Line newLine = CreateRelationshipLine(start, symbolPoint);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
         }
 
         /*using StreamWriter file = new("grid.txt");
-        for (int y = 0; y < 100; ++y)
+        for (int y = 0; y < _grid[0].Count; ++y)
         {
-            for (int x = 0; x < 100; ++x)
+            for (int x = 0; x < _grid.Count; ++x)
             {
                 if (_grid[x][y].Walkable == false)
                     file.Write("X");
@@ -524,9 +552,10 @@ public class RelationshipLine
                     file.Write("_");
                 }
             }
+
             file.WriteLine();
         }*/
-        
+
         myCanvas.Children.Add(Symbol);
     }
     

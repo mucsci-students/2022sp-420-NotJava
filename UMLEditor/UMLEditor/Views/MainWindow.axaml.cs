@@ -743,7 +743,7 @@ namespace UMLEditor.Views
                 
                 RelationshipLine newLine =
                     new RelationshipLine(sourceClassBox, destClassBox, currentRelation.RelationshipType);
-                
+
                 newLine.Draw(_canvas);
             }
         }
@@ -863,6 +863,16 @@ namespace UMLEditor.Views
             ReconsiderCanvasSize();   
             RedrawLines();    
             #pragma warning restore CS8629
+        }
+
+        private void MagicLinesToggle_OnClick(object sender, RoutedEventArgs e)
+        {
+            ToggleSwitch viewSwitch = (ToggleSwitch) sender;
+
+            RelationshipLine.ToggleMagicLines(((bool)viewSwitch.IsChecked));
+            
+            ReconsiderCanvasSize();   
+            RedrawLines();  
         }
 
         /// <summary>

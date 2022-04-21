@@ -121,7 +121,6 @@ namespace AStarSharp
         {
             Node start = new Node(new Vector2((int)(Start.X/Node.NODE_SIZE), (int) (Start.Y/Node.NODE_SIZE)), true);
             Node end = new Node(new Vector2((int)(End.X / Node.NODE_SIZE), (int)(End.Y / Node.NODE_SIZE)), true);
-
             Stack<Node> Path = new Stack<Node>();
             List<Node> OpenList = new List<Node>();
             List<Node> ClosedList = new List<Node>();
@@ -175,10 +174,8 @@ namespace AStarSharp
         private List<Node> GetAdjacentNodes(Node n)
         {
             List<Node> temp = new List<Node>();
-
             int row = (int)n.Position.Y;
             int col = (int)n.Position.X;
-
             if(row + 1 < GridRows)
             {
                 temp.Add(Grid[col][row + 1]);

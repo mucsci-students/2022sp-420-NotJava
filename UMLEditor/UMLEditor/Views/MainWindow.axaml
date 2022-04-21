@@ -111,6 +111,13 @@
                     Content="Redo"
                     Click="RedoButton_OnClick"/>
                 <ToggleSwitch
+                    Grid.Row="0" Click="MagicLinesToggle_OnClick" 
+                    Name="MagicLineToggle"
+                    OnContent="Magic Lines On" 
+                    OffContent="Magic Lines Off" 
+                    HorizontalAlignment="Right"
+                    Margin="0 0 300 0"></ToggleSwitch>
+                <ToggleSwitch
                     Grid.Row="0" Click="ViewEditToggle_OnClick" 
                     Name="ViewEditToggle"
                     OnContent="Edit Mode" 
