@@ -7,8 +7,6 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace UMLEditor.Views;
 
@@ -23,7 +21,7 @@ public class RelationshipLine
     private const int LineThickness = 2;
     private readonly IBrush _brush = Brushes.CornflowerBlue;
 
-    private static bool _magicToggle = false;
+    private static bool _magicToggle;
     private static List<List<Node>> _grid = new();
     private static Astar _astar = new(_grid);
 
@@ -213,7 +211,6 @@ public class RelationshipLine
 
         int startEdgeIndex = startEdgePoints.IndexOf(start);
         int endEdgeIndex = endEdgePoints.IndexOf(end);
-        int prevStartIndex = startEdgeIndex;
 
         Point lineStart = new Point();
         Point lineEnd = new Point();

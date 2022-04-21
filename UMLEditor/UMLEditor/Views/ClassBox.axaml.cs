@@ -173,7 +173,7 @@ public class ClassBox : UserControl
                 Canvas.SetLeft(this, newX);
                 Canvas.SetTop(this, newY);
                 
-                // ****** COMMENT OUT THESE LINES FOR BETTER DRAW PERFORMANCE ****** 
+                // ****** COMMENT OUT THIS LINE FOR BETTER DRAW PERFORMANCE ****** 
                 //_parentWindow!.RedrawLines();
                 _parentWindow.ReconsiderCanvasSize();
                 
