@@ -744,8 +744,10 @@ namespace UMLEditor.Views
                 RelationshipLine newLine =
                     new RelationshipLine(sourceClassBox, destClassBox, currentRelation.RelationshipType);
 
-                newLine.Draw(_canvas);
+                Dispatcher.UIThread.Post(() => newLine.Draw(_canvas));
+                
             }
+            Dispatcher.UIThread.RunJobs();
         }
         
         /// <summary>
