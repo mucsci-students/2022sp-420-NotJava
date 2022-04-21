@@ -677,10 +677,7 @@ namespace UMLEditor.Views
                      x <= (int)((classBox.Bounds.X + classBox.Bounds.Width) / Node.NODE_SIZE)+1;
                      ++x)
                 {
-                    if (y >= 0 && x >= 0)
-                    {
-                        RelationshipLine.MakeNotWalkable(x, y);
-                    }
+                    RelationshipLine.MakeNotWalkable(x, y);
                 }
             }
         }

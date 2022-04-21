@@ -149,7 +149,10 @@ public class RelationshipLine
     /// <param name="y">Y coordinate of point</param>
     public static void MakeNotWalkable(int x, int y)
     {
-        _grid[x][y].Walkable = false;
+        if (x >= 0 && x < _grid[0].Count && y >= 0 && y < _grid.Count)
+        {
+            _grid[x][y].Walkable = false;
+        }
     }
 
     /// <summary>
@@ -396,10 +399,10 @@ public class RelationshipLine
                 }
 
                 // Check for out of bounds
-                lineStart = new Point(Math.Clamp(lineStart.X, 0, _grid[0].Count * Node.NODE_SIZE),
-                    Math.Clamp(lineStart.Y, 0, _grid.Count * Node.NODE_SIZE - 1));
-                lineEnd = new Point(Math.Clamp(lineEnd.X, 0, _grid[0].Count * Node.NODE_SIZE),
-                    Math.Clamp(lineEnd.Y, 0, _grid.Count * Node.NODE_SIZE - 1));
+                lineStart = new Point(Math.Clamp(lineStart.X, 0, _grid[0].Count * Node.NODE_SIZE - Node.NODE_SIZE),
+                    Math.Clamp(lineStart.Y, 0, _grid.Count * Node.NODE_SIZE - Node.NODE_SIZE));
+                lineEnd = new Point(Math.Clamp(lineEnd.X, 0, _grid[0].Count * Node.NODE_SIZE - Node.NODE_SIZE),
+                    Math.Clamp(lineEnd.Y, 0, _grid.Count * Node.NODE_SIZE - Node.NODE_SIZE));
                 // Calculate path from source edge to destination edge
                 path = _astar.FindPath(new Vector2((float) lineStart.X, (float) lineStart.Y),
                     new Vector2((float) lineEnd.X, (float) lineEnd.Y));
@@ -498,10 +501,7 @@ public class RelationshipLine
 
             foreach (Point g in _gridPoints)
             {
-                if (g.X >= 0 && g.Y >= 0)
-                {
-                    _grid[(int) g.X / Node.NODE_SIZE][(int) g.Y / Node.NODE_SIZE].Walkable = false;
-                }
+                MakeNotWalkable((int) g.X / Node.NODE_SIZE, (int) g.Y / Node.NODE_SIZE);
             }
         }
         // Situation 2: No path found, draw straight line from start to end
