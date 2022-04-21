@@ -98,7 +98,7 @@
                     Grid.Row="0"
                     Name="UndoButton"
                     HorizontalAlignment="Right"
-                    Margin="0 0 220 0"
+                    Margin="0 0 400 0"
                     IsEnabled="False"
                     Content="Undo"
                     Click="UndoButton_OnClick"/>
@@ -106,7 +106,7 @@
                     Grid.Row="0"
                     Name="RedoButton"
                     HorizontalAlignment="Right"
-                    Margin="0 0 160 0"
+                    Margin="0 0 340 0"
                     IsEnabled="False"
                     Content="Redo"
                     Click="RedoButton_OnClick"/>
@@ -116,7 +116,7 @@
                     OnContent="Magic Lines On" 
                     OffContent="Magic Lines Off" 
                     HorizontalAlignment="Right"
-                    Margin="0 0 300 0"></ToggleSwitch>
+                    Margin="0 0 160 0"></ToggleSwitch>
                 <ToggleSwitch
                     Grid.Row="0" Click="ViewEditToggle_OnClick" 
                     Name="ViewEditToggle"
