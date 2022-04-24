@@ -796,7 +796,7 @@ namespace UMLEditor.Views
             PriorityQueue<RelationshipLine, float> shortestLines = new();
             foreach (RelationshipLine l in _relationshipLines)
             {
-                RelationshipLine.PointPair pair = l.pointPairQueue.Peek();
+                RelationshipLine.PointPair pair = l.PointPairQueue.Peek();
                 shortestLines.Enqueue(l, pair.Distance);
             }
 
@@ -927,7 +927,7 @@ namespace UMLEditor.Views
         {
             ToggleSwitch viewSwitch = (ToggleSwitch) sender;
 
-            RelationshipLine.ToggleMagicLines(((bool)viewSwitch.IsChecked));
+            RelationshipLine.ToggleMagicLines((bool)viewSwitch.IsChecked!);
             
             ReconsiderCanvasSize();   
             RedrawLines();  

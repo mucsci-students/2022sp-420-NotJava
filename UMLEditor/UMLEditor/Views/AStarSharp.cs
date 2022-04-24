@@ -12,6 +12,9 @@ namespace AStarSharp
     public class Node
     {
         // Change this depending on what the desired size is for each element in the grid
+        /// <summary>
+        /// Size of each node of the grid, in pixels
+        /// </summary>
         public static int NODE_SIZE = 20;
         
         /// <summary>
@@ -162,7 +165,7 @@ namespace AStarSharp
             }
 
             // if all good, return path
-            Node temp = ClosedList[ClosedList.IndexOf(current)];
+            Node? temp = ClosedList[ClosedList.IndexOf(current)];
             if (temp is null) return null;
             do
             {

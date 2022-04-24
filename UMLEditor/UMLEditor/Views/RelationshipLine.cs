@@ -6,11 +6,7 @@ using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
-using Avalonia.Media;
-using UMLEditor.Classes;
-using System.IO;
 using UMLEditor.Utility;
-using UMLEditor.Views.Managers;
 
 namespace UMLEditor.Views;
 
@@ -19,14 +15,40 @@ namespace UMLEditor.Views;
 /// </summary>
 public class RelationshipLine
 {
+    /// <summary>
+    /// Class to represent a pair of points composing a relationship line
+    /// </summary>
     public class PointPair
     {
-        public Point Start { get; set; }
-        public Point End { get; set;}
-        public float Distance { get; private set; }
-        public EdgeEnum StartEdge { get; private set; }
-        public EdgeEnum EndEdge { get; private set; }
+        /// <summary>
+        /// Start point of the pair
+        /// </summary>
+        public Point Start { get; }
+        /// <summary>
+        /// End point of the pair
+        /// </summary>
+        public Point End { get; }
+        /// <summary>
+        /// Straight line distance between the points
+        /// </summary>
+        public float Distance { get; }
+        /// <summary>
+        /// Edge of the starting box
+        /// </summary>
+        public EdgeEnum StartEdge { get; }
+        /// <summary>
+        /// Edge of the ending box
+        /// </summary>
+        public EdgeEnum EndEdge { get; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="p1">Starting point</param>
+        /// <param name="p2">Ending point</param>
+        /// <param name="e1">Starting edge</param>
+        /// <param name="e2">Ending edge</param>
+        /// <param name="d">Distance between the points</param>
         public PointPair(Point p1, Point p2, EdgeEnum e1, EdgeEnum e2, float d)
         {
             Start = p1;
@@ -36,6 +58,9 @@ public class RelationshipLine
             Distance = d;
         }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public PointPair()
         { }
     }
@@ -43,7 +68,6 @@ public class RelationshipLine
     private const double SymbolHalfWidth = 16;
     private const double SymbolHalfHeight = 12;
     private const int LineThickness = 2;
-    private readonly IBrush _brush = Brushes.CornflowerBlue;
 
     private static bool _magicToggle;
     private static List<List<Node>> _grid = new();
@@ -51,44 +75,26 @@ public class RelationshipLine
 
     private List<Point> _gridPoints = new();
     
-    public PriorityQueue<PointPair, float> pointPairQueue = new();
-    private PointPair closestPair;
+    /// <summary>
+    /// Queue listing each point pair in order from closest to furthest
+    /// </summary>
+    public PriorityQueue<PointPair, float> PointPairQueue = new();
+    private PointPair _closestPair;
     
     /// <summary>
     /// SourceClass control for relationship line
     /// </summary>
-    public ClassBox SourceClass { get; private set; }
+    public ClassBox SourceClass { get; }
     
     /// <summary>
     /// Destination class for relationship line
     /// </summary>
-    public ClassBox DestClass { get; private set; }
+    public ClassBox DestClass { get; }
     // Resharper disable once NotAccessedField.local
-    
-    /// <summary>
-    /// Relationship type for relationship line
-    /// </summary>
-    public string RelationshipType { get; private set; }
-    
-    /// <summary>
-    /// Symbol for relationship line.
-    /// </summary>
-    public Polyline Symbol { get; private set; }
 
-    /// <summary>
-    /// List of line segments for relationship line
-    /// </summary>
-    public List<Line> Segments { get; private set; }
-
-    /// <summary>
-    /// Enum for source edge.
-    /// </summary>
-    public EdgeEnum SourceEdge { get; private set; }
-    
-    /// <summary>
-    /// Enum for source edge.
-    /// </summary>
-    public EdgeEnum DestEdge { get; private set; }
+    private string RelationshipType { get; }
+    private Polyline Symbol { get; set; }
+    private List<Line> Segments { get;}
 
     /// <summary>
     /// Default Ctor
@@ -103,7 +109,7 @@ public class RelationshipLine
         RelationshipType = relationshipType;
         Segments = new List<Line>();
         Symbol = new Polyline();
-        closestPair = new PointPair();
+        _closestPair = new PointPair();
         
         CreatePointPairList();
     }
@@ -164,7 +170,7 @@ public class RelationshipLine
 
     private void CreatePointPairList()
     {
-        pointPairQueue.Clear();
+        PointPairQueue.Clear();
         
         // Get midpoints for each edge
         double startHalfWidth = SourceClass.Bounds.Width / 2;
@@ -228,11 +234,11 @@ public class RelationshipLine
                         e2 = EdgeEnum.Left;
                         break;
                 }
-                pointPairQueue.Enqueue(new PointPair(p1,p2, e1, e2, thisDistance), thisDistance);
+                PointPairQueue.Enqueue(new PointPair(p1,p2, e1, e2, thisDistance), thisDistance);
             }
         }
 
-        closestPair = pointPairQueue.Peek();
+        _closestPair = PointPairQueue.Peek();
     }
     
     /// <summary>
@@ -259,90 +265,101 @@ public class RelationshipLine
         }
     }
 
-    public void DrawSimpleLine(Canvas myCanvas)
+    /// <summary>
+    /// Draws a line for a relationship line based on the midpoint between them
+    /// </summary>
+    /// <param name="myCanvas">Canvas to add the line to</param>
+    private void DrawSimpleLine(Canvas myCanvas)
     {
         _gridPoints.Clear();
         
         Point midPointStart, midPointEnd;
         // Draw vertically
         //if (Math.Abs(closestPair.Start.X - closestPair.End.X) > Math.Abs(closestPair.Start.Y - closestPair.End.Y))
-        if ((closestPair.StartEdge == EdgeEnum.Left && closestPair.EndEdge == EdgeEnum.Right) ||
-            (closestPair.StartEdge == EdgeEnum.Right && closestPair.EndEdge == EdgeEnum.Left))
+        if ((_closestPair.StartEdge == EdgeEnum.Left && _closestPair.EndEdge == EdgeEnum.Right) ||
+            (_closestPair.StartEdge == EdgeEnum.Right && _closestPair.EndEdge == EdgeEnum.Left))
         {
-            midPointStart = new Point((closestPair.Start.X + closestPair.End.X) / 2, closestPair.Start.Y);
-            midPointEnd = new Point((closestPair.Start.X + closestPair.End.X) / 2, closestPair.End.Y);
+            midPointStart = new Point((_closestPair.Start.X + _closestPair.End.X) / 2, _closestPair.Start.Y);
+            midPointEnd = new Point((_closestPair.Start.X + _closestPair.End.X) / 2, _closestPair.End.Y);
         }
         // Draw horizontally
-        else if ((closestPair.StartEdge == EdgeEnum.Top && closestPair.EndEdge == EdgeEnum.Bottom) ||
-                 (closestPair.StartEdge == EdgeEnum.Bottom && closestPair.EndEdge == EdgeEnum.Top))
+        else if ((_closestPair.StartEdge == EdgeEnum.Top && _closestPair.EndEdge == EdgeEnum.Bottom) ||
+                 (_closestPair.StartEdge == EdgeEnum.Bottom && _closestPair.EndEdge == EdgeEnum.Top))
         {
-            midPointStart = new Point(closestPair.Start.X, (closestPair.Start.Y + closestPair.End.Y) / 2);
-            midPointEnd = new Point(closestPair.End.X, (closestPair.Start.Y + closestPair.End.Y) / 2);
+            midPointStart = new Point(_closestPair.Start.X, (_closestPair.Start.Y + _closestPair.End.Y) / 2);
+            midPointEnd = new Point(_closestPair.End.X, (_closestPair.Start.Y + _closestPair.End.Y) / 2);
         }
         // Draw a right angle
-        else if ((closestPair.StartEdge == EdgeEnum.Right && closestPair.EndEdge == EdgeEnum.Top) ||
-                 (closestPair.StartEdge == EdgeEnum.Left && closestPair.EndEdge == EdgeEnum.Top) ||
-                 (closestPair.StartEdge == EdgeEnum.Right && closestPair.EndEdge == EdgeEnum.Bottom) ||
-                 (closestPair.StartEdge == EdgeEnum.Left && closestPair.EndEdge == EdgeEnum.Bottom))
+        else if ((_closestPair.StartEdge == EdgeEnum.Right && _closestPair.EndEdge == EdgeEnum.Top) ||
+                 (_closestPair.StartEdge == EdgeEnum.Left && _closestPair.EndEdge == EdgeEnum.Top) ||
+                 (_closestPair.StartEdge == EdgeEnum.Right && _closestPair.EndEdge == EdgeEnum.Bottom) ||
+                 (_closestPair.StartEdge == EdgeEnum.Left && _closestPair.EndEdge == EdgeEnum.Bottom))
         {
-            midPointStart = new Point(closestPair.End.X, closestPair.Start.Y);
+            midPointStart = new Point(_closestPair.End.X, _closestPair.Start.Y);
             midPointEnd = midPointStart;
         }
         else
         {
-            midPointStart = new Point(closestPair.Start.X, closestPair.End.Y);
+            midPointStart = new Point(_closestPair.Start.X, _closestPair.End.Y);
             midPointEnd = midPointStart;
         }
         
-        Point symbolPoint = CalculateSymbolPoints(closestPair);
+        Point symbolPoint = CalculateSymbolPoints(_closestPair);
         myCanvas.Children.Add(Symbol);
         
-        myCanvas.Children.Add(CreateRelationshipLine(closestPair.Start, midPointStart));
+        myCanvas.Children.Add(CreateRelationshipLine(_closestPair.Start, midPointStart));
         myCanvas.Children.Add(CreateRelationshipLine(midPointStart, midPointEnd));
         myCanvas.Children.Add(CreateRelationshipLine(midPointEnd, symbolPoint));
     }
 
+    /// <summary>
+    /// Draws a line for a relationship line based on the shortest path discovered by A*. If no path is found,
+    /// uses DrawSimpleLine.
+    /// </summary>
+    /// <param name="myCanvas">Canvas to add the line to</param>
     public void Draw(Canvas myCanvas)
     {
         Stack<Node>? shortestPath = null;
         Stack<Node>? path;
-        closestPair = pointPairQueue.Peek();
+        _closestPair = PointPairQueue.Peek();
         PointPair pair = new();
         Point symbolPoint = new();
         
-        while (_magicToggle && shortestPath is null && pointPairQueue.Count > 0)
+        // Finds the shortest path between each of the edge pairs
+        while (_magicToggle && shortestPath is null && PointPairQueue.Count > 0)
         {
-            pair = pointPairQueue.Dequeue();
+            pair = PointPairQueue.Dequeue();
             CalculateSymbolPoints(pair);
             path = GetPath(pair);
             
             if (path is not null && shortestPath is null)
             {
                 shortestPath = new Stack<Node>(path);
-                closestPair = pair;
+                _closestPair = pair;
             }
             else if (path is not null && shortestPath is not null) 
             {
                 if (path.Count < shortestPath.Count)
                 {
                     shortestPath = new Stack<Node>(path);
-                    closestPair = pair;
+                    _closestPair = pair;
                 }
             }
         }
         
-        shortestPath = GetPath(closestPair);
+        // Gets the shortest path
+        shortestPath = GetPath(_closestPair);
         
         // Draw lines
         // Situation 1: A path was found
         if (_magicToggle && shortestPath is not null)
         {
-            symbolPoint = CalculateSymbolPoints(closestPair);
+            symbolPoint = CalculateSymbolPoints(_closestPair);
             myCanvas.Children.Add(Symbol);
             
             Point pos = shortestPath.Pop().Center;
             _gridPoints.Add(pos);
-            Line newLine = CreateRelationshipLine(closestPair.Start, pos);
+            Line newLine = CreateRelationshipLine(_closestPair.Start, pos);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
             while (shortestPath.Count > 0)
@@ -355,11 +372,12 @@ public class RelationshipLine
                 pos = newPos;
             }
 
-            _gridPoints.Add(closestPair.End);
+            _gridPoints.Add(_closestPair.End);
             newLine = CreateRelationshipLine(symbolPoint, pos);
             Segments.Add(newLine);
             myCanvas.Children.Add(newLine);
             
+            // Makes each point of the line unwalkable
             foreach (Point g in _gridPoints)
             {
                 MakeNotWalkable((int) g.X / Node.NODE_SIZE, (int) g.Y / Node.NODE_SIZE);
@@ -370,23 +388,6 @@ public class RelationshipLine
         {
             DrawSimpleLine(myCanvas);
         }
-        
-        // Output grid to file for troubleshooting
-        /*using StreamWriter file = new("grid.txt");
-        for (int y = 0; y < _grid[0].Count; ++y)
-        {
-            for (int x = 0; x < _grid.Count; ++x)
-            {
-                if (_grid[x][y].Walkable == false)
-                    file.Write("X");
-                else
-                {
-                    file.Write("_");
-                }
-            }
-
-            file.WriteLine();
-        }*/
     }
 
     private Stack<Node>? GetPath(PointPair pair)
@@ -546,7 +547,7 @@ public class RelationshipLine
                 break;
             case "composition":
                 Symbol = CreateRelationshipSymbol(diamondPoints);
-                Symbol.Fill = _brush;
+                Symbol.Fill = Theme.Current.LinesColor;
                 break;
             case "inheritance":
                 Symbol = CreateRelationshipSymbol(trianglePoints);
