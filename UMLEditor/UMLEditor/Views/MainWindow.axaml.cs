@@ -14,6 +14,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using UMLEditor.Classes;
 using UMLEditor.Interfaces;
+using UMLEditor.Utility;
 using UMLEditor.ViewModels;
 using UMLEditor.Views.Managers;
 
@@ -84,13 +85,19 @@ namespace UMLEditor.Views
 
         private readonly OpenFileDialog _openFileDialog;
         private readonly SaveFileDialog _saveFileDialog;
+        
         private readonly SaveFileDialog _exportDialog;
+        private readonly OpenFileDialog _openThemeDialog;
+        private readonly SaveFileDialog _saveThemeDialog;
         
         private bool _inEditMode;
 
         // The undo and redo buttons
         private readonly Button _undoButton;
         private readonly Button _redoButton;
+
+        private static readonly string _themeExtension = "umltheme";
+        private readonly string _themeFileLocation = $"{OSUtility.HomeFolder}notjavauml.{_themeExtension}";
         
         /// <summary>
         /// Main method to create the window
@@ -111,6 +118,7 @@ namespace UMLEditor.Views
 
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
             InitExportDialog(out _exportDialog, "png");
+            InitThemeDialogs(out _openThemeDialog, out _saveThemeDialog, _themeExtension);
 
             _canvas = this.FindControl<Canvas>("MyCanvas");
             _inEditMode = false;
@@ -186,6 +194,12 @@ namespace UMLEditor.Views
             comboBindings["ctrl+r"] = () => Add_Relationship_OnClick(this, new RoutedEventArgs());
             comboBindings["ctrl+d"] = () => Delete_Relationship_OnClick(this, new RoutedEventArgs());
 
+            // Bind to the theme changed event
+            Theme.ThemeChanged += (sender, newTheme) => this.Background = newTheme.CanvasColor;
+
+            // Try to load the user's theme
+            Theme.TryLoadTheme(_themeFileLocation);
+
         }
         
         /// <summary>
@@ -257,6 +271,37 @@ namespace UMLEditor.Views
                 filter.Extensions.Add(extension);
 
                 toInit.Filters.Add(filter);
+                
+            }
+            
+        }
+
+        /// <summary>
+        /// Initializes a file dialog for opening themes with the provided extensions
+        /// </summary>
+        /// <param name="openDialog">The open dialog to initialize</param>
+        /// <param name="saveDialog">The save dialog to initialize</param>
+        /// <param name="filteredExtensions">The extensions this theme dialog should support</param>
+        private void InitThemeDialogs(out OpenFileDialog openDialog, out SaveFileDialog saveDialog, params string[] filteredExtensions)
+        {
+            
+            string workingDir = Directory.GetCurrentDirectory();
+            openDialog = new OpenFileDialog();
+            saveDialog = new SaveFileDialog();
+            openDialog.Title = "Load Theme File";
+            saveDialog.Title = "Save Theme File";
+            openDialog.Directory = workingDir;
+            saveDialog.Directory = workingDir;
+
+            foreach (string extension in filteredExtensions)
+            {
+                // Establish a filter for the current file extension
+                FileDialogFilter filter = new FileDialogFilter();
+                filter.Name = $".{extension} theme file";
+                filter.Extensions.Add(extension);
+
+                openDialog.Filters.Add(filter);
+                saveDialog.Filters.Add(filter);
                 
             }
             
@@ -903,7 +948,7 @@ namespace UMLEditor.Views
             
             // Write in the black background
             DrawingContext dc = new DrawingContext(renderTarget.CreateDrawingContext(null));
-            dc.FillRectangle(Brushes.Black, new Rect(new Point(0.0, 0.0), px.ToSize(1.0)));
+            dc.FillRectangle(Theme.Current.CanvasColor, new Rect(new Point(0.0, 0.0), px.ToSize(1.0)));
 
             // Render the canvas to the target
             renderTarget.Render(_canvas);
@@ -987,7 +1032,136 @@ namespace UMLEditor.Views
             }
             
         }
-        
+
+        private void EditTheme_OnClick(object? sender, RoutedEventArgs e)
+        {
+            
+            ModalDialog themeEditorWindow = ModalDialog.CreateDialog<ThemeEditor>("Theme Editor", DialogButtons.OK_CANCEL);
+            
+            // Expand the editor window to be larger
+            themeEditorWindow.Width = 1200;
+            themeEditorWindow.Height = 600;
+            
+            themeEditorWindow.ShowDialog<DialogButtons>(this).ContinueWith(result =>
+            {
+
+                if (result.Result == DialogButtons.OKAY)
+                {
+
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        
+                        var resultForm = themeEditorWindow.GetPrompt<ThemeEditor>();
+                        
+                        // Apply the new theme
+                        Theme newTheme = resultForm.NewTheme;
+                        Theme.Current = newTheme;
+                        RedrawLines();
+                        
+                        // Try to save the theme
+                        newTheme.TrySaveTheme(_themeFileLocation);
+
+                    });
+                    
+                }
+                
+            });
+
+        }
+
+        private void LoadTheme_OnClick(object? sender, RoutedEventArgs e)
+        {
+            
+            Task<string[]?> loadTask = _openThemeDialog.ShowAsync(this);
+            loadTask.ContinueWith(taskResult =>
+            {
+                    
+                // Called when the future is resolved
+                Dispatcher.UIThread.Post(() =>
+                {
+
+                    /* Get the files the user selected
+                     * This will be null if the user canceled the operation or closed the window */
+                    string[]? selectedFiles = taskResult.Result;
+
+                    if (selectedFiles is not null && selectedFiles.Length >= 1)
+                    {
+
+                        // Attempt to load the theme AND save it
+                        if (!Theme.TryLoadTheme(selectedFiles[0]) || !Theme.Current.TrySaveTheme(_themeFileLocation))
+                        {
+
+                            RaiseAlert(
+                                "Load Failed",
+                                $"Load Failed",
+                                "Could not load theme",
+                                AlertIcon.ERROR
+                            );
+                                
+                        }
+                        
+                        RedrawLines();
+
+                    }
+
+                });
+
+            });
+            
+        }
+
+        private void ThemeSave_OnClick(object? sender, RoutedEventArgs e)
+        {
+            
+            Task<string?> saveTask = _saveThemeDialog.ShowAsync(this);
+            saveTask.ContinueWith(taskResult =>
+            {
+                    
+                // Called when the future is resolved
+                Dispatcher.UIThread.Post(() =>
+                {
+
+                    /* Get the file the user selected
+                     * This will be null if the user canceled the operation or closed the window */
+                    string? selectedFile = taskResult.Result;
+
+                    if (selectedFile is not null && selectedFile.Length >= 1)
+                    {
+
+                        try
+                        {
+
+                            Theme.Current.TrySaveTheme(selectedFile);
+                            RaiseAlert
+                            (
+                                
+                                "Theme Saved",
+                                "Theme Saved",
+                                $"Theme saved to {selectedFile}",
+                                AlertIcon.INFO
+                                    
+                            );
+                                
+                        }
+
+                        catch (Exception exception)
+                        {
+
+                            RaiseAlert(
+                                "Theme Save Failed",
+                                $"Theme Save Failed",
+                                exception.Message,
+                                AlertIcon.ERROR
+                            );
+
+                        }
+                    }
+
+                });
+
+            });
+            
+        }
     }
     
 }

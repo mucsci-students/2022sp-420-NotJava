@@ -5,6 +5,7 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
+using UMLEditor.Utility;
 using UMLEditor.Views.Managers;
 
 namespace UMLEditor.Views;
@@ -18,7 +19,6 @@ public class RelationshipLine
     private const double SymbolHalfWidth = 16;
     private const double SymbolHalfHeight = 12;
     private const int LineThickness = 2;
-    private readonly IBrush _brush = Brushes.CornflowerBlue;
     
     /// <summary>
     /// SourceClass control for relationship line
@@ -364,7 +364,7 @@ public class RelationshipLine
                     break;
                 case "composition":
                     Polyline polyline = CreateRelationshipSymbol(diamondPoints);
-                    polyline.Fill = _brush;
+                    polyline.Fill = Theme.Current.LinesColor;
                     myCanvas.Children.Add(polyline);
                     break;
                 case "inheritance":
@@ -391,7 +391,7 @@ public class RelationshipLine
         Polyline polyline = new Polyline();
         polyline.Name = "Polyline";
         polyline.Points = points;
-        polyline.Stroke = _brush;
+        polyline.Stroke = Theme.Current.LinesColor;
         polyline.StrokeThickness = LineThickness;
         return polyline;
     }
@@ -408,7 +408,7 @@ public class RelationshipLine
         l.Name = "Line";
         l.StartPoint = lineStart;
         l.EndPoint = lineEnd;
-        l.Stroke = _brush;
+        l.Stroke = Theme.Current.LinesColor;
         l.StrokeThickness = LineThickness;
         l.ZIndex = 10;
         return l;

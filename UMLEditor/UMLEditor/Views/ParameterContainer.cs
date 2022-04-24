@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Views;
+﻿using UMLEditor.Utility;
+
+namespace UMLEditor.Views;
 
 using Classes;
 
@@ -34,6 +36,12 @@ public class ParameterContainer : FieldContainer
             parentWindow.RequestParamRename(this, parentMethod);
         };
 
+        // Bind to theme changes
+        Theme.ThemeChanged += (sender, newTheme) => ApplyColors();
+        
+        // Apply Colors
+        ApplyColors();
+        
     }
     
 }

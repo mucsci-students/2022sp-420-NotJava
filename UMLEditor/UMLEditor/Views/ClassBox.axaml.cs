@@ -1,4 +1,5 @@
-﻿using UMLEditor.Views.Managers;
+﻿using UMLEditor.Utility;
+using UMLEditor.Views.Managers;
 
 namespace UMLEditor.Views;
 
@@ -178,6 +179,12 @@ public class ClassBox : UserControl
         };
         
         /////////////////////////////////////////////////////////////////////////////////////////
+        
+        // Bind to theme changes
+        Theme.ThemeChanged += (sender, newTheme) => ApplyColors();
+
+        // Load the colors
+        ApplyColors();
         
     }
 
@@ -902,6 +909,23 @@ public class ClassBox : UserControl
             
         }
         
+    }
+
+    /// <summary>
+    /// Applies all colors from the user settings to this classbox
+    /// </summary>
+    public void ApplyColors()
+    {
+
+        this.Background = Theme.Current.ClassBoxColor;
+        _classNameLabel.Foreground = Theme.Current.TextColor;
+        this.FindControl<Label>("FieldsTitle").Foreground = Theme.Current.TextColor;
+        this.FindControl<Label>("MethodsTitle").Foreground = Theme.Current.TextColor;
+
+        // Apply colors to the titles
+        this.FindControl<Grid>("FieldTitleBanner").Background = Theme.Current.MemberTitleBackgroundColor;
+        this.FindControl<Grid>("MethodTitleBanner").Background = Theme.Current.MemberTitleBackgroundColor;
+
     }
     
 }

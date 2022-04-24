@@ -86,6 +86,15 @@
                                         />
                                 </MenuItem>
                                 <MenuItem Header="Utility">
+                                        <MenuItem Header="_Edit Theme"
+                                                  Click="EditTheme_OnClick"
+                                                  />
+                                        <MenuItem Header="_Load Theme File"
+                                                  Click="LoadTheme_OnClick"
+                                                  />
+                                        <MenuItem Header="_Save Theme As..."
+                                                  Click="ThemeSave_OnClick"
+                                                  />
                                         <MenuItem Header="_Help"
                                                   Click="HelpB_OnClick"
                                                   InputGesture="F1"
