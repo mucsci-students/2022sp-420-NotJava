@@ -548,7 +548,7 @@ namespace UMLEditor.Views
                         RelationshipLine newLine = new RelationshipLine(sourceClassBox, destClassBox, relationshipType);
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
-                        RenderLines(_activeDiagram.Relationships);
+                        RedrawLines();
                         newLine.Draw(_canvas);
                     }
                     // Alert if the change fails.
@@ -600,7 +600,7 @@ namespace UMLEditor.Views
                         RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName)!;
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
-                        RenderLines(_activeDiagram.Relationships);
+                        RedrawLines();
                     }
                     // Alert if the delete fails.
                     catch (Exception error)
@@ -726,12 +726,16 @@ namespace UMLEditor.Views
         /// <param name="withRelationships">The list of Relationships to be added to the rendered area</param>
         private void RenderLines(List<Relationship> withRelationships)
         {
+            _relationshipLines.Clear();
+            RelationshipLine.ResetGrid();
             foreach (ClassBox c in _classBoxes)
             {
                 AddClassBoxToGrid(c);
             }
+            
             foreach (Relationship currentRelation in withRelationships)
             {
+                
                 ClassBox sourceClassBox = GetClassBoxByName(currentRelation.SourceClass);
                 ClassBox destClassBox = GetClassBoxByName(currentRelation.DestinationClass);
 
@@ -741,10 +745,21 @@ namespace UMLEditor.Views
                 RelationshipLine newLine =
                     new RelationshipLine(sourceClassBox, destClassBox, currentRelation.RelationshipType);
 
-                Dispatcher.UIThread.Post(() => newLine.Draw(_canvas));
-                
+                _relationshipLines.Add(newLine);
             }
-            Dispatcher.UIThread.RunJobs();
+
+            PriorityQueue<RelationshipLine, float> shortestLines = new();
+            foreach (RelationshipLine l in _relationshipLines)
+            {
+                RelationshipLine.PointPair pair = l.pointPairQueue.Peek();
+                shortestLines.Enqueue(l, pair.Distance);
+            }
+
+            while (shortestLines.Count > 0)
+            {
+                RelationshipLine line = shortestLines.Dequeue();
+                line.Draw(_canvas);
+            }
         }
         
         /// <summary>
@@ -799,7 +814,6 @@ namespace UMLEditor.Views
                 RenderLines(_activeDiagram.Relationships);
 
             });
-            
         }
 
         /// <summary>
@@ -896,7 +910,8 @@ namespace UMLEditor.Views
                             
             Dispatcher.UIThread.RunJobs();
             
-            RenderLines(_activeDiagram.Relationships);
+            //RenderLines(_activeDiagram.Relationships);
+            RedrawLines();
             ReconsiderCanvasSize();
             
         }

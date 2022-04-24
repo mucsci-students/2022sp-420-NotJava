@@ -12,7 +12,7 @@ namespace AStarSharp
     public class Node
     {
         // Change this depending on what the desired size is for each element in the grid
-        public static int NODE_SIZE = 25;
+        public static int NODE_SIZE = 20;
         
         /// <summary>
         /// Parent node to this node
@@ -129,9 +129,10 @@ namespace AStarSharp
            
             // add start node to Open List
             OpenList.Add(start);
-
-            while(OpenList.Count != 0 && !ClosedList.Exists(x => x.Position == end.Position))
+            int count = 0;
+            while(OpenList.Count != 0 && !ClosedList.Exists(x => x.Position == end.Position) && count < 5000)
             {
+                ++count;
                 current = OpenList[0];
                 OpenList.Remove(current);
                 ClosedList.Add(current);
