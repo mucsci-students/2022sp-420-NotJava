@@ -202,39 +202,44 @@ public class RelationshipLine
             foreach (Point p2 in endEdgePoints)
             {
                 float thisDistance = GetDistance(p1, p2);
-                EdgeEnum e1 = EdgeEnum.Right;
-                EdgeEnum e2 = EdgeEnum.Left;
-                switch (startEdgePoints.IndexOf(p1))
+                if (p1.X > 0 && p1.Y > 0 && p2.X > 0 && p2.Y > 0)
                 {
-                    case 0:
-                        e1 = EdgeEnum.Top;
-                        break;
-                    case 1:
-                        e1 = EdgeEnum.Right;
-                        break;
-                    case 2:
-                        e1 = EdgeEnum.Bottom;
-                        break;
-                    case 3:
-                        e1 = EdgeEnum.Left;
-                        break;
+                    EdgeEnum e1 = EdgeEnum.Right;
+                    EdgeEnum e2 = EdgeEnum.Left;
+                    switch (startEdgePoints.IndexOf(p1))
+                    {
+                        case 0:
+                            e1 = EdgeEnum.Top;
+                            break;
+                        case 1:
+                            e1 = EdgeEnum.Right;
+                            break;
+                        case 2:
+                            e1 = EdgeEnum.Bottom;
+                            break;
+                        case 3:
+                            e1 = EdgeEnum.Left;
+                            break;
+                    }
+
+                    switch (endEdgePoints.IndexOf(p2))
+                    {
+                        case 0:
+                            e2 = EdgeEnum.Top;
+                            break;
+                        case 1:
+                            e2 = EdgeEnum.Right;
+                            break;
+                        case 2:
+                            e2 = EdgeEnum.Bottom;
+                            break;
+                        case 3:
+                            e2 = EdgeEnum.Left;
+                            break;
+                    }
+
+                    PointPairQueue.Enqueue(new PointPair(p1, p2, e1, e2, thisDistance), thisDistance);
                 }
-                switch (endEdgePoints.IndexOf(p2))
-                {
-                    case 0:
-                        e2 = EdgeEnum.Top;
-                        break;
-                    case 1:
-                        e2 = EdgeEnum.Right;
-                        break;
-                    case 2:
-                        e2 = EdgeEnum.Bottom;
-                        break;
-                    case 3:
-                        e2 = EdgeEnum.Left;
-                        break;
-                }
-                PointPairQueue.Enqueue(new PointPair(p1,p2, e1, e2, thisDistance), thisDistance);
             }
         }
 
