@@ -69,7 +69,7 @@ public class RelationshipLine
     private const double SymbolHalfHeight = 12;
     private const int LineThickness = 2;
 
-    private static bool _magicToggle;
+    private static bool _magicToggle = true;
     private static List<List<Node>> _grid = new();
     private static Astar _astar = new(_grid);
 
