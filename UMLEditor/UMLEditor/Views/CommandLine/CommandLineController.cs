@@ -266,7 +266,7 @@ public class CommandLineController
                 else
                 {
                     activeDiagram.DeleteParameter(arguments[2], arguments[1], arguments[0]);
-                    return new StringColorStruct($"Parameter '{arguments[2]}' successfully deleted from '{arguments[1]}'");
+                    return new StringColorStruct($"Parameter '{arguments[2]}' successfully deleted from '{arguments[1]}'", SUCCESS_COLOR);
                 }
 
                 break;
