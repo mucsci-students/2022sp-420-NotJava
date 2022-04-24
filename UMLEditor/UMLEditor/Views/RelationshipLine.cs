@@ -131,7 +131,7 @@ public class RelationshipLine
     public static void InitializeGrid(Canvas canvas)
     {
         // Currently not getting bounds correctly, using placeholder values
-        int maxX = 3000 / Node.NODE_SIZE, maxY = 2000 / Node.NODE_SIZE;
+        int maxX = 6000 / Node.NODE_SIZE, maxY = 6000 / Node.NODE_SIZE;
         if (canvas.Bounds.Width != 0)
         {
             maxX = (int)canvas.Bounds.Width;
