@@ -51,12 +51,14 @@
         </Grid>
         <!-- FIELDS TITLE ROW -->
         <Grid 
+            Name="FieldTitleBanner"
             RowDefinitions="*" 
             ColumnDefinitions="* * * * * * * Auto" 
             HorizontalAlignment="Stretch" 
             Background="#D85A00">
                 <Label
                     Grid.ColumnSpan="7"
+                    Name="FieldsTitle"
                     Content="Fields" 
                     FontStyle="Italic"
                     FontSize="16" 
@@ -74,12 +76,14 @@
         </ScrollViewer>
         <!-- METHODS TITLE ROW -->
         <Grid 
+            Name="MethodTitleBanner"
             RowDefinitions="*" 
             ColumnDefinitions="* * * * * * * Auto" 
             HorizontalAlignment="Stretch" 
             Background="#D85A00">
                 <Label
                     Grid.ColumnSpan="7"
+                    Name="MethodsTitle"
                     Content="Methods" 
                     FontStyle="Italic"
                     FontSize="16" 

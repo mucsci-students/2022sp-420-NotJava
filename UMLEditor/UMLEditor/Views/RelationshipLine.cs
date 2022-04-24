@@ -9,6 +9,8 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using UMLEditor.Classes;
 using System.IO;
+using UMLEditor.Utility;
+using UMLEditor.Views.Managers;
 
 namespace UMLEditor.Views;
 
@@ -557,7 +559,6 @@ public class RelationshipLine
                 Symbol = CreateRelationshipSymbol(trianglePoints);
                 break;
         }
-
         return symbolPoint;
     }
     
@@ -571,7 +572,7 @@ public class RelationshipLine
         Polyline polyline = new Polyline();
         polyline.Name = "Polyline";
         polyline.Points = points;
-        polyline.Stroke = _brush;
+        polyline.Stroke = Theme.Current.LinesColor;
         polyline.StrokeThickness = LineThickness;
         return polyline;
     }
@@ -588,7 +589,7 @@ public class RelationshipLine
         l.Name = "Line";
         l.StartPoint = lineStart;
         l.EndPoint = lineEnd;
-        l.Stroke = _brush;
+        l.Stroke = Theme.Current.LinesColor;
         l.StrokeThickness = LineThickness;
         l.ZIndex = 10;
         return l;

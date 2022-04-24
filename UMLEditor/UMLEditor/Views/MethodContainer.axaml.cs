@@ -1,4 +1,6 @@
 ﻿using Avalonia.Interactivity;
+using UMLEditor.Utility;
+
 // ReSharper disable UnusedParameter.Local
 
 namespace UMLEditor.Views;
@@ -42,6 +44,12 @@ public class MethodContainer : UserControl
         _methodSignature = this.FindControl<Label>("MethodSignature");
         _paramsArea = this.FindControl<StackPanel>("ParamsArea");
         _isInEditMode = false;
+
+        // Bind for changes
+        Theme.ThemeChanged += (sender, newTheme) => ApplyColors();
+
+        // Apply colors
+        ApplyColors();
 
     }
     #pragma warning restore CS8618
@@ -198,6 +206,17 @@ public class MethodContainer : UserControl
             
         }
 
+    }
+
+    /// <summary>
+    /// Applies all colors to this method container
+    /// </summary>
+    private void ApplyColors()
+    {
+
+        this.FindControl<Grid>("TitleBar").Background = Theme.Current.AttributeBackgroundColor;
+        _methodSignature.Foreground = Theme.Current.TextColor;
+        
     }
     
 }
