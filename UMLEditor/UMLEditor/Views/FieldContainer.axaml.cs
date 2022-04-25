@@ -1,4 +1,6 @@
-﻿namespace UMLEditor.Views;
+﻿using UMLEditor.Utility;
+
+namespace UMLEditor.Views;
 
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -65,6 +67,12 @@ public class FieldContainer : UserControl
         _backing = this.FindControl<Grid>("Backing");
         _editButton = this.FindControl<Button>("EditButton");
         _deleteButton = this.FindControl<Button>("DeleteButton");
+
+        // Bind to theme changes
+        Theme.ThemeChanged += (sender, newTheme) => ApplyColors();
+        
+        // Apply Colors
+        ApplyColors();
 
     }
     #pragma warning restore CS8618
@@ -170,4 +178,18 @@ public class FieldContainer : UserControl
         AvaloniaXamlLoader.Load(this);
     }
 
+    /// <summary>
+    /// Applies all colors to this container
+    /// </summary>
+    protected void ApplyColors()
+    {
+
+        if (!_isMethodParam) { _backing.Background = Theme.Current.AttributeBackgroundColor; }
+
+        else { _backing.Background = Theme.Current.ParameterBackgroundColor; }
+
+        _display.Foreground = Theme.Current.TextColor;
+
+    }
+    
 }

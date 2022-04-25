@@ -5,16 +5,18 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Runtime.InteropServices;
 using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using UMLEditor.Classes;
 using UMLEditor.Interfaces;
+using UMLEditor.Utility;
 using UMLEditor.ViewModels;
+using UMLEditor.Views.Managers;
 
 // ReSharper disable UnusedParameter.Local
 
@@ -77,37 +79,25 @@ namespace UMLEditor.Views
         
         private readonly Canvas _canvas;
 
-        private List<RelationshipLine> _relationshipLines = new List<RelationshipLine>();
+        private List<RelationshipLine> _relationshipLines = new();
 
         private IDiagramFile _activeFile;
 
         private readonly OpenFileDialog _openFileDialog;
         private readonly SaveFileDialog _saveFileDialog;
         
-        // Line specifications
-        private const double SymbolWidth = 15;
-        private const double SymbolHeight = 10;
-        private const int LineThickness = 2;
-        private readonly IBrush _brush = Brushes.CornflowerBlue;
+        private readonly SaveFileDialog _exportDialog;
+        private readonly OpenFileDialog _openThemeDialog;
+        private readonly SaveFileDialog _saveThemeDialog;
+        
+        private bool _inEditMode;
 
-        private bool _inEditMode; 
-        
-        // Data structure for the display of a Relationship line
-        struct RelationshipLine
-        {
-            public UserControl SourceClass;
-            public UserControl DestClass;
-            // ReSharper disable once NotAccessedField.Local
-            public string RelationshipType;
-            public Line StartLine;
-            public Line MidLine;
-            public Line EndLine;
-            public Polyline Symbol;
-        }
-        
         // The undo and redo buttons
         private readonly Button _undoButton;
         private readonly Button _redoButton;
+
+        private static readonly string _themeExtension = "umltheme";
+        private readonly string _themeFileLocation = $"{OSUtility.HomeFolder}notjavauml.{_themeExtension}";
         
         /// <summary>
         /// Main method to create the window
@@ -127,6 +117,8 @@ namespace UMLEditor.Views
             _activeFile = new JSONDiagramFile();
 
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
+            InitExportDialog(out _exportDialog, "png");
+            InitThemeDialogs(out _openThemeDialog, out _saveThemeDialog, _themeExtension);
 
             _canvas = this.FindControl<Canvas>("MyCanvas");
             _inEditMode = false;
@@ -202,6 +194,12 @@ namespace UMLEditor.Views
             comboBindings["ctrl+r"] = () => Add_Relationship_OnClick(this, new RoutedEventArgs());
             comboBindings["ctrl+d"] = () => Delete_Relationship_OnClick(this, new RoutedEventArgs());
 
+            // Bind to the theme changed event
+            Theme.ThemeChanged += (sender, newTheme) => this.Background = newTheme.CanvasColor;
+
+            // Try to load the user's theme
+            Theme.TryLoadTheme(_themeFileLocation);
+
         }
         
         /// <summary>
@@ -221,6 +219,7 @@ namespace UMLEditor.Views
         /// No need for the "." in the extension.</param>
         private void InitFileDialogs(out OpenFileDialog openFD, out SaveFileDialog saveFD, params string[] filteredExtensions)
         {
+            
             string workingDir = Directory.GetCurrentDirectory();
             
             /* - Construct the open file dialog
@@ -249,6 +248,63 @@ namespace UMLEditor.Views
                 saveFD.Filters.Add(filter);
                 
             }
+        }
+
+        /// <summary>
+        /// Initializes an export file dialog with the provided extensions
+        /// </summary>
+        /// <param name="toInit">The dialog to initialize</param>
+        /// <param name="filteredExtensions">The extensions this export dialog should support</param>
+        private void InitExportDialog(out SaveFileDialog toInit, params string[] filteredExtensions)
+        {
+            
+            string workingDir = Directory.GetCurrentDirectory();
+            toInit = new SaveFileDialog();
+            toInit.Title = "Export Diagram";
+            toInit.Directory = workingDir;
+
+            foreach (string extension in filteredExtensions)
+            {
+                // Establish a filter for the current file extension
+                FileDialogFilter filter = new FileDialogFilter();
+                filter.Name = $".{extension} file";
+                filter.Extensions.Add(extension);
+
+                toInit.Filters.Add(filter);
+                
+            }
+            
+        }
+
+        /// <summary>
+        /// Initializes a file dialog for opening themes with the provided extensions
+        /// </summary>
+        /// <param name="openDialog">The open dialog to initialize</param>
+        /// <param name="saveDialog">The save dialog to initialize</param>
+        /// <param name="filteredExtensions">The extensions this theme dialog should support</param>
+        private void InitThemeDialogs(out OpenFileDialog openDialog, out SaveFileDialog saveDialog, params string[] filteredExtensions)
+        {
+            
+            string workingDir = Directory.GetCurrentDirectory();
+            openDialog = new OpenFileDialog();
+            saveDialog = new SaveFileDialog();
+            openDialog.Title = "Load Theme File";
+            saveDialog.Title = "Save Theme File";
+            openDialog.Directory = workingDir;
+            saveDialog.Directory = workingDir;
+
+            foreach (string extension in filteredExtensions)
+            {
+                // Establish a filter for the current file extension
+                FileDialogFilter filter = new FileDialogFilter();
+                filter.Name = $".{extension} theme file";
+                filter.Extensions.Add(extension);
+
+                openDialog.Filters.Add(filter);
+                saveDialog.Filters.Add(filter);
+                
+            }
+            
         }
         
         private void ExitB_OnClick(object sender, RoutedEventArgs routedEventArgs)
@@ -348,12 +404,16 @@ namespace UMLEditor.Views
                         {
                             
                             _activeDiagram = _activeFile.LoadDiagram(chosenFile)!;
+                            
+                            // Wipe all ClassBox registrations and redraws the canvas
                             RedrawEverything();
                             
                             // Reset TM & push new state
                             TimeMachine.ClearTimeMachine();
                             TimeMachine.AddState(_activeDiagram);
                             ReconsiderUndoRedoVisibility();
+                            
+                            ReconsiderCanvasSize();
                             
                         }
             
@@ -400,6 +460,7 @@ namespace UMLEditor.Views
                         // Attempt to create a new class with the given information.
                         _activeDiagram.AddClass(enteredName);
                         RenderClasses(enteredName);
+                        ReconsiderCanvasSize();
                     }
                     // If fails, raise an alert.
                     catch (Exception error)
@@ -415,23 +476,11 @@ namespace UMLEditor.Views
             });
         }
 
-        private ClassBox GetClassBoxByName(string fromName)
-        {
-            ClassBox foundClass = new ClassBox();
-            foreach (var classBox in _classBoxes)
-            {
-                if (classBox.ClassName == fromName)
-                {
-                    foundClass = classBox;
-                }
-            }
+        private ClassBox GetClassBoxByName(string fromName) => ClassBoxes.FindByName(fromName);
 
-            return foundClass;
-        }
-
-        private RelationshipLine GetRelationshipByClassNames(string sourceName, string destinationName)
+        private RelationshipLine? GetRelationshipByClassNames(string sourceName, string destinationName)
         {
-            RelationshipLine foundLine = new RelationshipLine();
+            RelationshipLine? foundLine = null;
             foreach (var line in _relationshipLines)
             {
                 if (line.SourceClass.Name == sourceName &&
@@ -482,7 +531,9 @@ namespace UMLEditor.Views
                         _activeDiagram.AddRelationship(sourceName,destinationName,relationshipType);
                         ClassBox sourceClassBox = GetClassBoxByName(sourceName);
                         ClassBox destClassBox = GetClassBoxByName(destinationName);
-                        DrawRelationship(sourceClassBox, destClassBox, relationshipType);
+                        RelationshipLine currentLine =
+                            new RelationshipLine(sourceClassBox, destClassBox, relationshipType);
+                        currentLine.Draw(_canvas);
                     }
                     // Alert if the add fails.
                     catch (Exception error)
@@ -532,13 +583,14 @@ namespace UMLEditor.Views
                     {
                         // Attempt to change a relationship type with the information given.
                         _activeDiagram.ChangeRelationship(sourceName,destinationName,relationshipType);
-                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName);
+                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName)!;
                         ClassBox sourceClassBox = GetClassBoxByName(sourceName);
                         ClassBox destClassBox = GetClassBoxByName(destinationName);
+                        RelationshipLine newLine = new RelationshipLine(sourceClassBox, destClassBox, relationshipType);
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
                         RenderLines(_activeDiagram.Relationships);
-                        DrawRelationship(sourceClassBox, destClassBox, relationshipType);
+                        newLine.Draw(_canvas);
                     }
                     // Alert if the change fails.
                     catch (Exception error)
@@ -586,7 +638,7 @@ namespace UMLEditor.Views
                     {
                         // Attempt to delete relationship with the information given.
                         _activeDiagram.DeleteRelationship(sourceName,destinationName);
-                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName);
+                        RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName)!;
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
                         RenderLines(_activeDiagram.Relationships);
@@ -651,7 +703,7 @@ namespace UMLEditor.Views
         }
         
         /// <summary>
-        /// Renders a list of classes, by provided name
+        /// Renders a list of classes, by provided name. Registers the ClassBoxes in the ClassBox manager
         /// </summary>
         /// <param name="withName">The names of classes to be rendered.
         /// The rendered classes will be default boxes with only the name being different.</param>
@@ -665,12 +717,14 @@ namespace UMLEditor.Views
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
                 
+                ClassBoxes.RegisterClassBox(newClass);
+                
             }
             
         }
         
         /// <summary>
-        /// Renders a list of classes
+        /// Renders a list of classes. Registers the ClassBoxes in the ClassBox manager
         /// </summary>
         /// <param name="withClasses">The list of classes to be added to the rendered area</param>
         private void RenderClasses(List<Class> withClasses)
@@ -682,6 +736,8 @@ namespace UMLEditor.Views
                 ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this, _inEditMode);
                 _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
+                
+                ClassBoxes.RegisterClassBox(newClass);
                 
             }
 
@@ -698,197 +754,11 @@ namespace UMLEditor.Views
                 ClassBox sourceClassBox = GetClassBoxByName(currentRelation.SourceClass);
                 ClassBox destClassBox = GetClassBoxByName(currentRelation.DestinationClass);
 
-                DrawRelationship(sourceClassBox, destClassBox, currentRelation.RelationshipType);
+                RelationshipLine newLine =
+                    new RelationshipLine(sourceClassBox, destClassBox, currentRelation.RelationshipType);
+                
+                newLine.Draw(_canvas);
             }
-        }
-        
-        /// <summary>
-        /// Draws the relationship arrow between two classes
-        /// </summary>
-        /// <param name="startCtrl">The source class to start drawing from</param>
-        /// <param name="endCtrl">The destination class to draw to</param>
-        /// <param name="relationshipType">The type of relationship to draw</param>
-        private void DrawRelationship(UserControl startCtrl, UserControl endCtrl, string relationshipType)
-        {
-            RelationshipLine newLine = new RelationshipLine();
-            newLine.SourceClass = startCtrl;
-            newLine.DestClass = endCtrl;
-            newLine.RelationshipType = relationshipType;
-            
-            // Calculate lengths of controls
-            double startHalfWidth = startCtrl.Bounds.Width / 2;
-            double startHalfHeight = startCtrl.Bounds.Height / 2;
-            double endHalfWidth = endCtrl.Bounds.Width / 2;
-            double endHalfHeight = endCtrl.Bounds.Height / 2;
-            // Initialize points to middle of controls
-            Point start = new Point(
-                startCtrl.Bounds.X + startHalfWidth,
-                startCtrl.Bounds.Y + startHalfHeight);
-            Point end = new Point(
-                endCtrl.Bounds.X + endHalfWidth,
-                endCtrl.Bounds.Y + endHalfHeight);
-
-            // Set points to draw lines
-            Point midStart;
-            Point midEnd;
-            List<Point> diamondPoints;
-            List<Point> trianglePoints;
-            if (Math.Abs(start.X - end.X) > Math.Abs(start.Y - end.Y))
-            {
-                // Arrow is horizontal
-                midStart = new Point(Math.Abs(start.X + end.X) / 2, start.Y);
-                midEnd = new Point(Math.Abs(start.X + end.X) / 2, end.Y);
-                if (start.X < end.X)
-                {
-                    // Goes from left to right
-                    start = new Point(start.X + startHalfWidth, start.Y);
-                    end = new Point(end.X - endHalfWidth - (2 * SymbolWidth), end.Y);
-                    diamondPoints = new List<Point> { 
-                        end,
-                        new(end.X + SymbolWidth,end.Y - SymbolHeight),
-                        new(end.X + (2 * SymbolWidth),end.Y),
-                        new(end.X + SymbolWidth,end.Y + SymbolHeight),
-                        end };
-                    trianglePoints = new List<Point> { 
-                        new(end.X,end.Y - SymbolHeight),
-                        new(end.X + (2 * SymbolWidth),end.Y),
-                        new(end.X,end.Y + SymbolHeight),
-                        new(end.X,end.Y - SymbolHeight)
-                    };
-                }
-                else
-                {
-                    // Goes from right to left
-                    start = new Point(start.X - startHalfWidth, start.Y);
-                    end = new Point(end.X + endHalfWidth + (2 * SymbolWidth), end.Y);
-                    diamondPoints = new List<Point> { 
-                        end,
-                        new(end.X - SymbolWidth,end.Y - SymbolHeight),
-                        new(end.X - (2 * SymbolWidth),end.Y),
-                        new(end.X - SymbolWidth,end.Y + SymbolHeight),
-                        end };
-                    trianglePoints = new List<Point> { 
-                        new(end.X,end.Y - SymbolHeight),
-                        new(end.X - (2 * SymbolWidth),end.Y),
-                        new(end.X,end.Y + SymbolHeight),
-                        new(end.X,end.Y - SymbolHeight)
-                    };
-                }
-            }
-            else
-            {
-                // Arrow is vertical
-                midStart = new Point(start.X, Math.Abs(start.Y + end.Y) / 2);
-                midEnd = new Point(end.X, Math.Abs(start.Y + end.Y) / 2);
-                if (start.Y < end.Y)
-                {
-                    // Goes top to bottom
-                    start = new Point(start.X, start.Y + startHalfHeight);
-                    end = new Point(end.X, end.Y - endHalfHeight - (2 * SymbolWidth));
-                    diamondPoints = new List<Point>
-                    {
-                        end,
-                        new(end.X + SymbolHeight, end.Y + SymbolWidth),
-                        new(end.X, end.Y + (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y + SymbolWidth),
-                        end
-                    };
-                    trianglePoints = new List<Point>
-                    {
-                        new(end.X + SymbolHeight, end.Y),
-                        new(end.X, end.Y + (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y),
-                        new(end.X + SymbolHeight, end.Y)
-                    };
-                }
-                else
-                {
-                    // Goes bottom to top
-                    start = new Point(start.X, start.Y - startHalfHeight);
-                    end = new Point(end.X, end.Y + endHalfHeight + (2 * SymbolWidth));
-                    diamondPoints = new List<Point>
-                    {
-                        end,
-                        new(end.X + SymbolHeight, end.Y - SymbolWidth),
-                        new(end.X, end.Y - (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y - SymbolWidth),
-                        end
-                    };
-                    trianglePoints = new List<Point>
-                    {
-                        new(end.X + SymbolHeight, end.Y),
-                        new(end.X, end.Y - (2 * SymbolWidth)),
-                        new(end.X - SymbolHeight, end.Y),
-                        new(end.X + SymbolHeight, end.Y)
-                    };
-                }
-            }
-
-            newLine.StartLine = CreateRelationshipLine(start,midStart);
-            newLine.MidLine = CreateRelationshipLine(midStart, midEnd);
-            newLine.EndLine = CreateRelationshipLine(midEnd, end);
-            
-            // Add lines to the canvas
-            _canvas.Children.Add(newLine.StartLine);
-            _canvas.Children.Add(newLine.MidLine);
-            _canvas.Children.Add(newLine.EndLine);
-
-            // Draw the relationship symbol based on provided type
-            switch (relationshipType)
-            {
-                case "aggregation":
-                    _canvas.Children.Add(CreateRelationshipSymbol(diamondPoints));
-                    break;
-                case "composition":
-                    Polyline polyline = CreateRelationshipSymbol(diamondPoints);
-                    polyline.Fill = _brush;
-                    _canvas.Children.Add(polyline);
-                    break;
-                case "inheritance":
-                    _canvas.Children.Add(CreateRelationshipSymbol(trianglePoints));
-                    break;
-                case "realization":
-                    newLine.StartLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    newLine.MidLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    newLine.EndLine.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                    newLine.Symbol = CreateRelationshipSymbol(trianglePoints);
-                    _canvas.Children.Add(newLine.Symbol);
-                    break;
-            }
-            _relationshipLines.Add(newLine);
-        }
-
-        /// <summary>
-        /// Draws the relationship symbol from the given list of points
-        /// </summary>
-        /// <param name="points">A list of points for the vertices to draw</param>
-        /// <returns>The new relationship symbol</returns>
-        private Polyline CreateRelationshipSymbol(List<Point> points)
-        {
-            Polyline polyline = new Polyline();
-            polyline.Name = "Polyline";
-            polyline.Points = points;
-            polyline.Stroke = _brush;
-            polyline.StrokeThickness = LineThickness;
-            return polyline;
-        }
-
-        /// <summary>
-        /// Creates a line from the given start to end points
-        /// </summary>
-        /// <param name="lineStart">Point to start at</param>
-        /// <param name="lineEnd">Point to end at</param>
-        /// <returns>The new line</returns>
-        private Line CreateRelationshipLine(Point lineStart, Point lineEnd)
-        {
-            Line l = new Line();
-            l.Name = "Line";
-            l.StartPoint = lineStart;
-            l.EndPoint = lineEnd;
-            l.Stroke = _brush;
-            l.StrokeThickness = LineThickness;
-            l.ZIndex = 10;
-            return l;
         }
         
         /// <summary>
@@ -912,16 +782,22 @@ namespace UMLEditor.Views
         /// <param name="toUnrender">The class to remove from the rendered area</param>
         public void UnrenderClass(ClassBox toUnrender)
         {
+            
             _canvas.Children.Remove(toUnrender);
+            ClassBoxes.UnregisterClassBox(toUnrender);
             ReconsiderCanvasSize();
+            
         }
         
         /// <summary>
-        /// Wipes everything off of the canvas
+        /// Wipes everything off of the canvas. Unregisters all previously rendered ClassBoxes
         /// </summary>
         private void ClearCanvas()
         {
+            
             _canvas.Children.Clear();
+            ClassBoxes.UnregisterAll();
+            
         }
 
         /// <summary>
@@ -1047,6 +923,244 @@ namespace UMLEditor.Views
             ReconsiderUndoRedoVisibility();
             RedrawEverything();
 
+        }
+
+        /// <summary>
+        /// Exports the diagram to the provided image file
+        /// </summary>
+        /// <param name="imageFile">The file to export to</param>
+        private void ExportToImage(string imageFile)
+        {
+            
+            // Grab the scroll viewer
+            var scrollViewer = this.FindControl<ScrollViewer>("ScrollView");
+
+            // Avalonia is weird. We have to set the scroller over to (0,0) for the export to have everything...
+            var oldOffset = scrollViewer.Offset;
+            scrollViewer.Offset = new Vector(0.0, 0.0);
+
+            // Run all UI tasks
+            Dispatcher.UIThread.RunJobs();
+            
+            // Create the render target
+            var px = new PixelSize((int) _canvas.Width, (int) _canvas.Height);
+            var renderTarget = new RenderTargetBitmap(px);
+            
+            // Write in the black background
+            DrawingContext dc = new DrawingContext(renderTarget.CreateDrawingContext(null));
+            dc.FillRectangle(Theme.Current.CanvasColor, new Rect(new Point(0.0, 0.0), px.ToSize(1.0)));
+
+            // Render the canvas to the target
+            renderTarget.Render(_canvas);
+
+            // Write the image file and restore the old scroll value
+            renderTarget.Save(imageFile);
+            scrollViewer.Offset = oldOffset;
+
+        }
+        
+        private void ExportToImage_OnClick(object sender, RoutedEventArgs e)
+        {
+            
+            // Only open if the diagram is not empty, display an error otherwise
+            if (_activeDiagram.Classes.Count != 0)
+            {
+
+                Task<string?> exportTask = _exportDialog.ShowAsync(this);
+                exportTask.ContinueWith(taskResult =>
+                {
+                    
+                    // Called when the future is resolved
+                    Dispatcher.UIThread.Post(() =>
+                    {
+
+                        /* Get the files the user selected
+                         * This will be null if the user canceled the operation or closed the window */
+                        string? selectedFile = taskResult.Result;
+
+                        if (selectedFile is not null && selectedFile.Length >= 1)
+                        {
+
+                            try
+                            {
+
+                                ExportToImage(selectedFile);
+                                RaiseAlert
+                                (
+                                
+                                    "Diagram Exported",
+                                    "Diagram Exported",
+                                    $"Exported to {selectedFile}",
+                                    AlertIcon.INFO
+                                    
+                                );
+                                
+                            }
+
+                            catch (Exception exception)
+                            {
+
+                                RaiseAlert(
+                                    "Export Failed",
+                                    $"Export Failed",
+                                    exception.Message,
+                                    AlertIcon.ERROR
+                                );
+
+                            }
+                        }
+
+                    });
+
+                });
+                
+            }
+
+            else
+            {
+                
+                RaiseAlert
+                (
+                    
+                    "Nothing To Export", 
+                    "Nothing To Export", 
+                    "The diagram is empty", 
+                    AlertIcon.ERROR
+                    
+                );
+                
+            }
+            
+        }
+
+        private void EditTheme_OnClick(object? sender, RoutedEventArgs e)
+        {
+            
+            ModalDialog themeEditorWindow = ModalDialog.CreateDialog<ThemeEditor>("Theme Editor", DialogButtons.OK_CANCEL);
+            
+            // Expand the editor window to be larger
+            themeEditorWindow.Width = 1200;
+            themeEditorWindow.Height = 600;
+            
+            themeEditorWindow.ShowDialog<DialogButtons>(this).ContinueWith(result =>
+            {
+
+                if (result.Result == DialogButtons.OKAY)
+                {
+
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        
+                        var resultForm = themeEditorWindow.GetPrompt<ThemeEditor>();
+                        
+                        // Apply the new theme
+                        Theme newTheme = resultForm.NewTheme;
+                        Theme.Current = newTheme;
+                        RedrawLines();
+                        
+                        // Try to save the theme
+                        newTheme.TrySaveTheme(_themeFileLocation);
+
+                    });
+                    
+                }
+                
+            });
+
+        }
+
+        private void LoadTheme_OnClick(object? sender, RoutedEventArgs e)
+        {
+            
+            Task<string[]?> loadTask = _openThemeDialog.ShowAsync(this);
+            loadTask.ContinueWith(taskResult =>
+            {
+                    
+                // Called when the future is resolved
+                Dispatcher.UIThread.Post(() =>
+                {
+
+                    /* Get the files the user selected
+                     * This will be null if the user canceled the operation or closed the window */
+                    string[]? selectedFiles = taskResult.Result;
+
+                    if (selectedFiles is not null && selectedFiles.Length >= 1)
+                    {
+
+                        // Attempt to load the theme AND save it
+                        if (!Theme.TryLoadTheme(selectedFiles[0]) || !Theme.Current.TrySaveTheme(_themeFileLocation))
+                        {
+
+                            RaiseAlert(
+                                "Load Failed",
+                                $"Load Failed",
+                                "Could not load theme",
+                                AlertIcon.ERROR
+                            );
+                                
+                        }
+                        
+                        RedrawLines();
+
+                    }
+
+                });
+
+            });
+            
+        }
+
+        private void ThemeSave_OnClick(object? sender, RoutedEventArgs e)
+        {
+            
+            Task<string?> saveTask = _saveThemeDialog.ShowAsync(this);
+            saveTask.ContinueWith(taskResult =>
+            {
+                    
+                // Called when the future is resolved
+                Dispatcher.UIThread.Post(() =>
+                {
+
+                    /* Get the file the user selected
+                     * This will be null if the user canceled the operation or closed the window */
+                    string? selectedFile = taskResult.Result;
+
+                    if (selectedFile is not null && selectedFile.Length >= 1)
+                    {
+
+                        try
+                        {
+
+                            Theme.Current.TrySaveTheme(selectedFile);
+                            RaiseAlert
+                            (
+                                
+                                "Theme Saved",
+                                "Theme Saved",
+                                $"Theme saved to {selectedFile}",
+                                AlertIcon.INFO
+                                    
+                            );
+                                
+                        }
+
+                        catch (Exception exception)
+                        {
+
+                            RaiseAlert(
+                                "Theme Save Failed",
+                                $"Theme Save Failed",
+                                exception.Message,
+                                AlertIcon.ERROR
+                            );
+
+                        }
+                    }
+
+                });
+
+            });
+            
         }
     }
     

@@ -58,6 +58,9 @@
                                                   Click="LoadButton_OnClick"
                                                   InputGesture="Ctrl+O"
                                                   />
+                                        <MenuItem Header="_Export To Image"
+                                                  Click="ExportToImage_OnClick"
+                                                  />
                                         <MenuItem Header="_Exit"
                                                   Click="ExitB_OnClick"
                                                   />
@@ -83,6 +86,15 @@
                                         />
                                 </MenuItem>
                                 <MenuItem Header="Utility">
+                                        <MenuItem Header="_Edit Theme"
+                                                  Click="EditTheme_OnClick"
+                                                  />
+                                        <MenuItem Header="_Load Theme File"
+                                                  Click="LoadTheme_OnClick"
+                                                  />
+                                        <MenuItem Header="_Save Theme As..."
+                                                  Click="ThemeSave_OnClick"
+                                                  />
                                         <MenuItem Header="_Help"
                                                   Click="HelpB_OnClick"
                                                   InputGesture="F1"
@@ -120,7 +132,8 @@
                     HorizontalAlignment="Stretch" 
                     VerticalAlignment="Stretch" 
                     VerticalScrollBarVisibility="Auto" 
-                    HorizontalScrollBarVisibility="Auto">
+                    HorizontalScrollBarVisibility="Auto"
+                    Name="ScrollView">
                     <Canvas
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top"

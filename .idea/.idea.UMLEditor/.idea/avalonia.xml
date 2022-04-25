@@ -19,6 +19,7 @@
         <entry key="UMLEditor/UMLEditor/Views/ModalDialog.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/RenameFieldPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/TestingPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/ThemeEditor.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
       </map>
     </option>
   </component>

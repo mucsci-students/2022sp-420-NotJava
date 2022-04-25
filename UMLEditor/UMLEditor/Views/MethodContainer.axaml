@@ -17,6 +17,7 @@
     
     <StackPanel Orientation="Vertical">
         <Grid 
+            Name="TitleBar"
             RowDefinitions="*" 
             ColumnDefinitions="* * * * * Auto Auto Auto" 
             HorizontalAlignment="Stretch" 
