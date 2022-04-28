@@ -7,7 +7,7 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="UMLEditor"
         WindowStartupLocation="CenterScreen"
-        MinWidth="550">
+        MinWidth="600">
     
         <!-- Establish listeners for key combos on the window -->
         <Window.KeyBindings>
@@ -84,6 +84,30 @@
                                                   Click="Delete_Relationship_OnClick"
                                                   InputGesture="Ctrl+D"
                                         />
+                                        <Separator/>
+                                        <MenuItem Header="_Magic Lines"
+                                                  >
+                                        
+                                            <MenuItem.Icon>
+                                                <CheckBox BorderThickness="0"
+                                                          IsHitTestVisible="True"
+                                                          Click="MagicLinesToggle_OnClick"
+                                                          HotKey="Ctrl+M"
+                                                          ClipToBounds="False"
+                                                          >
+                                                </CheckBox>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Realtime _Update">
+                                            <MenuItem.Icon>
+                                                <CheckBox BorderThickness="0"
+                                                          IsHitTestVisible="True"
+                                                          Click="RealtimeUpdateToggle_OnClick"
+                                                          HotKey="Ctrl+U"
+                                                          ClipToBounds="False">
+                                                </CheckBox>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
                                 </MenuItem>
                                 <MenuItem Header="Utility">
                                         <MenuItem Header="_Edit Theme"
@@ -119,13 +143,6 @@
                     IsEnabled="False"
                     Content="Redo"
                     Click="RedoButton_OnClick"/>
-                <!--<ToggleSwitch
-                    Grid.Row="0" Click="MagicLinesToggle_OnClick" 
-                    Name="MagicLineToggle"
-                    OnContent="Magic Lines On" 
-                    OffContent="Magic Lines Off" 
-                    HorizontalAlignment="Right"
-                    Margin="0 0 160 0"></ToggleSwitch>-->
                 <ToggleSwitch
                     Grid.Row="0" Click="ViewEditToggle_OnClick" 
                     Name="ViewEditToggle"

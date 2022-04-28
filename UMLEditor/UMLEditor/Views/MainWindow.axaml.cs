@@ -465,6 +465,7 @@ namespace UMLEditor.Views
                         _activeDiagram.AddClass(enteredName);
                         RenderClasses(enteredName);
                         ReconsiderCanvasSize();
+                        RedrawLines();
                     }
                     // If fails, raise an alert.
                     catch (Exception error)
@@ -594,7 +595,7 @@ namespace UMLEditor.Views
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
                         RedrawLines();
-                        newLine.Draw(_canvas);
+                        //newLine.Draw(_canvas);
                     }
                     // Alert if the change fails.
                     catch (Exception error)
@@ -925,9 +926,8 @@ namespace UMLEditor.Views
 
         private void MagicLinesToggle_OnClick(object sender, RoutedEventArgs e)
         {
-            ToggleSwitch viewSwitch = (ToggleSwitch) sender;
-
-            RelationshipLine.ToggleMagicLines((bool)viewSwitch.IsChecked!);
+            CheckBox toggle = (CheckBox) sender;
+            RelationshipLine.ToggleMagicLines((bool)toggle.IsChecked);
             
             ReconsiderCanvasSize();   
             RedrawLines();  
@@ -1217,6 +1217,12 @@ namespace UMLEditor.Views
 
             });
             
+        }
+
+        private void RealtimeUpdateToggle_OnClick(object? sender, RoutedEventArgs e)
+        {
+            CheckBox toggle = (CheckBox) sender;
+            ClassBox.ToggleRealtimeUpdate((bool)toggle.IsChecked);
         }
     }
     

@@ -37,6 +37,7 @@ public class ClassBox : UserControl
     }
 
     private bool _inEditMode;
+    private static bool _realtimeUpdate;
     
     private StackPanel fieldsArea;
     private StackPanel methodsArea;
@@ -173,7 +174,11 @@ public class ClassBox : UserControl
                 // Set the ClassBox's location to the location of the cursor
                 Canvas.SetLeft(this, newX);
                 Canvas.SetTop(this, newY);
-                
+
+                if (_realtimeUpdate)
+                {
+                    _parentWindow.RedrawLines();
+                }
                 _parentWindow.ReconsiderCanvasSize();
                 
             }
@@ -228,6 +233,10 @@ public class ClassBox : UserControl
         
     }
 
+    public static void ToggleRealtimeUpdate(bool b)
+    {
+        _realtimeUpdate = b;
+    }
     /// <summary>
     /// Adds a list of fields to this class
     /// </summary>
