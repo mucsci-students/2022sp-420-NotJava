@@ -37,7 +37,7 @@ public class ClassBox : UserControl
     }
 
     private bool _inEditMode;
-    private static bool _realtimeUpdate;
+    private static bool _realtimeUpdate = true;
     
     private StackPanel fieldsArea;
     private StackPanel methodsArea;
@@ -185,8 +185,6 @@ public class ClassBox : UserControl
             
         };
         
-        /////////////////////////////////////////////////////////////////////////////////////////
-        
         // Bind to theme changes
         Theme.ThemeChanged += (sender, newTheme) => ApplyColors();
 
@@ -233,6 +231,10 @@ public class ClassBox : UserControl
         
     }
 
+    /// <summary>
+    /// Toggles realtime drawing of magic lines
+    /// </summary>
+    /// <param name="b">Value to change the toggle to</param>
     public static void ToggleRealtimeUpdate(bool b)
     {
         _realtimeUpdate = b;

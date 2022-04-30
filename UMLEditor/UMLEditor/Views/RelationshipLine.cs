@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using AStarSharp;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -65,21 +64,21 @@ public class RelationshipLine
         { }
     }
     
+    // Line specifications
     private const double SymbolHalfWidth = 16;
     private const double SymbolHalfHeight = 12;
     private const int LineThickness = 2;
-
+    
     private static bool _magicToggle;
     private static List<List<Node>> _grid = new();
     private static Astar _astar = new(_grid);
-
     private List<Point> _gridPoints = new();
     
     /// <summary>
     /// Queue listing each point pair in order from closest to furthest
     /// </summary>
     public PriorityQueue<PointPair, float> PointPairQueue = new();
-    private PointPair _closestPair;
+    private PointPair? _closestPair;
     
     /// <summary>
     /// SourceClass control for relationship line
@@ -109,7 +108,7 @@ public class RelationshipLine
         RelationshipType = relationshipType;
         Segments = new List<Line>();
         Symbol = new Polyline();
-        _closestPair = new PointPair();
+        _closestPair = null;
         
         CreatePointPairList();
     }
@@ -142,6 +141,7 @@ public class RelationshipLine
             maxY = (int)canvas.Bounds.Height;
         }
         
+        // Fills grid with nodes
         for (int x = 0; x < maxX; ++x)
         {
             List<Node> row = new List<Node>();
@@ -168,6 +168,9 @@ public class RelationshipLine
         }
     }
 
+    /// <summary>
+    /// Generates list of start and end points for lines
+    /// </summary>
     private void CreatePointPairList()
     {
         PointPairQueue.Clear();
@@ -280,8 +283,7 @@ public class RelationshipLine
         
         Point midPointStart, midPointEnd;
         // Draw vertically
-        //if (Math.Abs(closestPair.Start.X - closestPair.End.X) > Math.Abs(closestPair.Start.Y - closestPair.End.Y))
-        if ((_closestPair.StartEdge == EdgeEnum.Left && _closestPair.EndEdge == EdgeEnum.Right) ||
+        if ((_closestPair!.StartEdge == EdgeEnum.Left && _closestPair.EndEdge == EdgeEnum.Right) ||
             (_closestPair.StartEdge == EdgeEnum.Right && _closestPair.EndEdge == EdgeEnum.Left))
         {
             midPointStart = new Point((_closestPair.Start.X + _closestPair.End.X) / 2, _closestPair.Start.Y);
@@ -324,9 +326,16 @@ public class RelationshipLine
     /// <param name="myCanvas">Canvas to add the line to</param>
     public void Draw(Canvas myCanvas)
     {
+        if (!_magicToggle)
+        {
+            DrawSimpleLine(myCanvas);
+            return;
+        }
+        
         Stack<Node>? shortestPath = null;
         Stack<Node>? path;
         _closestPair = PointPairQueue.Peek();
+        // ReSharper disable twice RedundantAssignment
         PointPair pair = new();
         Point symbolPoint = new();
         
@@ -357,7 +366,7 @@ public class RelationshipLine
         
         // Draw lines
         // Situation 1: A path was found
-        if (_magicToggle && shortestPath is not null)
+        if (shortestPath is not null)
         {
             symbolPoint = CalculateSymbolPoints(_closestPair);
             myCanvas.Children.Add(Symbol);
@@ -395,6 +404,11 @@ public class RelationshipLine
         }
     }
 
+    /// <summary>
+    /// Gets A* path from point pair
+    /// </summary>
+    /// <param name="pair">The pair of points to get a path between</param>
+    /// <returns>A stack of nodes representing the shortest path</returns>
     private Stack<Node>? GetPath(PointPair pair)
     {
         Point startPoint = new();
@@ -402,6 +416,7 @@ public class RelationshipLine
         
         _gridPoints.Clear();
 
+        // Adjust the start points based on edge
         switch (pair.StartEdge)
         {
             case EdgeEnum.Top:
@@ -459,15 +474,22 @@ public class RelationshipLine
             }
         }
         
+        // Gets path from AStarSharp
         return _astar.FindPath(new Vector2((float) startPoint.X, (float) startPoint.Y),
             new Vector2((float) endPoint.X, (float) endPoint.Y));  
     }
 
+    /// <summary>
+    /// Calculates the points for the relationship symbol based on the edge
+    /// </summary>
+    /// <param name="pair">Pair of points for the line</param>
+    /// <returns>The starting point of the symbol</returns>
     private Point CalculateSymbolPoints(PointPair pair)
     {
         List<Point> diamondPoints = new List<Point>();
         List<Point> trianglePoints = new List<Point>();
         Point symbolPoint = new();
+        // Adjusts points based on edge
         switch (pair.EndEdge)
         {
             case EdgeEnum.Top:

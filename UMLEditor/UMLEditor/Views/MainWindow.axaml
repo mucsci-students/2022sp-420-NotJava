@@ -85,7 +85,7 @@
                                                   InputGesture="Ctrl+D"
                                         />
                                         <Separator/>
-                                        <MenuItem Header="_Magic Lines"
+                                        <MenuItem Header="_Magic Lines (EXPERIMENTAL)"
                                                   >
                                         
                                             <MenuItem.Icon>
@@ -102,6 +102,7 @@
                                             <MenuItem.Icon>
                                                 <CheckBox BorderThickness="0"
                                                           IsHitTestVisible="True"
+                                                          IsChecked="True"
                                                           Click="RealtimeUpdateToggle_OnClick"
                                                           HotKey="Ctrl+U"
                                                           ClipToBounds="False">

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 using Avalonia;
 
-namespace AStarSharp
+namespace UMLEditor.Views
 {
     /// <summary>
     /// Class to represent a node in the grid
@@ -16,11 +16,12 @@ namespace AStarSharp
         /// Size of each node of the grid, in pixels
         /// </summary>
         public static int NODE_SIZE = 20;
-        
+
         /// <summary>
         /// Parent node to this node
         /// </summary>
-        public Node? Parent;
+        //public Node? Parent;
+        public Node? Previous;
 
         /// <summary>
         /// Grid position of the node
@@ -29,14 +30,11 @@ namespace AStarSharp
         /// <summary>
         /// Center position of the node
         /// </summary>
-        public Point Center
-        {
-            get
-            {
-                return new Point(Position.X * NODE_SIZE + NODE_SIZE / 2, Position.Y * NODE_SIZE + NODE_SIZE / 2);
-            }
-        }
-        
+        public Point Center =>
+            // ReSharper disable twice PossibleLossOfFraction
+            // Need to convert floating point to integer
+            new (Position.X * NODE_SIZE + NODE_SIZE / 2, Position.Y * NODE_SIZE + NODE_SIZE / 2);
+
         /// <summary>
         /// Distance to current target
         /// </summary>
@@ -48,7 +46,7 @@ namespace AStarSharp
         /// <summary>
         /// Weight of traversing this node
         /// </summary>
-        public float Weight;
+        public readonly float Weight;
         /// <summary>
         /// Sum of distance and cost
         /// </summary>
@@ -75,7 +73,8 @@ namespace AStarSharp
         /// <param name="weight">Weight of traversing</param>
         public Node(Vector2 pos, bool walkable, float weight = 1)
         {
-            Parent = null;
+            //Parent = null;
+            Previous = null;
             Position = pos;
             DistanceToTarget = -1;
             Cost = 1;
@@ -89,21 +88,10 @@ namespace AStarSharp
     /// </summary>
     public class Astar
     {
-        List<List<Node>> Grid;
-        int GridRows
-        {
-            get
-            {
-               return Grid[0].Count;
-            }
-        }
-        int GridCols
-        {
-            get
-            {
-                return Grid.Count;
-            }
-        }
+        readonly List<List<Node>> _grid;
+        int GridRows => _grid[0].Count;
+
+        int GridCols => _grid.Count;
 
         /// <summary>
         /// Constructor
@@ -111,70 +99,89 @@ namespace AStarSharp
         /// <param name="grid">Grid to create the path on</param>
         public Astar(List<List<Node>> grid)
         {
-            Grid = grid;
+            _grid = grid;
         }
 
         /// <summary>
         /// Finds the best path from start to end without traversing any non-walkable nodes
         /// </summary>
-        /// <param name="Start">Coordinates to start at</param>
-        /// <param name="End">Coordinates to end at</param>
+        /// <param name="start">Coordinates to start at</param>
+        /// <param name="end">Coordinates to end at</param>
         /// <returns></returns>
-        public Stack<Node>? FindPath(Vector2 Start, Vector2 End)
+        public Stack<Node>? FindPath(Vector2 start, Vector2 end)
         {
-            Node start = new Node(new Vector2((int)(Start.X/Node.NODE_SIZE), (int) (Start.Y/Node.NODE_SIZE)), true);
-            Node end = new Node(new Vector2((int)(End.X / Node.NODE_SIZE), (int)(End.Y / Node.NODE_SIZE)), true);
-            Stack<Node> Path = new Stack<Node>();
-            List<Node> OpenList = new List<Node>();
-            List<Node> ClosedList = new List<Node>();
-            List<Node> adjacencies;
-            Node current = start;
+            Node startNode = new Node(new Vector2((int)(start.X/Node.NODE_SIZE), (int) (start.Y/Node.NODE_SIZE)), true);
+            Node endNode = new Node(new Vector2((int)(end.X / Node.NODE_SIZE), (int)(end.Y / Node.NODE_SIZE)), true);
+            Stack<Node> path = new Stack<Node>();
+            List<Node> openList = new List<Node>();
+            //PriorityQueue<Node, float> OpenList = new();
+            List<Node> closedList = new List<Node>();
+            Node current = startNode;
            
             // add start node to Open List
-            OpenList.Add(start);
+            //OpenList.Enqueue(start, start.F);
+            openList.Add(startNode);
             int count = 0;
-            while(OpenList.Count != 0 && !ClosedList.Exists(x => x.Position == end.Position) && count < 5000)
+            while(openList.Count != 0 && !closedList.Exists(x => x.Position == endNode.Position) && count < 5000)
             {
                 ++count;
-                current = OpenList[0];
-                OpenList.Remove(current);
-                ClosedList.Add(current);
-                adjacencies = GetAdjacentNodes(current);
+                //current = OpenList.Dequeue();//OpenList[0];
+                current = openList[0];
+                openList.Remove(current);
+                closedList.Add(current);
+                var adjacencies = GetAdjacentNodes(current);
 
  
+                //var listEnumerator = OpenList.UnorderedItems.GetEnumerator();
+                //bool isFound = false;
                 foreach(Node n in adjacencies)
                 {
-                    if (!ClosedList.Contains(n) && n.Walkable)
+                    if (!closedList.Contains(n) && n.Walkable)
                     {
-                        if (!OpenList.Contains(n))
+                        /*do
                         {
-                            n.Parent = current;
-                            n.DistanceToTarget = Math.Abs(n.Position.X - end.Position.X) + Math.Abs(n.Position.Y - end.Position.Y);
-                            n.Cost = n.Weight + n.Parent.Cost;
-                            OpenList.Add(n);
-                            OpenList = OpenList.OrderBy(node => node.F).ToList<Node>();
+                            if (OpenList.Count > 0 && listEnumerator.Current.Element.Position == n.Position)
+                            {
+                                isFound = true;
+                            }
+                        }*/
+                        //while (listEnumerator.MoveNext()) ;
+                        if (!openList.Contains(n))//!isFound)
+                        {
+                            n.Previous = current;
+                            n.DistanceToTarget = Math.Abs(n.Position.X - endNode.Position.X) + Math.Abs(n.Position.Y - endNode.Position.Y);
+                            n.Cost = n.Weight + n.Previous.Cost;
+                            //OpenList.Enqueue(n, n.F);
+                            openList.Add(n);
+                            openList = openList.OrderBy(node => node.F).ToList();
                         }
                     }
                 }
             }
             
             // construct path, if end was not closed return null
-            if(!ClosedList.Exists(x => x.Position == end.Position))
+            if(!closedList.Exists(x => x.Position == endNode.Position))
             {
                 return null;
             }
 
             // if all good, return path
-            Node? temp = ClosedList[ClosedList.IndexOf(current)];
+            Node? temp = closedList[closedList.IndexOf(current)];
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (temp is null) return null;
             do
             {
-                Path.Push(temp);
-                temp = temp.Parent;
-            } while (temp != start && temp is not null) ;
-            return Path;
+                path.Push(temp);
+                temp = temp.Previous;
+            } while (temp != startNode && temp is not null) ;
+            return path;
         }
 		
+        /// <summary>
+        /// Gets the 4 adjacent nodes to a node
+        /// </summary>
+        /// <param name="n">Node to check</param>
+        /// <returns>List of the adjacent nodes</returns>
         private List<Node> GetAdjacentNodes(Node n)
         {
             List<Node> temp = new List<Node>();
@@ -182,19 +189,19 @@ namespace AStarSharp
             int col = (int)n.Position.X;
             if(row + 1 < GridRows)
             {
-                temp.Add(Grid[col][row + 1]);
+                temp.Add(_grid[col][row + 1]);
             }
             if(row - 1 >= 0)
             {
-                temp.Add(Grid[col][row - 1]);
+                temp.Add(_grid[col][row - 1]);
             }
             if(col - 1 >= 0)
             {
-                temp.Add(Grid[col - 1][row]);
+                temp.Add(_grid[col - 1][row]);
             }
             if(col + 1 < GridCols)
             {
-                temp.Add(Grid[col + 1][row]);
+                temp.Add(_grid[col + 1][row]);
             }
 
             return temp;

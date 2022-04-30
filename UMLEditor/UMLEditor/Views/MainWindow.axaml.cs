@@ -17,7 +17,6 @@ using UMLEditor.Interfaces;
 using UMLEditor.Utility;
 using UMLEditor.ViewModels;
 using UMLEditor.Views.Managers;
-using AStarSharp;
 
 // ReSharper disable UnusedParameter.Local
 
@@ -594,8 +593,8 @@ namespace UMLEditor.Views
                         RelationshipLine newLine = new RelationshipLine(sourceClassBox, destClassBox, relationshipType);
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
+                        _relationshipLines.Add(newLine);
                         RedrawLines();
-                        //newLine.Draw(_canvas);
                     }
                     // Alert if the change fails.
                     catch (Exception error)
@@ -927,7 +926,9 @@ namespace UMLEditor.Views
         private void MagicLinesToggle_OnClick(object sender, RoutedEventArgs e)
         {
             CheckBox toggle = (CheckBox) sender;
+#pragma warning disable CS8629
             RelationshipLine.ToggleMagicLines((bool)toggle.IsChecked);
+#pragma warning restore CS8629
             
             ReconsiderCanvasSize();   
             RedrawLines();  
@@ -1219,10 +1220,12 @@ namespace UMLEditor.Views
             
         }
 
-        private void RealtimeUpdateToggle_OnClick(object? sender, RoutedEventArgs e)
+        private void RealtimeUpdateToggle_OnClick(object sender, RoutedEventArgs e)
         {
             CheckBox toggle = (CheckBox) sender;
+#pragma warning disable CS8629
             ClassBox.ToggleRealtimeUpdate((bool)toggle.IsChecked);
+#pragma warning restore CS8629
         }
     }
     
