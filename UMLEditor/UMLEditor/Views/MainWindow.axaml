@@ -7,7 +7,7 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="UMLEditor"
         WindowStartupLocation="CenterScreen"
-        MinWidth="550">
+        MinWidth="600">
     
         <!-- Establish listeners for key combos on the window -->
         <Window.KeyBindings>
@@ -84,6 +84,31 @@
                                                   Click="Delete_Relationship_OnClick"
                                                   InputGesture="Ctrl+D"
                                         />
+                                        <Separator/>
+                                        <MenuItem Header="_Magic Lines (EXPERIMENTAL)"
+                                                  >
+                                        
+                                            <MenuItem.Icon>
+                                                <CheckBox BorderThickness="0"
+                                                          IsHitTestVisible="True"
+                                                          Click="MagicLinesToggle_OnClick"
+                                                          HotKey="Ctrl+M"
+                                                          ClipToBounds="False"
+                                                          >
+                                                </CheckBox>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Realtime _Update">
+                                            <MenuItem.Icon>
+                                                <CheckBox BorderThickness="0"
+                                                          IsHitTestVisible="True"
+                                                          IsChecked="True"
+                                                          Click="RealtimeUpdateToggle_OnClick"
+                                                          HotKey="Ctrl+U"
+                                                          ClipToBounds="False">
+                                                </CheckBox>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
                                 </MenuItem>
                                 <MenuItem Header="Utility">
                                         <MenuItem Header="_Edit Theme"
