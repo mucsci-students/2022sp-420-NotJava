@@ -23,6 +23,7 @@ public enum DialogButtons
     YES_NO_CANCEL = 14
     #pragma warning restore CS1591
 }
+
 /// <summary>
 /// Default ctor for a ModalDialog
 /// </summary>
@@ -93,14 +94,14 @@ public class ModalDialog: Window
     /// </summary>
     /// <param name="windowTitle">Desired title for new window</param>
     /// <param name="withButtons">Buttons that should be visible on new window</param>
-    /// <typeparam name="Content_T">Controller that should have all the specific axaml and c# for each task</typeparam>
+    /// <typeparam name="TContent">Controller that should have all the specific axaml and c# for each task</typeparam>
     /// <returns></returns>
-    public static ModalDialog CreateDialog<Content_T>(string windowTitle, params DialogButtons[] withButtons)
-        where Content_T : UserControl, new()
+    public static ModalDialog CreateDialog<TContent>(string windowTitle, params DialogButtons[] withButtons)
+        where TContent : UserControl, new()
     {
 
         ModalDialog result = new ModalDialog(windowTitle, withButtons);
-        result.Prompt = new Content_T();
+        result.Prompt = new TContent();
 
         return result;
 
@@ -109,11 +110,11 @@ public class ModalDialog: Window
     /// <summary>
     /// Getting the content as a UserControl for use in new window dialogue
     /// </summary>
-    /// <typeparam name="Content_T">Content that will be used in dialogue</typeparam>
+    /// <typeparam name="TContent">Content that will be used in dialogue</typeparam>
     /// <returns></returns>
-    public Content_T GetPrompt<Content_T>() where Content_T : UserControl, new()
+    public TContent GetPrompt<TContent>() where TContent : UserControl, new()
     {
-        return (Content_T) Prompt;
+        return (TContent) Prompt;
     }
     
     private void InitializeComponent()

@@ -10,6 +10,19 @@
         <entry key="UMLEditor/UMLEditor/Views/AddRelationshipPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/AlertPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/ClassBox.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/ClassBox.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/FieldContainer.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/MethodContainer.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/Modal/InputForms/AddClassPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/Modal/InputForms/AddFieldPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/Modal/InputForms/AddMethodPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/Modal/InputForms/AddRelationshipPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/Modal/InputForms/AlertPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/Modal/InputForms/RenameClassPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/Modal/InputForms/RenameFieldPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/Modal/InputForms/RenameMethodPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/Modal/InputForms/ThemeEditor.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
+        <entry key="UMLEditor/UMLEditor/Views/CustomControls/Modal/ModalDialog.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/DeleteRelationshipPanel.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/FieldContainer.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />
         <entry key="UMLEditor/UMLEditor/Views/GenericModal.axaml" value="UMLEditor/UMLEditor.NetCore/UMLEditor.NetCore.csproj" />

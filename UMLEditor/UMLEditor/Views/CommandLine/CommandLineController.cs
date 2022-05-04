@@ -14,25 +14,19 @@ namespace UMLEditor.Views.CommandLine;
 public class CommandLineController
 {
 
-    
     // private Diagram _activeDiagram;
     private IDiagramFile _activeFile;
     
     private static readonly ConsoleColor ERROR_COLOR = ConsoleColor.Red;
     private static readonly ConsoleColor SUCCESS_COLOR = ConsoleColor.DarkGreen;
 
-    
     /// <summary>
     /// CLIController Constructor
     /// </summary>
     public CommandLineController()
     {
         
-        // _activeDiagram = new Diagram();
         _activeFile = new JSONDiagramFile();
-        
-        // Push the initial state to the TimeMachine
-        // TimeMachine.AddState(_activeDiagram);
         
     }
 

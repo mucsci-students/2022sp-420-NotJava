@@ -31,6 +31,7 @@ public class RenameMethodPanel : UserControl
     {
         get => this.FindControl<TextBox>("NewName").Text;
     }
+    
     /// <summary>
     /// Initializer for RenameMethodPanel
     /// </summary>

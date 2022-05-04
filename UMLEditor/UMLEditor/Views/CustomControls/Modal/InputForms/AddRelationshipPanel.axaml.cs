@@ -10,6 +10,11 @@ namespace UMLEditor.Views.CustomControls.Modal.InputForms;
 /// </summary>
 public class AddRelationshipPanel : UserControl
 {
+    
+    private readonly ComboBox _typeSelector;
+    private readonly ComboBox _sourceSelector;
+    private readonly ComboBox _destSelector;
+    
     /// <summary>
     /// Getter for SourceClass
     /// </summary>
@@ -74,10 +79,6 @@ public class AddRelationshipPanel : UserControl
 
     }
 
-    private readonly ComboBox _typeSelector;
-    private readonly ComboBox _sourceSelector;
-    private readonly ComboBox _destSelector;
-    
     /// <summary>
     /// Initializer for AddRelationshipPanel
     /// </summary>
@@ -97,7 +98,7 @@ public class AddRelationshipPanel : UserControl
     /// <summary>
     /// Adds an array of class names to the source/ dest class selection boxes
     /// </summary>
-    /// <param name="classNames"></param>
+    /// <param name="classNames">The names of classes to load</param>
     public void LoadClassNames(params string[] classNames)
     {
         

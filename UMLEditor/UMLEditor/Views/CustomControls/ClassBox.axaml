@@ -11,10 +11,7 @@
     
     <UserControl.Styles>
         <Style Selector="Image.ControlIcon">
-            <!--
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="VerticalAlignment" Value="Stretch" />
-            -->
+            
         </Style>
         <Style Selector="Button.ControlButton">
             <Setter Property="Padding" Value="2" />
@@ -43,10 +40,10 @@
                     FontWeight="Bold"/>
                 </ScrollViewer>
             <Button Grid.Column="5" Name="EditButton" Classes="ControlButton" Click="RenameClass_Button_OnClick" Margin="0 0 5 0" HorizontalAlignment="Right">
-                <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
+                <Image Classes="ControlIcon" Source="/Assets/CustomIcons/PencilButton.png"></Image>
             </Button>
             <Button Grid.Column="6" Name="DeleteButton" Classes="ControlButton" Click="DeleteClass_Button_OnClick" HorizontalAlignment="Right">
-                <Image Classes="ControlIcon" Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
+                <Image Classes="ControlIcon" Source="/Assets/CustomIcons/TrashCanButton.png"></Image>
             </Button>
         </Grid>
         <!-- FIELDS TITLE ROW -->
@@ -65,7 +62,7 @@
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
             <Button Grid.Column="7" Name="AddFieldButton" Classes="ControlButton" Click="AddFieldButton_OnClick">
-                <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
+                <Image Classes="ControlIcon" Source="/Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>
         <!-- FIELDS LISTING AREA -->
@@ -90,7 +87,7 @@
                     VerticalAlignment="Center"
                     Margin="5 5 0 5 "/>
             <Button Grid.Column="7" Name="AddMethodButton" Classes="ControlButton" Click="AddMethodButton_OnClick">
-                <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PlusButton.png"></Image>
+                <Image Classes="ControlIcon" Source="/Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>
         <!-- METHODS LISTING AREA -->

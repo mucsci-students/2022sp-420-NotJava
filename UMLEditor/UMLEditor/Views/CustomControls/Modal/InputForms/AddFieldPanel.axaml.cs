@@ -10,15 +10,6 @@ public class AddFieldPanel : UserControl
 {
     
     /// <summary>
-    /// Getters and setters for Classname
-    /// </summary>
-    public string ClassName
-    {
-        get => this.FindControl<TextBox>("TargetClass").Text;
-        set => this.FindControl<TextBox>("TargetClass").Text = value;
-    }
-    
-    /// <summary>
     /// Getters and setters for FieldName
     /// </summary>
     public string FieldName

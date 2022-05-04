@@ -32,13 +32,13 @@
                     Margin="5 5 0 5 "/>
             </ScrollViewer>
             <Button Grid.Column="5" Name="EditButton" Classes="ControlButton" Click="RenameMtdButton_OnClick" Margin="0 0 5 0">
-                <Image Source="../Assets/CustomIcons/PencilButton.png"></Image>
+                <Image Source="/Assets/CustomIcons/PencilButton.png"></Image>
             </Button>
             <Button Grid.Column="6" Name="DeleteButton" Classes="ControlButton" Click="DeleteButton_OnClick" Margin="0 0 5 0">
-                <Image Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
+                <Image Source="/Assets/CustomIcons/TrashCanButton.png"></Image>
             </Button>
             <Button Grid.Column="7" Name="AddButton" Classes="ControlButton" Click="AddParamButton_OnClick">
-                <Image Source="../Assets/CustomIcons/PlusButton.png"></Image>
+                <Image Source="/Assets/CustomIcons/PlusButton.png"></Image>
             </Button>
         </Grid>
         <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

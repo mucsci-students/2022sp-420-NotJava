@@ -16,10 +16,12 @@ public class FieldContainer : UserControl
     /// Delete Button
     /// </summary>
     protected Button _deleteButton; 
+    
     /// <summary>
     /// Edit Button
     /// </summary>
     protected Button _editButton; 
+    
     private Label _display;
     private Grid _backing;
     
@@ -27,6 +29,7 @@ public class FieldContainer : UserControl
     /// Properties for field name
     /// </summary>
     public string FieldName { get; protected set; }
+    
     /// <summary>
     /// Properties for Type
     /// </summary>
@@ -36,10 +39,11 @@ public class FieldContainer : UserControl
     /// isMethodParam
     /// </summary>
     protected bool _isMethodParam;
+    
     /// <summary>
     /// isInEditMode
     /// </summary>
-    protected bool _isInEditMode;
+    protected bool IsInEditMode;
     
     /// <summary>
     /// The NameTypeObject representation of this control
@@ -50,7 +54,7 @@ public class FieldContainer : UserControl
     }
 
     // Background color to use when this is displaying a parameter to a method
-    private static readonly Color paramBackground = new Color(255, 255, 120, 0);
+    private static readonly Color ParamBackground = new Color(255, 255, 120, 0);
     
     /// <summary>
     /// Default ctor
@@ -95,7 +99,7 @@ public class FieldContainer : UserControl
         {
             
             // Adopt style for a method parameter
-            _backing.Background = new SolidColorBrush(paramBackground);
+            _backing.Background = new SolidColorBrush(ParamBackground);
 
         }
 
@@ -161,9 +165,9 @@ public class FieldContainer : UserControl
     public void ToggleEditMode(bool inEditMode)
     {
 
-        _isInEditMode = inEditMode;
-        _editButton.IsVisible = _isInEditMode;
-        _deleteButton.IsVisible = _isInEditMode;
+        IsInEditMode = inEditMode;
+        _editButton.IsVisible = IsInEditMode;
+        _deleteButton.IsVisible = IsInEditMode;
 
         if (_isMethodParam)
         {

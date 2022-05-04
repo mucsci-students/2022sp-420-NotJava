@@ -26,6 +26,7 @@ namespace UMLEditor.Views.CustomControls
         /// Grid position of the node
         /// </summary>
         public Vector2 Position;
+        
         /// <summary>
         /// Center position of the node
         /// </summary>
@@ -38,14 +39,17 @@ namespace UMLEditor.Views.CustomControls
         /// Distance to current target
         /// </summary>
         public float DistanceToTarget;
+        
         /// <summary>
         /// Cost of reaching this node from current start
         /// </summary>
         public float Cost;
+        
         /// <summary>
         /// Weight of traversing this node
         /// </summary>
         public readonly float Weight;
+        
         /// <summary>
         /// Sum of distance and cost
         /// </summary>
@@ -58,6 +62,7 @@ namespace UMLEditor.Views.CustomControls
                 return -1;
             }
         }
+        
         /// <summary>
         /// Flag for whether the node can be traversed or not
         /// </summary>
@@ -125,8 +130,6 @@ namespace UMLEditor.Views.CustomControls
                 closedList.Add(current);
                 var adjacencies = GetAdjacentNodes(current);
 
- 
-                //var listEnumerator = OpenList.UnorderedItems.GetEnumerator();
                 foreach(Node n in adjacencies)
                 {
                     if (!closedList.Contains(n) && n.Walkable)

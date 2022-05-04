@@ -23,18 +23,22 @@ public class RelationshipLine
         /// Start point of the pair
         /// </summary>
         public Point Start { get; }
+        
         /// <summary>
         /// End point of the pair
         /// </summary>
         public Point End { get; }
+        
         /// <summary>
         /// Straight line distance between the points
         /// </summary>
         public float Distance { get; }
+        
         /// <summary>
         /// Edge of the starting box
         /// </summary>
         public EdgeEnum StartEdge { get; }
+        
         /// <summary>
         /// Edge of the ending box
         /// </summary>

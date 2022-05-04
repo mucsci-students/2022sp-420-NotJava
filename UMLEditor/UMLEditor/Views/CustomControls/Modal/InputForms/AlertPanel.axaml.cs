@@ -8,7 +8,6 @@ namespace UMLEditor.Views.CustomControls.Modal.InputForms;
 /// </summary>
 public enum AlertIcon
 {
-    
 
 #pragma warning disable CS1591
     NONE,
@@ -38,7 +37,6 @@ public class AlertPanel : UserControl
     {
 
         get => (string)this.FindControl<TextBlock>("Title").Text;
-
         set => this.FindControl<TextBlock>("Title").Text = value;
 
     }
@@ -50,12 +48,11 @@ public class AlertPanel : UserControl
     {
 
         get => (string)this.FindControl<TextBlock>("Message").Text;
-
         set => this.FindControl<TextBlock>("Message").Text = value;
 
     }
 
-    private AlertIcon _currrentIcon;
+    private AlertIcon _currentIcon;
 
     /// <summary>
     /// Setter for the icon
@@ -63,11 +60,8 @@ public class AlertPanel : UserControl
     public AlertIcon DialogIcon
     {
 
-        get => _currrentIcon;
-        set
-        {
-            ChangeIcon(_currrentIcon = value);
-        }
+        get => _currentIcon;
+        set => ChangeIcon(_currentIcon = value);
 
     }
 

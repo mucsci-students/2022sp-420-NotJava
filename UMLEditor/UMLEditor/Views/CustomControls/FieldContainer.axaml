@@ -21,12 +21,12 @@
         <!-- ReSharper disable once Xaml.StyleClassNotFound -->
         <Button Grid.Column="6" Classes="ControlButton" Name="EditButton" Margin="0 0 5 0">
             <!-- ReSharper disable once Xaml.StyleClassNotFound -->
-            <Image Classes="ControlIcon" Source="../Assets/CustomIcons/PencilButton.png"></Image>
+            <Image Classes="ControlIcon" Source="/Assets/CustomIcons/PencilButton.png"></Image>
         </Button>
         <!-- ReSharper disable once Xaml.StyleClassNotFound -->
         <Button Grid.Column="7" Classes="ControlButton" Name="DeleteButton">
             <!-- ReSharper disable once Xaml.StyleClassNotFound -->
-            <Image Classes="ControlIcon" Source="../Assets/CustomIcons/TrashCanButton.png"></Image>
+            <Image Classes="ControlIcon" Source="/Assets/CustomIcons/TrashCanButton.png"></Image>
         </Button>
     </Grid>
 </UserControl>

@@ -25,6 +25,7 @@ public class MethodContainer : UserControl
     /// Return type getter and setter
     /// </summary>
     public string ReturnType { get; private set; }
+    
     /// <summary>
     /// MethodName getter and setter
     /// </summary>
@@ -34,7 +35,6 @@ public class MethodContainer : UserControl
     /// <summary>
     /// Default constructor
     /// </summary>
-
     public MethodContainer()
     {
         
