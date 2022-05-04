@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Data;
-using DynamicData;
 using NUnit.Framework;
 using UMLEditor.Classes;
 using UMLEditor.Exceptions;
@@ -10,11 +9,7 @@ namespace UnitTests;
 [TestFixture]
 public class ClassUnitTests
 {
-    [SetUp]
-    public void Setup()
-    {
-    }
-
+    
     [Test]
     public void CreateDefaultClassTest()
     {
@@ -357,4 +352,5 @@ public class ClassUnitTests
         Assert.AreEqual(1, newClass.Fields.Count);
         
     }
+    
 }

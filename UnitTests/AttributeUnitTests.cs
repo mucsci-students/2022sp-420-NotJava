@@ -13,15 +13,14 @@ public class AttributeUnitTests
     [SetUp]
     public void Setup()
     {
-        methodName1 = "TestMethod1";
-        methodName2 = "TestMethod2";
-        sameMethodName = methodName1;
-        invalidMethodName = "*&23";
-        validType = "string";
-        paramName1 = "TestParam1";
-        paramName2 = "TestParam2";
-        sameParamName = paramName1;
-        invalidParamName = invalidMethodName;
+        _methodName1 = "TestMethod1";
+        _methodName2 = "TestMethod2";
+        _sameMethodName = _methodName1;
+        _invalidMethodName = "*&23";
+        _validType = "string";
+        _paramName1 = "TestParam1";
+        _paramName2 = "TestParam2";
+        _invalidParamName = _invalidMethodName;
     }
 
     [Test]
@@ -34,81 +33,81 @@ public class AttributeUnitTests
     [Test]
     public void CreateNewMethodObjectTest()
     {
-        Method newMethod = new Method(validType, methodName1);
+        Method newMethod = new Method(_validType, _methodName1);
         Assert.IsInstanceOf<Method>(newMethod);
-        Assert.AreEqual(validType, newMethod.ReturnType);
-        Assert.AreEqual(methodName1, newMethod.AttributeName);
+        Assert.AreEqual(_validType, newMethod.ReturnType);
+        Assert.AreEqual(_methodName1, newMethod.AttributeName);
     }
 
     [Test]
     public void CreateInvalidMethodTest()
     {
         Class testClass = new Class("TestClass");
-        testClass.AddMethod(validType, methodName1);
-        Assert.Throws<InvalidNameException>(delegate { testClass.AddMethod(validType, invalidMethodName); });
-        Assert.Throws<AttributeAlreadyExistsException>(delegate { testClass.AddMethod(validType, sameMethodName); });
+        testClass.AddMethod(_validType, _methodName1);
+        Assert.Throws<InvalidNameException>(delegate { testClass.AddMethod(_validType, _invalidMethodName); });
+        Assert.Throws<AttributeAlreadyExistsException>(delegate { testClass.AddMethod(_validType, _sameMethodName); });
     }
 
     [Test]
     public void RenameMethodTest()
     {
-        Method newMethod = new Method(validType, methodName1);
-        newMethod.AttRename(methodName2);
-        Assert.AreEqual(methodName2, newMethod.AttributeName);
-        Assert.Throws<InvalidNameException>(delegate { newMethod.AttRename(invalidMethodName); });
+        Method newMethod = new Method(_validType, _methodName1);
+        newMethod.AttRename(_methodName2);
+        Assert.AreEqual(_methodName2, newMethod.AttributeName);
+        Assert.Throws<InvalidNameException>(delegate { newMethod.AttRename(_invalidMethodName); });
     }
 
     [Test]
     public void DeleteMethodTest()
     {
         Class testClass = new Class("TestClass");
-        testClass.AddMethod(validType, methodName1);
-        Assert.AreEqual(true, testClass.MethodExists(methodName1));
-        Assert.Throws<AttributeNonexistentException>(delegate { testClass.DeleteMethod(methodName2); });
-        testClass.DeleteMethod(methodName1);
-        Assert.AreEqual(false, testClass.MethodExists(methodName1));
+        testClass.AddMethod(_validType, _methodName1);
+        Assert.AreEqual(true, testClass.MethodExists(_methodName1));
+        Assert.Throws<AttributeNonexistentException>(delegate { testClass.DeleteMethod(_methodName2); });
+        testClass.DeleteMethod(_methodName1);
+        Assert.AreEqual(false, testClass.MethodExists(_methodName1));
     }
 
     [Test]
     public void CreateNewParamObjectTest()
     {
-        NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
+        NameTypeObject testParam1 = new NameTypeObject(_validType, _paramName1);
         Assert.IsInstanceOf<NameTypeObject>(testParam1);
-        Assert.AreEqual(validType, testParam1.Type);
-        Assert.AreEqual(paramName1, testParam1.AttributeName);
+        Assert.AreEqual(_validType, testParam1.Type);
+        Assert.AreEqual(_paramName1, testParam1.AttributeName);
     }
 
     [Test]
     public void CreateInvalidParamObjectTest()
     {
         // ReSharper disable once ObjectCreationAsStatement
-        Assert.Throws<InvalidNameException>(delegate { new NameTypeObject(validType, invalidParamName); });
+        Assert.Throws<InvalidNameException>(delegate { new NameTypeObject(_validType, _invalidParamName); });
     }
 
     [Test]
     public void AddParamTest()
     {
-        Method testMethod = new Method(validType, methodName1);
-        NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
-        NameTypeObject testParam2 = new NameTypeObject(validType, paramName2);
+        Method testMethod = new Method(_validType, _methodName1);
+        NameTypeObject testParam1 = new NameTypeObject(_validType, _paramName1);
+        NameTypeObject testParam2 = new NameTypeObject(_validType, _paramName2);
         List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1, testParam2};
         
         testMethod.AddParam(testParam1);
-        Assert.AreEqual(true, testMethod.IsParamInList(paramName1));
+        Assert.AreEqual(true, testMethod.IsParamInList(_paramName1));
         Assert.AreEqual(false, testMethod.IsParamInList(testParam2));
-        Method testMethod2 = new Method(validType, methodName2);
+        Method testMethod2 = new Method(_validType, _methodName2);
         
         testMethod2.AddParam(testParams);
         Assert.AreEqual(true, testMethod2.IsParamInList(testParam1));
-        Assert.AreEqual(true, testMethod2.IsParamInList(paramName2));
+        Assert.AreEqual(true, testMethod2.IsParamInList(_paramName2));
     }
 
     [Test]
     public void InvalidAddParamTest()
     {
-        Method testMethod = new Method(validType, methodName1);
-        NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
-        NameTypeObject testParam2 = new NameTypeObject(validType, paramName2);
+        Method testMethod = new Method(_validType, _methodName1);
+        NameTypeObject testParam1 = new NameTypeObject(_validType, _paramName1);
+        NameTypeObject testParam2 = new NameTypeObject(_validType, _paramName2);
         List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1, testParam2};
         testMethod.AddParam(testParam1);
         Assert.Throws<AttributeAlreadyExistsException>(delegate { testMethod.AddParam(testParam1);});
@@ -118,9 +117,9 @@ public class AttributeUnitTests
     [Test]
     public void ChangeParamTest()
     {
-        Method testMethod = new Method(validType, methodName1);
-        NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
-        NameTypeObject testParam2 = new NameTypeObject(validType, paramName2);
+        Method testMethod = new Method(_validType, _methodName1);
+        NameTypeObject testParam1 = new NameTypeObject(_validType, _paramName1);
+        NameTypeObject testParam2 = new NameTypeObject(_validType, _paramName2);
         List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1, testParam2};
         testMethod.AddParam(testParam1);
         Assert.AreEqual(true, testMethod.IsParamInList(testParam1));
@@ -129,18 +128,17 @@ public class AttributeUnitTests
         Assert.AreEqual(true, testMethod.IsParamInList(testParam2));
 
         testMethod.ChangeParam(testParams);
-        Assert.AreEqual(true, testMethod.IsParamInList(paramName1));
-        Assert.AreEqual(true, testMethod.IsParamInList(paramName2));
+        Assert.AreEqual(true, testMethod.IsParamInList(_paramName1));
+        Assert.AreEqual(true, testMethod.IsParamInList(_paramName2));
     }
 
     [Test]
     public void InvalidChangeParamTest()
     {
-        Method testMethod = new Method(validType, methodName1);
-        NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
-        NameTypeObject testParam2 = new NameTypeObject(validType, paramName2);
-        // ReSharper disable once UnusedVariable
-        List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1, testParam2};
+        Method testMethod = new Method(_validType, _methodName1);
+        NameTypeObject testParam1 = new NameTypeObject(_validType, _paramName1);
+        NameTypeObject testParam2 = new NameTypeObject(_validType, _paramName2);
+        
         testMethod.AddParam(testParam1);
 
         Assert.Throws<AttributeNonexistentException>(delegate { testMethod.ChangeParam(testParam2, testParam2);});
@@ -150,8 +148,8 @@ public class AttributeUnitTests
     [Test]
     public void RemoveParamTest()
     {
-        Method testMethod = new Method(validType, methodName1);
-        NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
+        Method testMethod = new Method(_validType, _methodName1);
+        NameTypeObject testParam1 = new NameTypeObject(_validType, _paramName1);
         testMethod.AddParam(testParam1);
         Assert.AreEqual(true, testMethod.IsParamInList(testParam1));
         testMethod.RemoveParam(testParam1.AttributeName);
@@ -165,7 +163,7 @@ public class AttributeUnitTests
     [Test]
     public void ListConstructorTest()
     {
-        NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
+        NameTypeObject testParam1 = new NameTypeObject(_validType, _paramName1);
         
         List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1};
         Method testMethod = new Method("String", "TestName", testParams );
@@ -188,7 +186,7 @@ public class AttributeUnitTests
     [Test]
     public void ClearParametersTest()
     {
-        NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
+        NameTypeObject testParam1 = new NameTypeObject(_validType, _paramName1);
         List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1};
         Method testMethod = new Method("String", "TestName", testParams );
         testMethod.ClearParameters();
@@ -199,7 +197,7 @@ public class AttributeUnitTests
     [Test]
     public void RenameParameterTest()
     {
-        NameTypeObject testParam1 = new NameTypeObject(validType, "paramName1");
+        NameTypeObject testParam1 = new NameTypeObject(_validType, "paramName1");
         List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1};
         Method testMethod = new Method("String", "TestName", testParams );
         
@@ -207,6 +205,7 @@ public class AttributeUnitTests
         
         Assert.AreEqual(true, testMethod.IsParamInList("wackus"));
     }
+    
     [Test]
     public void RenameParameterNotInMethodTest()
     {
@@ -227,7 +226,7 @@ public class AttributeUnitTests
     [Test]
     public void ReplaceParamDoesNotExistTest()
     {
-        NameTypeObject testParam1 = new NameTypeObject(validType, "paramName1");
+        NameTypeObject testParam1 = new NameTypeObject(_validType, "paramName1");
         List<NameTypeObject> testParams = new List<NameTypeObject>();
         Method testMethod = new Method("String", "TestName", testParams );
 
@@ -237,10 +236,10 @@ public class AttributeUnitTests
     [Test]
     public void ReplaceParamTest()
     {
-        NameTypeObject testParam1 = new NameTypeObject(validType, "paramName1");
-        NameTypeObject testParamDuplicate = new NameTypeObject(validType, "paramNameDuplicate");
+        NameTypeObject testParam1 = new NameTypeObject(_validType, "paramName1");
+        NameTypeObject testParamDuplicate = new NameTypeObject(_validType, "paramNameDuplicate");
         List<NameTypeObject> testParams = new List<NameTypeObject>{testParam1, testParamDuplicate};
-        NameTypeObject testParam2 = new NameTypeObject(validType, "paramName2");
+        NameTypeObject testParam2 = new NameTypeObject(_validType, "paramName2");
 
         Method testMethod = new Method("String", "TestName", testParams );
 
@@ -278,7 +277,6 @@ public class AttributeUnitTests
         NameTypeObject testParam1 = new NameTypeObject("String", "paramName1");
         NameTypeObject testParam2 = new NameTypeObject("String", "paramName1");
         
-
         Assert.AreEqual(true, testParam1 == testParam2);
     }
     
@@ -343,19 +341,18 @@ public class AttributeUnitTests
     [Test]
     public void InvalidRemoveParamTest()
     {
-        Method testMethod = new Method(validType, methodName1);
-        NameTypeObject testParam1 = new NameTypeObject(validType, paramName1);
+        Method testMethod = new Method(_validType, _methodName1);
+        NameTypeObject testParam1 = new NameTypeObject(_validType, _paramName1);
         Assert.Throws<AttributeNonexistentException>(delegate { testMethod.RemoveParam(testParam1.AttributeName);});
     }
 
-    private string methodName1 = "";
-    private string methodName2 = "";
-    private string sameMethodName = "";
-    private string invalidMethodName = "";
-    private string validType = "";
-    private string paramName1 = "";
-    private string paramName2 = "";
-    // ReSharper disable once NotAccessedField.Local
-    private string sameParamName = "";
-    private string invalidParamName = "";
+    private string _methodName1 = "";
+    private string _methodName2 = "";
+    private string _sameMethodName = "";
+    private string _invalidMethodName = "";
+    private string _validType = "";
+    private string _paramName1 = "";
+    private string _paramName2 = "";
+    private string _invalidParamName = "";
+    
 }
