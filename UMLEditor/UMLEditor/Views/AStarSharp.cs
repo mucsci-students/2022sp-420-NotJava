@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using Avalonia;
 
@@ -54,10 +53,9 @@ namespace UMLEditor.Views
         {
             get
             {
-                if (DistanceToTarget <= -1 && Cost <= -1)
+                if (DistanceToTarget >= -1 && Cost >= -1)
                     return DistanceToTarget + Cost;
-                else
-                    return -1;
+                return -1;
             }
         }
         /// <summary>
@@ -113,47 +111,40 @@ namespace UMLEditor.Views
             Node startNode = new Node(new Vector2((int)(start.X/Node.NODE_SIZE), (int) (start.Y/Node.NODE_SIZE)), true);
             Node endNode = new Node(new Vector2((int)(end.X / Node.NODE_SIZE), (int)(end.Y / Node.NODE_SIZE)), true);
             Stack<Node> path = new Stack<Node>();
-            List<Node> openList = new List<Node>();
-            //PriorityQueue<Node, float> OpenList = new();
+            PriorityQueue<Node, float> openList = new();
             List<Node> closedList = new List<Node>();
             Node current = startNode;
            
             // add start node to Open List
-            //OpenList.Enqueue(start, start.F);
-            openList.Add(startNode);
+            openList.Enqueue(startNode, startNode.F);
             int count = 0;
             while(openList.Count != 0 && !closedList.Exists(x => x.Position == endNode.Position) && count < 5000)
             {
                 ++count;
-                //current = OpenList.Dequeue();//OpenList[0];
-                current = openList[0];
-                openList.Remove(current);
+                current = openList.Dequeue();
                 closedList.Add(current);
                 var adjacencies = GetAdjacentNodes(current);
 
  
                 //var listEnumerator = OpenList.UnorderedItems.GetEnumerator();
-                //bool isFound = false;
                 foreach(Node n in adjacencies)
                 {
                     if (!closedList.Contains(n) && n.Walkable)
                     {
-                        /*do
+                        bool isFound = false;
+                        foreach (var oLNode in openList.UnorderedItems)
                         {
-                            if (OpenList.Count > 0 && listEnumerator.Current.Element.Position == n.Position)
+                            if (oLNode.Element == n)
                             {
                                 isFound = true;
                             }
-                        }*/
-                        //while (listEnumerator.MoveNext()) ;
-                        if (!openList.Contains(n))//!isFound)
+                        }
+                        if (!isFound)
                         {
                             n.Previous = current;
                             n.DistanceToTarget = Math.Abs(n.Position.X - endNode.Position.X) + Math.Abs(n.Position.Y - endNode.Position.Y);
                             n.Cost = n.Weight + n.Previous.Cost;
-                            //OpenList.Enqueue(n, n.F);
-                            openList.Add(n);
-                            openList = openList.OrderBy(node => node.F).ToList();
+                            openList.Enqueue(n, n.F);
                         }
                     }
                 }
@@ -187,19 +178,19 @@ namespace UMLEditor.Views
             List<Node> temp = new List<Node>();
             int row = (int)n.Position.Y;
             int col = (int)n.Position.X;
-            if(row + 1 < GridRows)
+            if(row + 1 < GridRows && col < GridCols)
             {
                 temp.Add(_grid[col][row + 1]);
             }
-            if(row - 1 >= 0)
+            if(row - 1 >= 0 && col >= 0)
             {
                 temp.Add(_grid[col][row - 1]);
             }
-            if(col - 1 >= 0)
+            if(col - 1 >= 0 && row >= 0)
             {
                 temp.Add(_grid[col - 1][row]);
             }
-            if(col + 1 < GridCols)
+            if(col + 1 < GridCols && row < GridRows)
             {
                 temp.Add(_grid[col + 1][row]);
             }
