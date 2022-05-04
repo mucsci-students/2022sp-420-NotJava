@@ -416,8 +416,6 @@ namespace UMLEditor.Views
                             TimeMachine.AddState(_activeDiagram);
                             ReconsiderUndoRedoVisibility();
                             
-                            ReconsiderCanvasSize();
-                            
                         }
             
                         catch (Exception exception)
@@ -783,9 +781,6 @@ namespace UMLEditor.Views
                 
                 ClassBox sourceClassBox = GetClassBoxByName(currentRelation.SourceClass);
                 ClassBox destClassBox = GetClassBoxByName(currentRelation.DestinationClass);
-
-                sourceClassBox.ClearAllEdges();
-                destClassBox.ClearAllEdges();
                 
                 RelationshipLine newLine =
                     new RelationshipLine(sourceClassBox, destClassBox, currentRelation.RelationshipType);
@@ -857,7 +852,6 @@ namespace UMLEditor.Views
                 
                 ClearAllLines();
                 RenderLines(_activeDiagram.Relationships);
-
             });
         }
 
@@ -954,12 +948,11 @@ namespace UMLEditor.Views
             ClearCanvas();
             RenderClasses(_activeDiagram.Classes);
                             
+            ReconsiderCanvasSize();
             Dispatcher.UIThread.RunJobs();
             
-            //RenderLines(_activeDiagram.Relationships);
+            RelationshipLine.InitializeGrid(_canvas);
             RedrawLines();
-            ReconsiderCanvasSize();
-            
         }
         
         private void UndoButton_OnClick(object sender, RoutedEventArgs e)

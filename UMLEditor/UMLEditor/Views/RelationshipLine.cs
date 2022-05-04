@@ -129,8 +129,10 @@ public class RelationshipLine
     /// <param name="canvas">The canvas to get size of for grid (currently not working)</param>
     public static void InitializeGrid(Canvas canvas)
     {
-        // Currently not getting bounds correctly, using placeholder values
+        _grid.Clear();
+        // Set a default of 6000 pixels for screen size
         int maxX = 6000 / Node.NODE_SIZE, maxY = 6000 / Node.NODE_SIZE;
+        // Try to get canvas dimensions to set grid size
         if (canvas.Bounds.Width != 0)
         {
             maxX = (int)canvas.Bounds.Width;
@@ -267,7 +269,7 @@ public class RelationshipLine
     /// <param name="y">Y coordinate of point</param>
     public static void MakeNotWalkable(int x, int y)
     {
-        if (x >= 0 && x < _grid[0].Count && y >= 0 && y < _grid.Count)
+        if (x >= 0 && x < _grid.Count && y >= 0 && y < _grid[0].Count)
         {
             _grid[x][y].Walkable = false;
         }
