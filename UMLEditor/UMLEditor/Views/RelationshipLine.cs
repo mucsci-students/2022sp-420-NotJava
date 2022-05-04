@@ -269,19 +269,9 @@ public class RelationshipLine
     /// <param name="y">Y coordinate of point</param>
     public static void MakeNotWalkable(int x, int y)
     {
-
-        try
+        if (x >= 0 && x < _grid.Count && y >= 0 && y < _grid[0].Count)
         {
-
-            if (x >= 0 && x < _grid.Count && y >= 0 && y < _grid[0].Count)
-            {
-                _grid[x][y].Walkable = false;
-            }
-        }
-        catch (Exception e)
-        {
-            List<List<Node>> copy = _grid;
-            Console.WriteLine();
+            _grid[x][y].Walkable = false;
         }
     }
 

@@ -781,9 +781,6 @@ namespace UMLEditor.Views
                 
                 ClassBox sourceClassBox = GetClassBoxByName(currentRelation.SourceClass);
                 ClassBox destClassBox = GetClassBoxByName(currentRelation.DestinationClass);
-
-                sourceClassBox.ClearAllEdges();
-                destClassBox.ClearAllEdges();
                 
                 RelationshipLine newLine =
                     new RelationshipLine(sourceClassBox, destClassBox, currentRelation.RelationshipType);
