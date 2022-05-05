@@ -32,7 +32,6 @@ namespace UMLEditor.Views
     {
 
         private Diagram _activeDiagram;
-        private List<ClassBox> _classBoxes;
 
         private List<ClassBox> DrawnClassBoxes
         {
@@ -116,7 +115,6 @@ namespace UMLEditor.Views
             
             _activeDiagram = new Diagram();
 
-            _classBoxes = new List<ClassBox>();
             _activeFile = new JSONDiagramFile();
 
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
@@ -740,7 +738,6 @@ namespace UMLEditor.Views
             {
                 
                 ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this, _inEditMode);
-                _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
                 ClassBoxes.RegisterClassBox(newClass);
                 
@@ -758,7 +755,6 @@ namespace UMLEditor.Views
             {
                 
                 ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this, _inEditMode);
-                _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
                 ClassBoxes.RegisterClassBox(newClass);
                 
@@ -774,7 +770,8 @@ namespace UMLEditor.Views
         {
             _relationshipLines.Clear();
             RelationshipLine.ResetGrid();
-            foreach (ClassBox c in _classBoxes)
+            List<ClassBox> classBoxes = ClassBoxes.ClassBoxList;
+            foreach (ClassBox c in classBoxes)
             {
                 AddClassBoxToGrid(c);
             }
