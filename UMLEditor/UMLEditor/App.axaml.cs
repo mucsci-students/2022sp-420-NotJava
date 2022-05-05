@@ -21,7 +21,7 @@ namespace UMLEditor
         }
 
         /// <summary>
-        /// On Initializattion
+        /// On Initialization
         /// </summary>
         public override void OnFrameworkInitializationCompleted()
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UMLEditor.Views.CustomControls;
 
 namespace UMLEditor.Views.Managers;
 

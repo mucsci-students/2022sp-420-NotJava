@@ -25,4 +25,58 @@
       <None Remove="Views\AddAttributePanel.axaml~" />
       <None Remove="Views\AddMethodPanel.axaml~" />
     </ItemGroup>
+    <ItemGroup>
+      <Compile Update="Views\CustomControls\Modal\InputForms\AddClassPanel.axaml.cs">
+        <DependentUpon>AddClassPanel.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\Modal\InputForms\AddFieldPanel.axaml.cs">
+        <DependentUpon>AddFieldPanel.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\Modal\InputForms\AddMethodPanel.axaml.cs">
+        <DependentUpon>AddMethodPanel.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\Modal\InputForms\AddRelationshipPanel.axaml.cs">
+        <DependentUpon>AddRelationshipPanel.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\Modal\InputForms\AlertPanel.axaml.cs">
+        <DependentUpon>AlertPanel.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\Modal\InputForms\RenameClassPanel.axaml.cs">
+        <DependentUpon>RenameClassPanel.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\Modal\InputForms\RenameFieldPanel.axaml.cs">
+        <DependentUpon>RenameFieldPanel.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\Modal\InputForms\RenameMethodPanel.axaml.cs">
+        <DependentUpon>RenameMethodPanel.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\Modal\InputForms\ThemeEditor.axaml.cs">
+        <DependentUpon>ThemeEditor.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\Modal\ModalDialog.axaml.cs">
+        <DependentUpon>ModalDialog.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\ClassBox.axaml.cs">
+        <DependentUpon>ClassBox.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\FieldContainer.axaml.cs">
+        <DependentUpon>FieldContainer.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\CustomControls\MethodContainer.axaml.cs">
+        <DependentUpon>MethodContainer.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
 </Project>

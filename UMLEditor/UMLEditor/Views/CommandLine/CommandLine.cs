@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using UMLEditor.Classes;
+
 namespace UMLEditor.Views.CommandLine;
 
 /// <summary>

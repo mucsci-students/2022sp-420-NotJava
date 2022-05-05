@@ -36,5 +36,4 @@ public class DiagramUnitTest
         Assert.DoesNotThrow(delegate { clonedDiagram.ChangeRelationship("Fare_Well", "So_long", "realization"); });
     }
     
-    //Test ListClasses
 }

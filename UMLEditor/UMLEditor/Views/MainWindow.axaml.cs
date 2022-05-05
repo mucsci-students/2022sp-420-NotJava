@@ -16,6 +16,9 @@ using UMLEditor.Classes;
 using UMLEditor.Interfaces;
 using UMLEditor.Utility;
 using UMLEditor.ViewModels;
+using UMLEditor.Views.CustomControls;
+using UMLEditor.Views.CustomControls.Modal;
+using UMLEditor.Views.CustomControls.Modal.InputForms;
 using UMLEditor.Views.Managers;
 
 // ReSharper disable UnusedParameter.Local
@@ -901,11 +904,16 @@ namespace UMLEditor.Views
         /// <param name="e">Extra arguments sent to the handler</param>
         private void ViewEditToggle_OnClick(object sender, RoutedEventArgs e)
         {
-            #pragma warning disable CS8629
+            
             ToggleSwitch viewSwitch = (ToggleSwitch) sender;
+            bool isChecked = false;
 
-            _inEditMode = ((bool)viewSwitch.IsChecked);
-
+            if (viewSwitch.IsChecked is not null)
+            {
+                isChecked = (bool) viewSwitch.IsChecked;
+            }
+            
+            _inEditMode = isChecked;
 
             foreach (ClassBox currentBoxes in DrawnClassBoxes)
             {
@@ -914,16 +922,21 @@ namespace UMLEditor.Views
      
             ReconsiderCanvasSize();   
             RedrawLines();    
-            #pragma warning restore CS8629
+            
         }
 
         private void MagicLinesToggle_OnClick(object sender, RoutedEventArgs e)
         {
             CheckBox toggle = (CheckBox) sender;
-#pragma warning disable CS8629
-            RelationshipLine.ToggleMagicLines((bool)toggle.IsChecked);
-#pragma warning restore CS8629
+            bool isChecked = false;
+
+            if (toggle.IsChecked is not null)
+            {
+                isChecked = (bool) toggle.IsChecked;
+            }
             
+            RelationshipLine.ToggleMagicLines(isChecked);
+
             ReconsiderCanvasSize();   
             RedrawLines();  
         }
@@ -1216,9 +1229,16 @@ namespace UMLEditor.Views
         private void RealtimeUpdateToggle_OnClick(object sender, RoutedEventArgs e)
         {
             CheckBox toggle = (CheckBox) sender;
-#pragma warning disable CS8629
-            ClassBox.ToggleRealtimeUpdate((bool)toggle.IsChecked);
-#pragma warning restore CS8629
+            bool toggleChecked = false;
+
+            if (toggle.IsChecked is not null)
+            {
+
+                toggleChecked = (bool) toggle.IsChecked;
+
+            }
+            
+            ClassBox.ToggleRealtimeUpdate(toggleChecked);
         }
     }
     

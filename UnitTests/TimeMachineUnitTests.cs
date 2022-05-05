@@ -7,10 +7,6 @@ namespace UnitTests;
 [TestFixture]
 public class TimeMachineUnitTests
 {
-    private readonly Diagram _d1 = new(), _d2 = new(), _d3 = new();
-    [SetUp] 
-    public void Setup()
-    { }
 
     [Test]
     public void AddStateTest()
@@ -50,4 +46,9 @@ public class TimeMachineUnitTests
         Assert.AreEqual(true,TimeMachine.MoveToNextState().ClassExists("Diagram3Class"));
         Assert.Throws<InvalidOperationException>(delegate { TimeMachine.MoveToNextState(); });
     }
+
+    private readonly Diagram _d1 = new();
+    private readonly Diagram _d2 = new();
+    private readonly Diagram _d3 = new();
+
 }
