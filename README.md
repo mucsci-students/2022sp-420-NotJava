@@ -30,8 +30,8 @@ _This will run all available unit tests for the code and does nothing else._
 
 ## Documents
 - The **Documents** folder is where we store our diagram images, feature writeups, and other written sprint requirements.
-- **SQLite Writeup.pdf** is where the writeup for our dropped SQLite task is located.
-- **Design Pattern Writeup.pdf** is where the list of implemented design patterns is located.
+  - **SQLite Writeup.pdf** is where the writeup for our dropped SQLite task is located.
+  - **Design Pattern Writeup.pdf** is where the list of implemented design patterns is located.
 
 ## GUI Mode Help
 - Menu Bar
