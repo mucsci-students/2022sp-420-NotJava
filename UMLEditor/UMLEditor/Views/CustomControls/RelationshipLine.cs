@@ -319,10 +319,25 @@ public class RelationshipLine
         
         Point symbolPoint = CalculateSymbolPoints(_closestPair);
         myCanvas.Children.Add(Symbol);
+
+        Line newLine = CreateRelationshipLine(_closestPair.Start, midPointStart);
+        Segments.Add(newLine);
+        myCanvas.Children.Add(newLine);
+        newLine = CreateRelationshipLine(midPointStart, midPointEnd);
+        Segments.Add(newLine);
+        myCanvas.Children.Add(newLine);
+        newLine = CreateRelationshipLine(midPointEnd, symbolPoint);
+        Segments.Add(newLine);
+        myCanvas.Children.Add(newLine);
         
-        myCanvas.Children.Add(CreateRelationshipLine(_closestPair.Start, midPointStart));
-        myCanvas.Children.Add(CreateRelationshipLine(midPointStart, midPointEnd));
-        myCanvas.Children.Add(CreateRelationshipLine(midPointEnd, symbolPoint));
+        foreach (Line l in Segments)
+        {
+            
+            if (RelationshipType == "realization")
+            {
+                l.StrokeDashArray = new AvaloniaList<double>(4, 2);
+            }
+        }
     }
 
     /// <summary>
@@ -332,6 +347,7 @@ public class RelationshipLine
     /// <param name="myCanvas">Canvas to add the line to</param>
     public void Draw(Canvas myCanvas)
     {
+        Segments.Clear();
         if (!_magicToggle)
         {
             DrawSimpleLine(myCanvas);
@@ -391,6 +407,14 @@ public class RelationshipLine
                     newLine = CreateRelationshipLine(pos, newPos);
                     Segments.Add(newLine);
                     myCanvas.Children.Add(newLine);
+                    foreach (Line l in Segments)
+                    {
+            
+                        if (RelationshipType == "realization")
+                        {
+                            l.StrokeDashArray = new AvaloniaList<double>(4, 2);
+                        }
+                    }
                     pos = newPos;
                 }
             }
@@ -587,12 +611,9 @@ public class RelationshipLine
                 break;
             case "inheritance":
                 Symbol = CreateRelationshipSymbol(trianglePoints);
+                Symbol.Fill = Theme.Current.LinesColor;
                 break;
             case "realization":
-                foreach (Line l in Segments)
-                {
-                    l.StrokeDashArray = new AvaloniaList<double>(5, 3);
-                }
                 Symbol = CreateRelationshipSymbol(trianglePoints);
                 break;
         }
