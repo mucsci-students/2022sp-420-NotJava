@@ -386,10 +386,13 @@ public class RelationshipLine
             {
                 Point newPos = shortestPath.Pop().Center;
                 _gridPoints.Add(newPos);
-                newLine = CreateRelationshipLine(pos, newPos);
-                Segments.Add(newLine);
-                myCanvas.Children.Add(newLine);
-                pos = newPos;
+                if (shortestPath.Count % 2 == 0)
+                {
+                    newLine = CreateRelationshipLine(pos, newPos);
+                    Segments.Add(newLine);
+                    myCanvas.Children.Add(newLine);
+                    pos = newPos;
+                }
             }
 
             _gridPoints.Add(_closestPair.End);

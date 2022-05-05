@@ -16,6 +16,23 @@ public static class ClassBoxes
     private static readonly Dictionary<string, ClassBox> Register = new();
 
     /// <summary>
+    /// Public accessor for the list of ClassBoxes from Register
+    /// </summary>
+    public static List<ClassBox> ClassBoxList
+    {
+        get
+        {
+            List<ClassBox> list = new();
+            foreach (var cb in Register)
+            {
+                list.Add(cb.Value);
+            }
+
+            return list;
+        }
+    }
+
+    /// <summary>
     /// Allows creating a new registration for a ClassBox
     /// </summary>
     /// <param name="toRegister">The ClassBox to register</param>
