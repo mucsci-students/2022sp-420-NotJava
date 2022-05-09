@@ -12,7 +12,7 @@ public class Relationship : ICloneable
 {
     // Valid relationship types
     [JsonIgnore]
-    private static readonly List<string> _validTypes = new List<string>{"aggregation", "composition", "inheritance", "realization"};
+    private static readonly List<string> MValidTypes = new List<string>{"aggregation", "composition", "inheritance", "realization"};
 
     /// <summary>
     /// ValidTypes properties
@@ -20,7 +20,7 @@ public class Relationship : ICloneable
     [JsonIgnore]
     public static List<string> ValidTypes
     {
-        get => new List<string>(_validTypes);
+        get => new List<string>(MValidTypes);
     }
     
     /// <summary>
@@ -82,7 +82,7 @@ public class Relationship : ICloneable
     /// <exception cref="InvalidRelationshipTypeException">If the given type is not valid</exception>
     public bool IsValidType(string type)
     {
-        if (!_validTypes.Contains(type))
+        if (!MValidTypes.Contains(type))
         {
             throw new InvalidRelationshipTypeException($"'{type}' is not a valid relationship type.");
         }

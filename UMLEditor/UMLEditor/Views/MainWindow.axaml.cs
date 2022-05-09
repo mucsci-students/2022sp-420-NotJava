@@ -16,6 +16,9 @@ using UMLEditor.Classes;
 using UMLEditor.Interfaces;
 using UMLEditor.Utility;
 using UMLEditor.ViewModels;
+using UMLEditor.Views.CustomControls;
+using UMLEditor.Views.CustomControls.Modal;
+using UMLEditor.Views.CustomControls.Modal.InputForms;
 using UMLEditor.Views.Managers;
 
 // ReSharper disable UnusedParameter.Local
@@ -29,7 +32,6 @@ namespace UMLEditor.Views
     {
 
         private Diagram _activeDiagram;
-        private List<ClassBox> _classBoxes;
 
         private List<ClassBox> DrawnClassBoxes
         {
@@ -113,7 +115,6 @@ namespace UMLEditor.Views
             
             _activeDiagram = new Diagram();
 
-            _classBoxes = new List<ClassBox>();
             _activeFile = new JSONDiagramFile();
 
             InitFileDialogs(out _openFileDialog, out _saveFileDialog, "json");
@@ -122,6 +123,9 @@ namespace UMLEditor.Views
 
             _canvas = this.FindControl<Canvas>("MyCanvas");
             _inEditMode = false;
+            
+            // Build grid for line placement
+            RelationshipLine.InitializeGrid(_canvas);
 
             // Grab the undo and redo buttons
             _undoButton = this.FindControl<Button>("UndoButton");
@@ -137,7 +141,7 @@ namespace UMLEditor.Views
                 ReconsiderUndoRedoVisibility();
 
             };
-
+            
             // Bind to key combo events
             Dictionary<string, Action> comboBindings = new();
             MainViewModel.KeyComboIssued += (sender, combo) =>
@@ -413,8 +417,6 @@ namespace UMLEditor.Views
                             TimeMachine.AddState(_activeDiagram);
                             ReconsiderUndoRedoVisibility();
                             
-                            ReconsiderCanvasSize();
-                            
                         }
             
                         catch (Exception exception)
@@ -461,6 +463,7 @@ namespace UMLEditor.Views
                         _activeDiagram.AddClass(enteredName);
                         RenderClasses(enteredName);
                         ReconsiderCanvasSize();
+                        RedrawLines();
                     }
                     // If fails, raise an alert.
                     catch (Exception error)
@@ -589,8 +592,8 @@ namespace UMLEditor.Views
                         RelationshipLine newLine = new RelationshipLine(sourceClassBox, destClassBox, relationshipType);
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
-                        RenderLines(_activeDiagram.Relationships);
-                        newLine.Draw(_canvas);
+                        _relationshipLines.Add(newLine);
+                        RedrawLines();
                     }
                     // Alert if the change fails.
                     catch (Exception error)
@@ -641,7 +644,7 @@ namespace UMLEditor.Views
                         RelationshipLine currentLine = GetRelationshipByClassNames(sourceName, destinationName)!;
                         ClearAllLines();
                         _relationshipLines.Remove(currentLine);
-                        RenderLines(_activeDiagram.Relationships);
+                        RedrawLines();
                     }
                     // Alert if the delete fails.
                     catch (Exception error)
@@ -701,6 +704,27 @@ namespace UMLEditor.Views
             alertDialog.ShowDialog<DialogButtons>(this).ContinueWith(callback);
 
         }
+
+        /// <summary>
+        /// Takes the bounds of the class box on the canvas, converts them to grid coordinates and sets the
+        /// grid locations to non-walkable
+        /// </summary>
+        /// <param name="classBox">Class box to add non-walkable locations to the grid</param>
+        private void AddClassBoxToGrid(ClassBox classBox)
+        {
+            // Add Class Box region to list of not walkable grid nodes
+            for (int y = (int)(classBox.Bounds.Y / Node.NODE_SIZE)-1;
+                 y <= (int)((classBox.Bounds.Y + classBox.Bounds.Height) / Node.NODE_SIZE)+1;
+                 ++y)
+            {
+                for (int x= (int)(classBox.Bounds.X / Node.NODE_SIZE)-1;
+                     x <= (int)((classBox.Bounds.X + classBox.Bounds.Width) / Node.NODE_SIZE)+1;
+                     ++x)
+                {
+                    RelationshipLine.MakeNotWalkable(x, y);
+                }
+            }
+        }
         
         /// <summary>
         /// Renders a list of classes, by provided name. Registers the ClassBoxes in the ClassBox manager
@@ -714,9 +738,7 @@ namespace UMLEditor.Views
             {
                 
                 ClassBox newClass = new ClassBox(currentClassName, ref _activeDiagram, this, _inEditMode);
-                _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
-                
                 ClassBoxes.RegisterClassBox(newClass);
                 
             }
@@ -729,14 +751,11 @@ namespace UMLEditor.Views
         /// <param name="withClasses">The list of classes to be added to the rendered area</param>
         private void RenderClasses(List<Class> withClasses)
         {
-            
             foreach (Class currentClass in withClasses)
             {
                 
                 ClassBox newClass = new ClassBox(currentClass, ref _activeDiagram, this, _inEditMode);
-                _classBoxes.Add(newClass);
                 _canvas.Children.Add(newClass);
-                
                 ClassBoxes.RegisterClassBox(newClass);
                 
             }
@@ -749,22 +768,44 @@ namespace UMLEditor.Views
         /// <param name="withRelationships">The list of Relationships to be added to the rendered area</param>
         private void RenderLines(List<Relationship> withRelationships)
         {
+            _relationshipLines.Clear();
+            RelationshipLine.ResetGrid();
+            List<ClassBox> classBoxes = ClassBoxes.ClassBoxList;
+            foreach (ClassBox c in classBoxes)
+            {
+                AddClassBoxToGrid(c);
+            }
+            
             foreach (Relationship currentRelation in withRelationships)
             {
+                
                 ClassBox sourceClassBox = GetClassBoxByName(currentRelation.SourceClass);
                 ClassBox destClassBox = GetClassBoxByName(currentRelation.DestinationClass);
-
+                
                 RelationshipLine newLine =
                     new RelationshipLine(sourceClassBox, destClassBox, currentRelation.RelationshipType);
-                
-                newLine.Draw(_canvas);
+
+                _relationshipLines.Add(newLine);
+            }
+
+            PriorityQueue<RelationshipLine, float> shortestLines = new();
+            foreach (RelationshipLine l in _relationshipLines)
+            {
+                RelationshipLine.PointPair pair = l.PointPairQueue.Peek();
+                shortestLines.Enqueue(l, pair.Distance);
+            }
+
+            while (shortestLines.Count > 0)
+            {
+                RelationshipLine line = shortestLines.Dequeue();
+                line.Draw(_canvas);
             }
         }
         
         /// <summary>
         /// Removes all drawn lines from the canvas
         /// </summary>
-        private void ClearAllLines()
+        public void ClearAllLines()
         {
             List<IControl> children = new List<IControl>(_canvas.Children); 
             foreach (var control in children)
@@ -797,7 +838,7 @@ namespace UMLEditor.Views
             
             _canvas.Children.Clear();
             ClassBoxes.UnregisterAll();
-            
+            RelationshipLine.ResetGrid();
         }
 
         /// <summary>
@@ -811,9 +852,7 @@ namespace UMLEditor.Views
                 
                 ClearAllLines();
                 RenderLines(_activeDiagram.Relationships);
-                
             });
-            
         }
 
         /// <summary>
@@ -847,7 +886,6 @@ namespace UMLEditor.Views
                 {
                     largestY = candidateY;
                 }
-                
             }
 
             // Resize the canvas to fit all children
@@ -863,11 +901,16 @@ namespace UMLEditor.Views
         /// <param name="e">Extra arguments sent to the handler</param>
         private void ViewEditToggle_OnClick(object sender, RoutedEventArgs e)
         {
-            #pragma warning disable CS8629
+            
             ToggleSwitch viewSwitch = (ToggleSwitch) sender;
+            bool isChecked = false;
 
-            _inEditMode = ((bool)viewSwitch.IsChecked);
-
+            if (viewSwitch.IsChecked is not null)
+            {
+                isChecked = (bool) viewSwitch.IsChecked;
+            }
+            
+            _inEditMode = isChecked;
 
             foreach (ClassBox currentBoxes in DrawnClassBoxes)
             {
@@ -876,7 +919,23 @@ namespace UMLEditor.Views
      
             ReconsiderCanvasSize();   
             RedrawLines();    
-            #pragma warning restore CS8629
+            
+        }
+
+        private void MagicLinesToggle_OnClick(object sender, RoutedEventArgs e)
+        {
+            CheckBox toggle = (CheckBox) sender;
+            bool isChecked = false;
+
+            if (toggle.IsChecked is not null)
+            {
+                isChecked = (bool) toggle.IsChecked;
+            }
+            
+            RelationshipLine.ToggleMagicLines(isChecked);
+
+            ReconsiderCanvasSize();   
+            RedrawLines();  
         }
 
         /// <summary>
@@ -899,10 +958,11 @@ namespace UMLEditor.Views
             ClearCanvas();
             RenderClasses(_activeDiagram.Classes);
                             
-            Dispatcher.UIThread.RunJobs();
-            RenderLines(_activeDiagram.Relationships);
             ReconsiderCanvasSize();
+            Dispatcher.UIThread.RunJobs();
             
+            RelationshipLine.InitializeGrid(_canvas);
+            RedrawLines();
         }
         
         private void UndoButton_OnClick(object sender, RoutedEventArgs e)
@@ -1161,6 +1221,21 @@ namespace UMLEditor.Views
 
             });
             
+        }
+
+        private void RealtimeUpdateToggle_OnClick(object sender, RoutedEventArgs e)
+        {
+            CheckBox toggle = (CheckBox) sender;
+            bool toggleChecked = false;
+
+            if (toggle.IsChecked is not null)
+            {
+
+                toggleChecked = (bool) toggle.IsChecked;
+
+            }
+            
+            ClassBox.ToggleRealtimeUpdate(toggleChecked);
         }
     }
     

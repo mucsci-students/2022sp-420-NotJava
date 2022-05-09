@@ -230,8 +230,6 @@ public class Theme : ICloneable
     public Theme()
     {
         
-        Console.Write("");
-        
         _canvasColorString = COLOR_BLACK;
         _classboxColorString = COLOR_CLASSBOX_DEFAULT;
         _memberTitleColorString = COLOR_MEMBERTITLE_DEFAULT;

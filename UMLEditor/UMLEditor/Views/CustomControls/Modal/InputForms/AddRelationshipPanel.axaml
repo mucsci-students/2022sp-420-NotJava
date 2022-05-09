@@ -1,0 +1,34 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="UMLEditor.Views.CustomControls.Modal.InputForms.AddRelationshipPanel">
+    
+    <StackPanel
+        HorizontalAlignment="Stretch">
+        
+        <Label
+            Margin="0 10 0 5"
+            Content = "Select source class name:">
+        </Label>
+        
+        <ComboBox SelectedIndex="0" Name="SourceClassSelector" HorizontalAlignment="Stretch" />
+        
+        <Label
+            Margin="0 10 0 5"
+            Content = "Select destination class name:">
+        </Label>
+        
+        <ComboBox SelectedIndex="0" Name="DestClassSelector" HorizontalAlignment="Stretch" />
+        
+        <Label
+            Margin="0 10 0 5"
+            Content = "Select relationship type:"
+            Name = "TypeSelectionLabel">
+        </Label>
+        
+        <ComboBox SelectedIndex="0" Name="TypeSelection" HorizontalAlignment="Stretch" />
+        
+    </StackPanel>
+</UserControl>

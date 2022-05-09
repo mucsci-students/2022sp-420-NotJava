@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UMLEditor.Views.CustomControls;
 
 namespace UMLEditor.Views.Managers;
 
@@ -13,6 +14,23 @@ public static class ClassBoxes
     /// Maintains a mapping of names -> ClassBoxes
     /// </summary>
     private static readonly Dictionary<string, ClassBox> Register = new();
+
+    /// <summary>
+    /// Public accessor for the list of ClassBoxes from Register
+    /// </summary>
+    public static List<ClassBox> ClassBoxList
+    {
+        get
+        {
+            List<ClassBox> list = new();
+            foreach (var cb in Register)
+            {
+                list.Add(cb.Value);
+            }
+
+            return list;
+        }
+    }
 
     /// <summary>
     /// Allows creating a new registration for a ClassBox

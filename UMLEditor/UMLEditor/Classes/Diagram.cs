@@ -93,6 +93,7 @@ public class Diagram : ICloneable
         }
         return false;
     }
+    
     /// <summary>
     /// Checks if the current diagram has the given class
     /// </summary>
@@ -183,10 +184,8 @@ public class Diagram : ICloneable
     /// </summary>
     /// <param name="name">Name of class you are looking for</param>
     /// <returns>Returns the class if exists, or null if it does not</returns>
-    public Class? GetClassByName(string name)
+    private Class? GetClassByName(string name)
     {
-        
-        // TODO: GetClassByName should be made private
         
         foreach (Class currentClass in _classes)
         {
